@@ -124,6 +124,11 @@ public class UserServiceimpl implements UserService {
     }
 
     @Override
+    public String ChangePassword(String password) {
+        return "";
+    }
+
+    @Override
     public List<actorResponse> getAllActor() {
         List<actor> actorList=userRepository.findAll();
         List<actorResponse>actorResponseList=new ArrayList<>();

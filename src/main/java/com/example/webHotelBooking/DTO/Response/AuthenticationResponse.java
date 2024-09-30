@@ -12,5 +12,6 @@ public class AuthenticationResponse {
     private Boolean Authenticated;
     private String Type;
     private String username;
+    private Long HotelId;
 
 }

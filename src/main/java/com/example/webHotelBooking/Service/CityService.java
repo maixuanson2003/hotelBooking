@@ -5,5 +5,5 @@ import com.example.webHotelBooking.Entity.City;
 import com.example.webHotelBooking.Entity.Hotel;
 
 public interface CityService  {
-    public City createCity(cityDTO city);
+    public void createCity(cityDTO city);
 }

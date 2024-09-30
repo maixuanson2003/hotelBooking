@@ -83,8 +83,8 @@ public class HotelPolicyServiceimpl implements HotelPolicyService {
     }
 
     @Override
-    public String deletePolicyById(Long hotelPolicyId,Long PolicyId) {
-        Hotel hotel =hotelRepository.findById(hotelPolicyId).orElseThrow(()->new RuntimeException("not found"));
+    public String deletePolicyById(Long hotelId,Long PolicyId) {
+        Hotel hotel =hotelRepository.findById(hotelId).orElseThrow(()->new RuntimeException("not found"));
         HotelPolicy hotelPolicy=hotelPolicyRepository.findById(PolicyId).orElseThrow(()->new RuntimeException("not found"));
         List<Hotel> hotelList=hotelPolicy.getHotelList();
         if (!hotelList.contains(hotel)) {

@@ -26,6 +26,8 @@ public class Hotel {
     private String Address;
     @Column(name="Hotline")
     private String Hotline;
+    @Column(name="Email")
+    private String Email;
     @Column(name="Description")
     private String Description;
     @Column(name="TotalRoom")
@@ -49,4 +51,7 @@ public class Hotel {
     private List<Review> reviewList;
     @ManyToMany(mappedBy = "hotelList")
     private List<HotelPolicy> hotelPolicyList;
+    @OneToOne
+    @JoinColumn(name = "AccountHotelId")
+    private AccountHotel AccountHotel;
 }

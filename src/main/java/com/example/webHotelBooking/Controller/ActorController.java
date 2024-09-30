@@ -1,4 +1,4 @@
-package com.example.webHotelBooking.controller;
+package com.example.webHotelBooking.Controller;
 
 
 import com.example.webHotelBooking.DTO.Request.actorRequest;

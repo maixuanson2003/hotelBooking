@@ -1,10 +1,7 @@
 package com.example.webHotelBooking.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class saleCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +24,12 @@ public class saleCode {
     private String DateStart;
     @Column(name = "DateEnd")
     private String DateEnd;
+    @Column(name = "Description")
+    private String Description;
+    @Column(name = "discountPercentage")
+    private float discountPercentage;
+    @Column(name = "status")
+    private String status;
     @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true)
     @JdbcTypeCode(SqlTypes.JSON)
     private List<bookingdetails>bookingdetailsList;

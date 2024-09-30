@@ -1,0 +1,64 @@
+package com.example.webHotelBooking.Controller;
+import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
+import com.example.webHotelBooking.Service.HotelRoomService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/hotels/{hotelId}/rooms")
+public class HotelRoomController {
+
+    @Autowired
+    private HotelRoomService hotelRoomService;
+
+    // 1. Tạo một phòng khách sạn mới
+    @PostMapping("/create")
+    public ResponseEntity<String> createRoomHotel(@PathVariable("hotelId") Long hotelId,
+                                                  @RequestBody HotelRoomDTO hotelRoomDTO) {
+        hotelRoomService.CreateRoomHotel(hotelRoomDTO, hotelId);
+        return ResponseEntity.ok("Hotel room created successfully.");
+    }
+
+    // 2. Cập nhật phòng khách sạn
+    @PutMapping("/update/{roomId}")
+    public ResponseEntity<String> updateRoomHotel(@PathVariable("hotelId") Long hotelId,
+                                                  @PathVariable("roomId") Long roomId,
+                                                  @RequestBody HotelRoomDTO hotelRoomDTO) {
+        hotelRoomService.UpdateRoomHotel(hotelRoomDTO, hotelId, roomId);
+        return ResponseEntity.ok("Hotel room updated successfully.");
+    }
+
+    // 3. Xóa phòng khách sạn bằng số phòng
+    @DeleteMapping("/delete/{roomNumber}")
+    public ResponseEntity<String> deleteRoomHotel(@PathVariable("hotelId") Long hotelId,
+                                                  @PathVariable("roomNumber") String roomNumber) {
+        hotelRoomService.DeleteRoomHotelByRoomNumber(hotelId, roomNumber);
+        return ResponseEntity.ok("Hotel room deleted successfully.");
+    }
+
+    // 4. Lấy danh sách tất cả các phòng của khách sạn theo hotelId
+    @GetMapping("/all")
+    public ResponseEntity<List<HotelRoomDTO>> getAllHotelRooms(@PathVariable("hotelId") Long hotelId) {
+        List<HotelRoomDTO> hotelRoomDTOList = hotelRoomService.GetAllHotelRoomByHotelId(hotelId);
+        return ResponseEntity.ok(hotelRoomDTOList);
+    }
+
+    // 5. Tìm kiếm phòng theo điều kiện
+    @GetMapping("/search")
+    public ResponseEntity<List<HotelRoomDTO>> searchRooms(@PathVariable("hotelId") Long hotelId,
+                                                          @RequestParam(required = false) List<String> features,
+                                                          @RequestParam(required = false) Long priceStart,
+                                                          @RequestParam(required = false) Long priceEnd,
+                                                          @RequestParam(required = false) String roomType) {
+        if (features == null) {
+            features = new ArrayList<>();
+        }
+        List<HotelRoomDTO> hotelRoomDTOList = hotelRoomService.searChRoomByCodition(features, priceStart, priceEnd, roomType, hotelId);
+        return ResponseEntity.ok(hotelRoomDTOList);
+    }
+}
+

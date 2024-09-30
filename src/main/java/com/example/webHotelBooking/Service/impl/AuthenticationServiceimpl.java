@@ -4,8 +4,11 @@ import com.example.webHotelBooking.DTO.Request.AuthenticationRequest;
 import com.example.webHotelBooking.DTO.Request.verifytokenRequest;
 import com.example.webHotelBooking.DTO.Response.AuthenticationResponse;
 import com.example.webHotelBooking.DTO.Response.verifyTokenResponse;
+import com.example.webHotelBooking.Entity.AccountHotel;
 import com.example.webHotelBooking.Entity.TokenInvalid;
 import com.example.webHotelBooking.Entity.actor;
+import com.example.webHotelBooking.Enums.Role;
+import com.example.webHotelBooking.Repository.AccountHotelRepository;
 import com.example.webHotelBooking.Repository.TokenInvalidRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.AuthenticationService;
@@ -27,6 +30,8 @@ public class AuthenticationServiceimpl implements AuthenticationService {
     private TokenInvalidRepository tokenInvalidRepository;
     @Autowired
     private userRepository actors;
+    @Autowired
+    private AccountHotelRepository accountHotelRepository;
     protected static final String KEY = "NQc7mrnHIwVaDA519Ka3ph/ZdHVjvu5NhWkNMfExmAIHpDtO3PShgPqK4w3Rivq7";
 
     @Override
@@ -69,18 +74,27 @@ public class AuthenticationServiceimpl implements AuthenticationService {
         BCryptPasswordEncoder passwordCheck = new BCryptPasswordEncoder();
         AuthenticationResponse authenCheck = new AuthenticationResponse();
         actor userfind =actors.findByUsername(requests.getUsername());
+        AccountHotel accountHotel=accountHotelRepository.findByUsername(requests.getUsername());
 
-        if (userfind == null) {
+        if (userfind == null&&accountHotel==null) {
             throw new RuntimeException("khong xac thuc duoc");
         }
-        boolean Authen = passwordCheck.matches(requests.getPassword(), userfind.getPassword());
-        if (Authen) {
+        boolean AuthenUser = passwordCheck.matches(requests.getPassword(), userfind.getPassword());
+        boolean AuthenHotel = passwordCheck.matches(requests.getPassword(), accountHotel.getPassword());
+        if (AuthenUser) {
             final String token = GenerateToken(userfind);
             authenCheck.setToken(token);
             authenCheck.setAuthenticated(true);
             authenCheck.setUsername(userfind.getUsername());
             authenCheck.setType(userfind.getRole());
-        } else {
+        } else if (AuthenHotel){
+            final String token = GenerateToken(userfind);
+            authenCheck.setToken(token);
+            authenCheck.setAuthenticated(true);
+            authenCheck.setUsername(accountHotel.getUsername());
+            authenCheck.setType(Role.HOTELADMIN.getDescription());
+            authenCheck.setHotelId(accountHotel.getHotel().getId());
+        }else{
             throw new RuntimeException("khong xac thuc duoc");
         }
         return authenCheck;

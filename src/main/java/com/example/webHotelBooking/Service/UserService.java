@@ -9,6 +9,7 @@ import java.util.List;
 public interface UserService {
     public actorResponse UserregisterAcount(actorRequest request);
     public actorResponse CreateActor(actorRequestADmin request);
+    public String ChangePassword(String password);
     public List<actorResponse> getAllActor();
     public actorResponse searchActor(String fullName,String username,String phone,String email,String birthday,String address);
     public actorResponse getActorById(Long id);

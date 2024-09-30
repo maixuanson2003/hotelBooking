@@ -33,6 +33,5 @@ public class booking {
     @OneToMany(mappedBy = "booking")
     private List<bookingdetails> bookingdetailsList;
     @OneToOne(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JdbcTypeCode(SqlTypes.JSON)
     private Payment payment;
 }

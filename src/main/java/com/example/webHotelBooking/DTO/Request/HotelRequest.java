@@ -17,6 +17,7 @@ public class HotelRequest {
     private cityDTO City;
     private Integer  NumberFloor;
     private String Hotline;
+    private String Email;
     private String desCription;
     private Integer  TotalRoom;
     private Integer  MaxRoomEachFloor;

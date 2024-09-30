@@ -42,6 +42,8 @@ public class HotelServiceimpl implements HotelService {
     @Autowired
     private HotelRoomService hotelRoomService;
     @Autowired
+    private AccountHotelService accountHotelService;
+    @Autowired
     private CityService cityService;
     @Autowired
     private HotelPolicyService hotelPolicyService;
@@ -60,13 +62,11 @@ public class HotelServiceimpl implements HotelService {
         return pricemin;
     }
     private void createHotelFacility(List<HotelFacilityDTO> hotelFacilityDTOList,Long HotelID){
-
         for (HotelFacilityDTO hotelFacilityDTO:hotelFacilityDTOList){
            hotelFacilityService.createHotelFacility(hotelFacilityDTO,HotelID);
         }
     }
     private void createHotelRoom(List<HotelRoomDTO> hotelRoomDTOList,Long HotelId){
-
         for (HotelRoomDTO hotelRoomDTO:hotelRoomDTOList){
            hotelRoomService.CreateRoomHotel(hotelRoomDTO,HotelId);
         }
@@ -81,7 +81,6 @@ public class HotelServiceimpl implements HotelService {
            hotelPolicyService.createHotelPolicy(hotelPolicyDTO,HotelId);
         }
     }
-
     private HotelResonse createHotelResponse(Hotel hotel){
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList =new ArrayList<>();
@@ -246,15 +245,18 @@ public class HotelServiceimpl implements HotelService {
             hotel.setDescription(hotelRequest.getDesCription());
             hotel.setMaxRoomEachFloor(hotelRequest.getMaxRoomEachFloor());
             hotel.setHotline(hotelRequest.getHotline());
-            City city = cityService.createCity(hotelRequest.getCity());
+            hotel.setEmail(hotelRequest.getEmail());
+            cityService.createCity(hotelRequest.getCity());
             hotel.setCity(cityRepository.findCityByNameCity(hotelRequest.getCity().getNameCity()));
-             hotelRepository.save(hotel);
-             Hotel hotel1=hotelRepository.findByNameHotel(hotelRequest.getName());
-             System.out.println(hotel1);
+            hotelRepository.save(hotel);
+            Hotel hotel1=hotelRepository.findByNameHotel(hotelRequest.getName());
+            System.out.println(hotel1);
             createHotelPolicy(hotelRequest.getHotelPolicyDTOList(),hotel1.getId());
             createHotelFacility(hotelRequest.getHotelFacilityList(), hotel1.getId());
             createHotelRoom(hotelRequest.getHotelRoomDTOList(),hotel1.getId());
             createHotelImage(hotelRequest.getImageList(), hotel1.getId());
+            accountHotelService.CreatAccountByHotel(hotel1.getId());
+
         }
     }
 
