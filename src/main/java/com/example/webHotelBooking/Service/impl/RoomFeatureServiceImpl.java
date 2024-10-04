@@ -86,13 +86,13 @@ public class RoomFeatureServiceImpl implements RoomFeatureService {
     }
 
     @Override
-    public List<RoomFeatureDTO> getAllRoomFeatureByHotel(Long HotelId,String roomNumber) {
+    public List<RoomFeatureDTO> getAllRoomFeatureByHotel(Long HotelId,String typeRoom) {
         Hotel hotel = hotelRepository.findById(HotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found"));
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<RoomFeatureDTO> roomFeatureDTOS=new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
-            if (hotelRoom.getRoomNumber().equals(roomNumber)){
+            if (hotelRoom.getTypeRoom().equals(typeRoom)){
                 List<HotelRoomFeatures> hotelRoomFeaturesList=hotelRoom.getHotelRoomFeaturesList();
                 for (HotelRoomFeatures hotelRoomFeatures:hotelRoomFeaturesList){
                     RoomFeatureDTO roomFeatureDTO=new RoomFeatureDTO().builder()

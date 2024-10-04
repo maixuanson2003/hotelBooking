@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 @Service
-public class SaleCodeServiceImpl implements SaleCodeService {
+public class  SaleCodeServiceImpl implements SaleCodeService {
     @Autowired
     private saleCodeRepository saleCodeRepository;
     @Override

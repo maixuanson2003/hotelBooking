@@ -31,6 +31,5 @@ public class saleCode {
     @Column(name = "status")
     private String status;
     @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private List<bookingdetails>bookingdetailsList;
+    private List<bookingdetails> BookingdetailsList;
 }

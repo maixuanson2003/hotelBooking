@@ -85,7 +85,7 @@ public class HotelServiceimpl implements HotelService {
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList =new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
-            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO(hotelRoom.getRoomNumber(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getFloorNumber(),hotelRoom.getNumberPeople());
+            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO( hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getFloorNumber(),hotelRoom.getNumberPeople(),hotelRoom.getImage());
             hotelRoomDTOList.add(hotelRoomDTO);
         }
         List<HotelFacility> hotelFacilityList=hotel.getHotelFacilityList();
@@ -115,9 +115,9 @@ public class HotelServiceimpl implements HotelService {
         Long numberPeople=0L;
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         for (HotelRoom hotelRoom:hotelRoomList){
-            if (hotelRoom.getStatus().equals(HotelStatus.CHUADAT.getMessage())){
-                numberRoomLast++;
-                numberPeople+=hotelRoom.getNumberPeople();
+            if (hotelRoom.getStatus().equals(HotelStatus.CONPHONG.getMessage())){
+                numberRoomLast+=hotelRoom.getNumbeRoomLast();
+                numberPeople+=hotelRoom.getNumbeRoomLast()*hotelRoom.getNumberPeople();
             }
         }
         Long numberRoomCheck=numberRoomLast-roomRequest.getAmountRoom();

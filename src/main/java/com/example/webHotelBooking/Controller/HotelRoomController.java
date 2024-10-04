@@ -36,7 +36,7 @@ public class HotelRoomController {
     @DeleteMapping("/delete/{roomNumber}")
     public ResponseEntity<String> deleteRoomHotel(@PathVariable("hotelId") Long hotelId,
                                                   @PathVariable("roomNumber") String roomNumber) {
-        hotelRoomService.DeleteRoomHotelByRoomNumber(hotelId, roomNumber);
+        hotelRoomService.DeleteRoomHotelByRoomType(hotelId, roomNumber);
         return ResponseEntity.ok("Hotel room deleted successfully.");
     }
 
@@ -59,6 +59,17 @@ public class HotelRoomController {
         }
         List<HotelRoomDTO> hotelRoomDTOList = hotelRoomService.searChRoomByCodition(features, priceStart, priceEnd, roomType, hotelId);
         return ResponseEntity.ok(hotelRoomDTOList);
+    }
+    @GetMapping("/Hotel")
+    public ResponseEntity<List<HotelRoomDTO>> getHotelRoomByHotel(@RequestHeader String token){
+        String tokens = token.replace("Bearer ", "");
+        List<HotelRoomDTO> hotelRoomDTOList=hotelRoomService.GetRoomByHotel(tokens);
+        return ResponseEntity.ok(hotelRoomDTOList);
+    }
+    @PutMapping("/setStatus")
+    public void setStatusRoom(@RequestParam String roomNumber,@RequestHeader String token,@RequestParam int amount){
+        String tokens = token.replace("Bearer ", "");
+        hotelRoomService.setAmountRoom(roomNumber,tokens,amount);
     }
 }
 

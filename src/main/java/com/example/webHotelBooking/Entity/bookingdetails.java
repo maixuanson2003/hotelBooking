@@ -1,12 +1,13 @@
 package com.example.webHotelBooking.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="Bookingdetails")
@@ -14,18 +15,19 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class bookingdetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name="CheckInDate")
-    private String CheckInDate;
-    @Column(name="CheckOutDate")
-    private String CheckOutDate;
-    @Column(name="numberPeople")
-    private int numberPeople;
+    @Column(name = "CheckInDate")
+    private LocalDate checkInDate;
+    @Column(name = "CheckOutDate")
+    private LocalDate checkOutDate;
     @Column(name="price")
     private  long price;
+    @Column(name="amountRoom")
+    private  long amountRoom;
     @Column(name="createAt")
     private  String createAt;
     @ManyToOne
@@ -36,7 +38,6 @@ public class bookingdetails {
     private HotelRoom hotelRoom;
     @ManyToOne
     @JoinColumn(name="booking_Id",nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
     private booking booking;
 
 }

@@ -88,7 +88,7 @@ public class AuthenticationServiceimpl implements AuthenticationService {
             authenCheck.setUsername(userfind.getUsername());
             authenCheck.setType(userfind.getRole());
         } else if (AuthenHotel){
-            final String token = GenerateToken(userfind);
+            final String token = GenerateTokenForHotelAdmin(accountHotel);
             authenCheck.setToken(token);
             authenCheck.setAuthenticated(true);
             authenCheck.setUsername(accountHotel.getUsername());
@@ -131,6 +131,24 @@ public class AuthenticationServiceimpl implements AuthenticationService {
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .claim("scope", actors.getRole()).claim("userid",actors.getId()).build();
+        Payload payload = new Payload(jwtClaimSet.toJSONObject());
+
+        JWSObject object = new JWSObject(header, payload);
+        try {
+            object.sign(new MACSigner(KEY.getBytes()));
+            return object.serialize();
+
+        } catch (Exception e) {
+            throw new RuntimeException("error");
+
+        }
+    }
+    private String GenerateTokenForHotelAdmin(AccountHotel accountHotel) {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+        JWTClaimsSet jwtClaimSet = new JWTClaimsSet.Builder().subject(accountHotel.getUsername()).issuer("son.com").issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .claim("scope", Role.HOTELADMIN.getDescription()).claim("HotelId",accountHotel.getHotel().getId()).build();
         Payload payload = new Payload(jwtClaimSet.toJSONObject());
 
         JWSObject object = new JWSObject(header, payload);

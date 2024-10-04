@@ -48,10 +48,7 @@ public class actor  implements Serializable {
     @Column(name = "status")
     private String status;
     @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JdbcTypeCode(SqlTypes.JSON)
     private List<booking> bookings;
-
     @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JdbcTypeCode(SqlTypes.JSON)
     private List<Review> reviews;
 }

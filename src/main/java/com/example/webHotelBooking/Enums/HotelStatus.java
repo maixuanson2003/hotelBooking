@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum HotelStatus {
-    ĐAĐAT(" ĐAĐAT"),SAPĐÊNHANTRA("SAPĐÊNHANTRA"),CHUADAT("CHUADAT");
+    HETPHONG("HETPHONG"),CONPHONG("CONPHONG");
 
     private String message;
     HotelStatus(String message) {

@@ -8,12 +8,13 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class HotelRoomDTO {
-    private String roomNumber;
+    private int Amount;
     private String typeRoom;
     private String status;
     private Long numberPeople;
     private int floorNumber;
     private long pricePerNight;
+    private String image;
 
 
 }
