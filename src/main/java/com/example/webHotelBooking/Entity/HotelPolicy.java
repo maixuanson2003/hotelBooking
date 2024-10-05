@@ -20,8 +20,10 @@ public class HotelPolicy {
     private String namePolicy;
     @Column(name = "Description")
     private String Description;
-    @Column(name = "changefee")
-    private Long changefee;
+    @Column(name="isRelatedFee")
+    private Boolean isRelatedFee;
+    @Column(name="isFree")
+    private Boolean isFree;
     @ManyToMany
     @JoinTable(
             name = " HotelPolicy_Hotel",
@@ -29,10 +31,11 @@ public class HotelPolicy {
             inverseJoinColumns = @JoinColumn(name = "Hotel_Id", referencedColumnName = "id")
     )
     private List<Hotel> hotelList;
-    public HotelPolicy(String namePolicy, String Description, String description, Long changefee){
+    public HotelPolicy(String namePolicy, String Description, String description, Boolean isRelatedFee,Boolean isFree){
 
         this.namePolicy=namePolicy;
         this.Description=Description;
-        this.changefee=changefee;
+        this.isRelatedFee=isRelatedFee;
+        this.isFree=isFree;
     }
 }

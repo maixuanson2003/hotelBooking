@@ -51,4 +51,6 @@ public class actor  implements Serializable {
     private List<booking> bookings;
     @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payment> payments;
 }

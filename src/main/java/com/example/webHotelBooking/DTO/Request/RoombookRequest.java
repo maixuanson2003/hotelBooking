@@ -9,5 +9,5 @@ import lombok.*;
 @Builder
 public class RoombookRequest {
     private String TypeRoom;
-    private Long AmountRoom;
+    private int AmountRoom;
 }

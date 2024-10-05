@@ -15,12 +15,12 @@ public class HotelRequest {
     private String name;
     private String address;
     private cityDTO City;
-    private Integer  NumberFloor;
     private String Hotline;
     private String Email;
     private String desCription;
     private Integer  TotalRoom;
-    private Integer  MaxRoomEachFloor;
+    private Long cancelfee;
+    private Long ChaneFee;
     private List<HotelFacilityDTO> hotelFacilityList;
     private List<HotelPolicyDTO> hotelPolicyDTOList;
     private List<HotelRoomDTO> hotelRoomDTOList;

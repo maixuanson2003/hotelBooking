@@ -21,7 +21,6 @@ public class Payment {
     private Long id;
     @OneToOne
     @JoinColumn(name = "booking_Id")
-    @JdbcTypeCode(SqlTypes.JSON)
     private booking booking;
     @CreationTimestamp
     @Column(name="createAt")
@@ -30,4 +29,7 @@ public class Payment {
     private long TotalPrice;
     @Column(name="status")
     private String status;
+    @ManyToOne
+    @JoinColumn(name = "actorid")
+    private actor actor;
 }

@@ -43,18 +43,10 @@ public class HotelRoomServiceimpl implements HotelRoomService {
     @Override
     public void CreateRoomHotel(HotelRoomDTO hotelRoomDTO,Long Hotelid) {
         Hotel hotel=hotelRepository.findById(Hotelid).orElseThrow(()->new RuntimeException("not found"));
-        if (hotelRoomDTO.getFloorNumber()>hotel.getNumberFloor()){
-            throw new RuntimeException("vượt quán số tầng");
-        }
-        if (findByFloorNumber(hotelRoomDTO.getFloorNumber()).size()>hotel.getMaxRoomEachFloor()){
-            throw new RuntimeException("Vượt Quá số phòng Quy định");
-        }
-       HotelRoom hotelRoom=new HotelRoom().builder()
+        HotelRoom hotelRoom=new HotelRoom().builder()
                .AmountRoom(hotelRoomDTO.getAmount())
                .typeRoom(hotelRoomDTO.getTypeRoom())
                .Hotel(hotel)
-               .typeRoom(hotelRoomDTO.getTypeRoom())
-               .floorNumber(hotelRoomDTO.getFloorNumber())
                .pricePerNight(hotelRoomDTO.getPricePerNight())
                .numberPeople(hotelRoomDTO.getNumberPeople())
                .numberOfBooking(0)
@@ -72,7 +64,6 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             if (hotelRoom.getId()==roomId){
                 hotelRoom.setAmountRoom(hotelRoomDTO.getAmount());
                 hotelRoom.setTypeRoom(hotelRoomDTO.getTypeRoom());
-                hotelRoom.setFloorNumber(hotelRoomDTO.getFloorNumber());
                 hotelRoomRepository.save(hotelRoom);
                 break;
             }
@@ -101,7 +92,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoomDTO> hotelRoomDTOList=new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
             HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                    hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                    hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
             );
             hotelRoomDTOList.add(hotelRoomDTO);
         }
@@ -156,7 +147,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             for (HotelRoom hotelRoom:hotelRoomList){
                 if (this.CheckCoditionResponse(NameRoomFeature,hotelRoom)){
                     HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                            hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                            hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
@@ -166,7 +157,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             for (HotelRoom hotelRoom:hotelRoomList){
                 if (this.CheckCoditionResponse(NameRoomFeature,hotelRoom)&&this.CheckResponseByPrice(priceStart,PriceEnd,hotelRoom)){
                     HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                            hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                            hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
@@ -176,7 +167,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             for (HotelRoom hotelRoom:hotelRoomList){
                 if (this.CheckCoditionResponse(NameRoomFeature,hotelRoom)&&this.CheckResponseByPrice(priceStart,PriceEnd,hotelRoom)&&hotelRoom.getTypeRoom().equals(roomType)){
                     HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
@@ -186,7 +177,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             for (HotelRoom hotelRoom:hotelRoomList){
                 if (this.CheckResponseByPrice(priceStart,PriceEnd,hotelRoom)&&hotelRoom.getTypeRoom().equals(roomType)){
                     HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
@@ -196,7 +187,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             for (HotelRoom hotelRoom:hotelRoomList){
                 if (hotelRoom.getTypeRoom().equals(roomType)){
                     HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                            hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                            hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
@@ -214,7 +205,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoomDTO> hotelRoomDTOList=new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
             HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                    hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getFloorNumber(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                    hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
             );
             hotelRoomDTOList.add(hotelRoomDTO);
         }

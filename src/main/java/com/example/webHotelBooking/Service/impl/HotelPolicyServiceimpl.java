@@ -54,7 +54,7 @@ public class HotelPolicyServiceimpl implements HotelPolicyService {
                 HotelPolicy hotelPolicy=new HotelPolicy().builder()
                         .namePolicy(hotelPolicyDTO.getNamePolicy())
                         .Description(hotelPolicyDTO.getDescription())
-                        .changefee(hotelPolicyDTO.getChangefee())
+                        .isRelatedFee(hotelPolicyDTO.getIsRelatedFee())
                         .hotelList(hotelList)
                         .build();
                 hotelPolicyRepository.save(hotelPolicy);
@@ -65,7 +65,7 @@ public class HotelPolicyServiceimpl implements HotelPolicyService {
             HotelPolicy hotelPolicy=new HotelPolicy().builder()
                     .namePolicy(hotelPolicyDTO.getNamePolicy())
                     .Description(hotelPolicyDTO.getDescription())
-                    .changefee(hotelPolicyDTO.getChangefee())
+                    .isRelatedFee(hotelPolicyDTO.getIsRelatedFee())
                     .hotelList(hotelList)
                     .build();
             hotelPolicyRepository.save(hotelPolicy);
@@ -78,7 +78,7 @@ public class HotelPolicyServiceimpl implements HotelPolicyService {
       HotelPolicy hotelPolicy=hotelPolicyRepository.findById(HotelPolicyId).orElseThrow(()->new RuntimeException("not found"));
       hotelPolicy.setNamePolicy(hotelPolicyDTO.getNamePolicy());
       hotelPolicy.setDescription(hotelPolicyDTO.getDescription());
-      hotelPolicy.setChangefee(hotelPolicyDTO.getChangefee());
+      hotelPolicy.setIsRelatedFee(hotelPolicyDTO.getIsRelatedFee());
       hotelPolicyRepository.save(hotelPolicy);
     }
 
@@ -98,7 +98,7 @@ public class HotelPolicyServiceimpl implements HotelPolicyService {
     private HotelPolicyDTO Convert(HotelPolicy hotelPolicy){
         HotelPolicyDTO hotelPolicyDTO=new HotelPolicyDTO().builder()
                 .namePolicy(hotelPolicy.getNamePolicy())
-                .changefee(hotelPolicy.getChangefee())
+                .isRelatedFee(hotelPolicy.getIsRelatedFee())
                 .Description(hotelPolicy.getDescription())
                 .build();
         return hotelPolicyDTO;

@@ -12,9 +12,6 @@ public class HotelRoomDTO {
     private String typeRoom;
     private String status;
     private Long numberPeople;
-    private int floorNumber;
     private long pricePerNight;
     private String image;
-
-
 }

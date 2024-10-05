@@ -34,10 +34,10 @@ public class Hotel {
     private Integer  TotalRoom;
     @Column(name="starPoint")
     private Integer  starPoint;
-    @Column(name="NumberFloor")
-    private Integer  NumberFloor;
-    @Column(name="MaxRoomEachFloor")
-    private Integer MaxRoomEachFloor;
+    @Column(name = "changefee")
+    private Long changefee;
+    @Column(name = "cancelfee")
+    private Long cancelfee;
     @ManyToOne
     @JoinColumn(name = "cityId",nullable = false)
     private City City;

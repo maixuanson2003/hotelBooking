@@ -2,6 +2,9 @@ package com.example.webHotelBooking.Service;
 
 import com.example.webHotelBooking.DTO.Request.BookingRequest;
 import com.example.webHotelBooking.DTO.Response.BookingResponse;
+import com.example.webHotelBooking.DTO.Response.MyApiResponse;
+
+import java.time.LocalDate;
 import java.util.List;
 
 public interface BookingService {
@@ -9,6 +12,6 @@ public interface BookingService {
     public List<BookingResponse> GetAllBookingResponse();
     public List<BookingResponse> GetBookingByUser(String username);
     public BookingResponse GetBookingById(String username, Long bookingId);
-    public void ChangeScheduleBooking(Long BookingId,String CheckoutDate,String CheckInDate);
-    public void CancleBooking(Long BookingId,String username);
+    public MyApiResponse ChangeScheduleBooking(Long BookingId, LocalDate CheckoutDate, LocalDate CheckInDate, String username);
+
 }

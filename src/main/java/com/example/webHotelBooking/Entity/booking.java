@@ -34,6 +34,8 @@ public class booking {
 
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<bookingdetails> bookingdetailsList;
+    @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<bookingChangeDetails> bookingChangeDetailsList;
     @OneToOne(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
     private Payment payment;
 }

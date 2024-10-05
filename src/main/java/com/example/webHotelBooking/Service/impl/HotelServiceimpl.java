@@ -85,7 +85,7 @@ public class HotelServiceimpl implements HotelService {
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList =new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
-            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO( hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getFloorNumber(),hotelRoom.getNumberPeople(),hotelRoom.getImage());
+            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO( hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getNumberPeople(),hotelRoom.getImage());
             hotelRoomDTOList.add(hotelRoomDTO);
         }
         List<HotelFacility> hotelFacilityList=hotel.getHotelFacilityList();
@@ -97,7 +97,7 @@ public class HotelServiceimpl implements HotelService {
         List<HotelPolicy> hotelPolicyList=hotel.getHotelPolicyList();
         List<HotelPolicyDTO> hotelPolicyDTOList =new ArrayList<>();
         for (HotelPolicy hotelPolicy:hotelPolicyList){
-            HotelPolicyDTO hotelPolicyDTO =new HotelPolicyDTO(hotelPolicy.getNamePolicy(),hotelPolicy.getDescription(),hotelPolicy.getChangefee());
+            HotelPolicyDTO hotelPolicyDTO =new HotelPolicyDTO(hotelPolicy.getNamePolicy(),hotelPolicy.getDescription(),hotelPolicy.getIsRelatedFee());
             hotelPolicyDTOList.add(hotelPolicyDTO);
         }
         List<HotelImage> hotelImageList=hotel.getHotelImageList();
@@ -239,13 +239,36 @@ public class HotelServiceimpl implements HotelService {
             }
         }
         if (!checkExists) {
+            int ResultForCancelation=0;
+            int ResultForChange=0;
             hotel.setAddress(hotelRequest.getAddress());
             hotel.setNameHotel(hotelRequest.getName());
-            hotel.setNumberFloor(hotelRequest.getNumberFloor());
             hotel.setDescription(hotelRequest.getDesCription());
-            hotel.setMaxRoomEachFloor(hotelRequest.getMaxRoomEachFloor());
             hotel.setHotline(hotelRequest.getHotline());
             hotel.setEmail(hotelRequest.getEmail());
+            List<HotelPolicyDTO> hotelPolicyDTOList=hotelRequest.getHotelPolicyDTOList();
+            for (HotelPolicyDTO hotelPolicyDTO:hotelPolicyDTOList){
+                if (hotelPolicyDTO.getIsRelatedFee()){
+                        if (hotelPolicyDTO.getNamePolicy().equals("Hỗ trợ Đổi Lịch")){
+                            ResultForChange++;
+                        }
+                        if (hotelPolicyDTO.getNamePolicy().equals("Hỗ trợ Hủy Lịch")){
+                            ResultForCancelation++;
+                        }
+                }
+            }
+            if (ResultForCancelation == 1) {
+                hotel.setCancelfee(hotelRequest.getCancelfee());
+            } else {
+                hotel.setCancelfee(0L);
+            }
+
+            // Cài đặt phí đổi nếu có chính sách đổi
+            if (ResultForChange == 1) {
+                hotel.setChangefee(hotelRequest.getChaneFee());
+            } else {
+                hotel.setChangefee(0L);
+            }
             cityService.createCity(hotelRequest.getCity());
             hotel.setCity(cityRepository.findCityByNameCity(hotelRequest.getCity().getNameCity()));
             hotelRepository.save(hotel);

@@ -7,10 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HotelPolicyDTO {
-
-    private String namePolicy;
-    private String Description;
-    private Boolean isRelatedFee;
-
+public class MyApiResponse {
+    private String message;
+    private Boolean Check;
 }

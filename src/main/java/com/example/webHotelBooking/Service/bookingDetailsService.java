@@ -11,4 +11,5 @@ public interface bookingDetailsService {
     public void CreateBookingDetails(RoombookRequest typeRoom, Long HotelId, LocalDate CheckinDate, LocalDate CheckoutDate, String saleCode, Long bookingid);
     public void DeleteBookingDetails(String typeRoom,Long bookingId);
     public List<BookingDetailsResponse> getBookingDetailsByBooking(Long bookingId);
+    public void ChangeScheduleBookingDetails(String typeRoom, Long HotelId,LocalDate CheckoutDate,LocalDate CheckInDate,Long bookingId);
 }

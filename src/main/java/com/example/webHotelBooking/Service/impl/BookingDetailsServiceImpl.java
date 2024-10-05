@@ -78,6 +78,8 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
                 .hotelRoom(hotelRoom)
                 .build();
         bookingdetailsRepository.save(bookingdetails);
+        hotelRoom.setNumbeRoomLast(hotelRoom.getNumbeRoomLast()-typeRoom.getAmountRoom());
+        hotelRoomRepository.save(hotelRoom);
     }
 
     @Override
@@ -108,5 +110,26 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
 
         }
         return bookingDetailsResponses;
+    }
+
+    @Override
+    public void ChangeScheduleBookingDetails(String typeRoom, Long HotelId, LocalDate CheckoutDate, LocalDate CheckInDate,Long bookingId) {
+        if (CheckInDate.isAfter(CheckoutDate)) {
+            throw new IllegalArgumentException("Ngày nhận phòng phải trước hoặc bằng ngày trả phòng.");
+        }
+        booking booking=bookingRepository.findById(bookingId).orElseThrow(()->new ResourceNotFoundException("not found"));
+        boolean found = false;
+        List<bookingdetails> bookingdetailsList=booking.getBookingdetailsList();
+        for (bookingdetails bookingdetails:bookingdetailsList){
+            if (bookingdetails.getHotelRoom().getTypeRoom().equals(typeRoom)){
+                bookingdetails.setCheckInDate(CheckInDate);
+                bookingdetails.setCheckOutDate(CheckoutDate);
+                bookingdetailsRepository.save(bookingdetails);
+                found=true;
+            }
+        }
+        if (!found) {
+            throw new ResourceNotFoundException("Không tìm thấy phòng phù hợp với loại phòng yêu cầu.");
+        }
     }
 }
