@@ -74,6 +74,7 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
                 .checkInDate(CheckinDate)
                 .checkOutDate(CheckoutDate)
                 .price(priceWithVAT)
+                .SaleCode(salecode)
                 .amountRoom(typeRoom.getAmountRoom())
                 .hotelRoom(hotelRoom)
                 .build();
@@ -110,6 +111,13 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
 
         }
         return bookingDetailsResponses;
+    }
+
+    @Override
+    public List<bookingdetails> getBookingDetailsByBookingid(Long bookingId) {
+        booking booking=bookingRepository.findById(bookingId).orElseThrow(()->new ResourceNotFoundException("not found"));
+        List<bookingdetails> bookingdetailsList=booking.getBookingdetailsList();
+        return bookingdetailsList;
     }
 
     @Override

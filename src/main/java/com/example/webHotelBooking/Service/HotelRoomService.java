@@ -17,5 +17,6 @@ public interface HotelRoomService {
     public List<HotelRoomDTO> searChRoomByCodition(List<String> NameRoomFeature, Long priceStart, Long PriceEnd, String roomType, Long HotelId);
 
     public List<HotelRoomDTO> GetRoomByHotel(String token);
-    public void  setAmountRoom(String TypeRoom,String token,int Amount);
+
+    public void setAmountRoom(String TypeRoom, Long HotelId, int Amount);
 }

@@ -1,6 +1,8 @@
 package com.example.webHotelBooking.Controller;
 
 import com.example.webHotelBooking.DTO.Request.PaymentRequest;
+import com.example.webHotelBooking.DTO.Response.AlertPayment;
+import com.example.webHotelBooking.DTO.Response.PaymentResponse;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,33 +14,48 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pay")
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;
-    @PostMapping("/payment")
-    public String CreatePayment(@RequestBody PaymentRequest paymentRequest, HttpServletRequest req) throws IOException {
-        return paymentService.CreatePayment(paymentRequest,req);
-    }
-    @GetMapping("/info/{bookingId}")
-    public ResponseEntity<String> getPaymentInfo(@PathVariable Long bookingId, HttpServletRequest req) {
+
+    // Tạo thanh toán
+    @PostMapping("/create")
+    public ResponseEntity<String> createPayment(@RequestBody PaymentRequest paymentRequest, HttpServletRequest req) {
         try {
-            String paymentInfo = paymentService.GetInforPayment(bookingId, req);
-            if (!"invalid".equals(paymentInfo)) {
-                return new ResponseEntity<>(paymentInfo, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Invalid payment information", HttpStatus.BAD_REQUEST);
-            }
+            String response = paymentService.CreatePayment(paymentRequest, req);
+            return ResponseEntity.ok(response);
         } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("Failed to retrieve payment information", HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi trong quá trình thanh toán");
         }
+    }
+
+    // Lấy thông tin thanh toán
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<AlertPayment> getInfoPayment(@PathVariable Long bookingId, HttpServletRequest req) {
+        try {
+            AlertPayment alertPayment = paymentService.GetInforPayment(bookingId, req);
+            return ResponseEntity.ok(alertPayment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AlertPayment("Không tìm thấy thông tin thanh toán", "Thất bại"));
+        }
+    }
+
+    // Lấy tất cả thông tin thanh toán
+    @GetMapping("/all")
+    public ResponseEntity<List<PaymentResponse>> getAllPaymentResponse() {
+        List<PaymentResponse> payments = paymentService.GetAllPayMentResponse();
+        return ResponseEntity.ok(payments);
+    }
+
+    // Lấy tất cả thông tin thanh toán của người dùng
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<PaymentResponse>> getAllPaymentByUser(@PathVariable String username) {
+        List<PaymentResponse> payments = paymentService.GetAllPayMentByUser(username);
+        return ResponseEntity.ok(payments);
     }
 
 }

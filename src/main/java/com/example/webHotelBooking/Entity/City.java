@@ -28,4 +28,10 @@ public class City {
     private List<Hotel> hotelList;
     @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> eventList;
+    public  City(Long id,Long CodeCity,String Descrription,String nameCity){
+        this.id=id;
+        this.CodeCity=CodeCity;
+        this.Descrription=Descrription;
+        this.nameCity=nameCity;
+    }
 }

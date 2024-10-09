@@ -61,11 +61,11 @@ public class HotelServiceimpl implements HotelService {
         }
         return pricemin;
     }
-    private void createHotelFacility(List<HotelFacilityDTO> hotelFacilityDTOList,Long HotelID){
-        for (HotelFacilityDTO hotelFacilityDTO:hotelFacilityDTOList){
-           hotelFacilityService.createHotelFacility(hotelFacilityDTO,HotelID);
-        }
-    }
+//    private void createHotelFacility(List<HotelFacilityDTO> hotelFacilityDTOList,Long HotelID){
+//        for (HotelFacilityDTO hotelFacilityDTO:hotelFacilityDTOList){
+//           hotelFacilityService.createHotelFacility(hotelFacilityDTO,HotelID);
+//        }
+//    }
     private void createHotelRoom(List<HotelRoomDTO> hotelRoomDTOList,Long HotelId){
         for (HotelRoomDTO hotelRoomDTO:hotelRoomDTOList){
            hotelRoomService.CreateRoomHotel(hotelRoomDTO,HotelId);
@@ -76,11 +76,11 @@ public class HotelServiceimpl implements HotelService {
             hotelImageService.createHotelImage(image,HotelId);
         }
     }
-    private void createHotelPolicy(List<HotelPolicyDTO> hotelPolicyDTOList,Long HotelId){
-        for (HotelPolicyDTO hotelPolicyDTO:hotelPolicyDTOList){
-           hotelPolicyService.createHotelPolicy(hotelPolicyDTO,HotelId);
-        }
-    }
+//    private void createHotelPolicy(List<HotelPolicyDTO> hotelPolicyDTOList,Long HotelId){
+//        for (HotelPolicyDTO hotelPolicyDTO:hotelPolicyDTOList){
+//           hotelPolicyService.createHotelPolicy(hotelPolicyDTO,HotelId);
+//        }
+//    }
     private HotelResonse createHotelResponse(Hotel hotel){
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList =new ArrayList<>();
@@ -91,7 +91,7 @@ public class HotelServiceimpl implements HotelService {
         List<HotelFacility> hotelFacilityList=hotel.getHotelFacilityList();
         List<HotelFacilityDTO> hotelFacilityDTOList =new ArrayList<>();
         for (HotelFacility hotelFacility:hotelFacilityList){
-            HotelFacilityDTO hotelFacilityDTO =new HotelFacilityDTO(hotelFacility.getNameHotelAmenities(),hotelFacility.getDesCription());
+            HotelFacilityDTO hotelFacilityDTO =new HotelFacilityDTO(hotelFacility.getNameHotelFacility(),hotelFacility.getDesCription());
             hotelFacilityDTOList.add(hotelFacilityDTO);
         }
         List<HotelPolicy> hotelPolicyList=hotel.getHotelPolicyList();
@@ -274,8 +274,8 @@ public class HotelServiceimpl implements HotelService {
             hotelRepository.save(hotel);
             Hotel hotel1=hotelRepository.findByNameHotel(hotelRequest.getName());
             System.out.println(hotel1);
-            createHotelPolicy(hotelRequest.getHotelPolicyDTOList(),hotel1.getId());
-            createHotelFacility(hotelRequest.getHotelFacilityList(), hotel1.getId());
+//            createHotelPolicy(hotelRequest.getHotelPolicyDTOList(),hotel1.getId());
+//            createHotelFacility(hotelRequest.getHotelFacilityList(), hotel1.getId());
             createHotelRoom(hotelRequest.getHotelRoomDTOList(),hotel1.getId());
             createHotelImage(hotelRequest.getImageList(), hotel1.getId());
             accountHotelService.CreatAccountByHotel(hotel1.getId());

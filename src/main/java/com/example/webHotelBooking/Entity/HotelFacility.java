@@ -19,8 +19,8 @@ public class HotelFacility {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "nameHotelFacility")
-    private String nameHotelAmenities;
-    @Column(name = "DesCription")
+    private String nameHotelFacility;
+    @Column(name = "description")
     private String desCription;
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -29,8 +29,8 @@ public class HotelFacility {
             inverseJoinColumns = @JoinColumn(name = "Hotel_Id", referencedColumnName = "id")
     )
     private List<Hotel> Hotel;
-    public  HotelFacility(String nameHotelAmenities,String desCription){
-        this.nameHotelAmenities=nameHotelAmenities;
+    public  HotelFacility(String nameHotelFacility,String desCription){
+        this.nameHotelFacility=nameHotelFacility;
         this.desCription=desCription;
     }
 

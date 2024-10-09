@@ -8,9 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class HotelPolicyDTO {
-
     private String namePolicy;
     private String Description;
     private Boolean isRelatedFee;
-
 }

@@ -24,7 +24,7 @@ public class HotelRoom {
     private String typeRoom;
     @Column(name = "numberPeople")
     private Long numberPeople;
-    @Column(name = " numbeRoomLast")
+    @Column(name = "numberRoomLast")
     private int numbeRoomLast;
     @Column(name = "status")
     private String status;
@@ -32,8 +32,6 @@ public class HotelRoom {
     private Long pricePerNight;
     @Column(name = "image")
     private String image;
-    @Column(name = "floorNumber")
-    private int floorNumber;
     @Column(name = "numberOfBooking")
     private int numberOfBooking;
     @ManyToOne
@@ -43,10 +41,9 @@ public class HotelRoom {
     private List<bookingdetails> bookingdetails;
     @ManyToMany(mappedBy = "HotelRoom")
     private List<HotelRoomFeatures> hotelRoomFeaturesList;
-    public HotelRoom(int AmountRoom, String typeRoom, String status, long pricePerNight, long perNight, int floorNumber, Hotel hotel){
+    public HotelRoom(int AmountRoom, String typeRoom,Long numberPeople, String status, Long pricePerNight, long perNight, Hotel hotel){
          this.AmountRoom=AmountRoom;
          pricePerNight=perNight;
-         this.floorNumber=floorNumber;
         this.numberPeople=numberPeople;
         this.typeRoom=typeRoom;
         this.status=status;

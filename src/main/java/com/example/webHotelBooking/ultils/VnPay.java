@@ -22,6 +22,7 @@ import java.util.*;
 
 public class VnPay extends HttpServlet {
     public static String CreatePay(PaymentRequest payment, HttpServletRequest req) throws UnsupportedEncodingException {
+
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
@@ -47,7 +48,7 @@ public class VnPay extends HttpServlet {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_apiUrl);
+        vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_Returnurl );
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");

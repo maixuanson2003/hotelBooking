@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HotelFacilityDTO {
-    private String nameHotelFacility;
-    private String desCription;
+public class AlertPayment {
+    private String message;
+    private String status;
 }

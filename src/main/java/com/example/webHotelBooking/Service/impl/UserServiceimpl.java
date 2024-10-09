@@ -87,7 +87,7 @@ public class UserServiceimpl implements UserService {
         userRepository.save(actor);
         String OTP=GenerateOTP(actor.getEmail());
         String userEmail = actor.getEmail();// card.getUser() cần được định nghĩa trong entity LibraryCard
-        emailServiceimpl.sendEmail(userEmail, "Xác thực Mã OTP",OTP);
+        emailServiceimpl.sendAsyncEmail(userEmail, "Xác thực Mã OTP",OTP);
         actorResponse actorResponse=new actorResponse(actor);
         return actorResponse;
     }
@@ -124,8 +124,33 @@ public class UserServiceimpl implements UserService {
     }
 
     @Override
-    public String ChangePassword(String password) {
-        return "";
+    public String ChangePassword(String password,String oldPassword,String userName) {
+        BCryptPasswordEncoder passwordCheck = new BCryptPasswordEncoder();
+        actor actor =userRepository.findByUsername(userName);
+        if (actor==null){
+            return "Nhap dung thong tin username";
+        }
+        if (!passwordCheck.matches(oldPassword,actor.getPassword())) return "mat khau cu khong khop";
+        actor.setPassword( passwordCheck.encode(password));
+        userRepository.save(actor);
+        return "Thay doi mat khau thanh cong";
+    }
+
+    @Override
+    public boolean VerifyInformation(String fullName, String email, String phoneNumber) {
+        boolean check=false;
+        List<actor> actorList=userRepository.findAll();
+        for (actor actor:actorList){
+            if (actor.getUsername().equals(fullName)&&actor.getEmail().equals(email)&&actor.getPhone().equals(phoneNumber)){
+                check=true;
+            }
+        }
+        if (check){
+            return true;
+        }else {
+            return false;
+        }
+
     }
 
     @Override

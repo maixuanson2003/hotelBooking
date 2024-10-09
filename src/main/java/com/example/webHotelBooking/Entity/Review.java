@@ -1,30 +1,31 @@
 package com.example.webHotelBooking.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name="Review")
+@Table(name="ReviewService")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String Description;
     private int StarPont;
+    private LocalDateTime CreatAt;
+    private String status;
     @ManyToOne
     @JoinColumn(name = "Hotel_Id",nullable = false)
     private Hotel Hotel;
     @ManyToOne
     @JoinColumn(name = "user_Id",nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
     private actor actor;
 }

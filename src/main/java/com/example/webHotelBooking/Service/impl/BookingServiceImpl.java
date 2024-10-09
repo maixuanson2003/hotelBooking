@@ -4,32 +4,47 @@ import com.example.webHotelBooking.DTO.Request.BookingRequest;
 import com.example.webHotelBooking.DTO.Request.RoombookRequest;
 import com.example.webHotelBooking.DTO.Response.BookingResponse;
 import com.example.webHotelBooking.DTO.Response.MyApiResponse;
+import com.example.webHotelBooking.DTO.Response.PaymentResponse;
 import com.example.webHotelBooking.Entity.*;
 import com.example.webHotelBooking.Enums.HotelStatus;
+import com.example.webHotelBooking.Enums.bookingChangeStatus;
 import com.example.webHotelBooking.Enums.bookingStatus;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.bookingChangeDetailsRepository;
 import com.example.webHotelBooking.Repository.bookingRepository;
+import com.example.webHotelBooking.Repository.bookingdetailsRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.BookingService;
 import com.example.webHotelBooking.Service.bookingDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+
 @Service
 public class BookingServiceImpl implements BookingService {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public BookingServiceImpl(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
     @Autowired
     private bookingRepository bookingRepository;
     @Autowired
     private bookingDetailsService bookingDetailsService;
     @Autowired
+    private bookingdetailsRepository bookingdetailsRepository;
+    @Autowired
     private bookingChangeDetailsRepository bookingChangeDetailsRepository;
     @Autowired
     private userRepository userRepository;
+    private Queue<String> Email=new LinkedList<>();
     @Autowired
     private EmailServiceimpl emailServiceimpl;
     @Override
@@ -54,14 +69,23 @@ public class BookingServiceImpl implements BookingService {
         for (RoombookRequest roombookRequest:roombookRequestList){
            bookingDetailsService.CreateBookingDetails(roombookRequest,bookingRequest.getHotelId(),bookingRequest.getCheckinDate(),bookingRequest.getCheckOutDate(),bookingRequest.getSaleCode(),booking1.getId());
         }
-        List<bookingdetails> bookingList=booking1.getBookingdetailsList();
-        long totalPrice=0;
+        List<bookingdetails> bookingdetailsList=new ArrayList<>();
+        List<bookingdetails> bookingList=bookingdetailsRepository.findAll();
         for (bookingdetails bookingdetails:bookingList){
+            if (bookingdetails.getBooking().getId()==booking1.getId()){
+                bookingdetailsList.add(bookingdetails);
+            }
+        }
+        long totalPrice=0;
+        for (bookingdetails bookingdetails:bookingdetailsList){
             totalPrice+=bookingdetails.getPrice();
         }
         booking1.setTotalPrice(totalPrice);
         booking booking2= bookingRepository.save(booking1);
-        BookingResponse bookingResponse=new BookingResponse(booking2);
+        BookingResponse bookingResponse=new BookingResponse(booking1);
+        String hotelId=booking1.getBookingdetailsList().get(0).getHotelRoom().getHotel().getId().toString();
+        String message="Change"+hotelId;
+        messagingTemplate.convertAndSend("/updateHotel/"+ hotelId, message);
         return bookingResponse;
     }
 
@@ -138,10 +162,7 @@ public class BookingServiceImpl implements BookingService {
                 LocalDate checkInDate = booking.getBookingdetailsList().get(0).getCheckInDate();
                 boolean isBefore3Days = today.isBefore(checkInDate.minusDays(3));
                 if (!isBefore3Days){
-                    MyApiResponse myApiResponse=new MyApiResponse().builder()
-                            .Check(true)
-                            .message("Mời thanh toán phí đổi lịch")
-                            .build();
+
                     Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
                     bookingChangeDetails bookingChangeDetails=new bookingChangeDetails().builder()
                             .Price(GetFeeChangeByHotel(hotel))
@@ -151,34 +172,34 @@ public class BookingServiceImpl implements BookingService {
                             .createAt(LocalDate.now().toString())
                             .status(bookingStatus.CHUA_THANH_TOAN.getMessage())
                             .build();
-                    bookingChangeDetailsRepository.save(bookingChangeDetails);
+                    bookingChangeDetails bookingChangeDetails1=bookingChangeDetailsRepository.save(bookingChangeDetails);
+                    MyApiResponse myApiResponse=new MyApiResponse().builder()
+                            .bookingChangeId(bookingChangeDetails1.getId())
+                            .Check(true)
+                            .message("Mời thanh toán phí đổi lịch")
+                            .build();
                     return myApiResponse;
                 }else {
                     Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
-                    MyApiResponse myApiResponse=new MyApiResponse().builder()
-                            .Check(false)
-                            .message("Đổi lịch thành công")
-                            .build();
+
                     bookingChangeDetails bookingChangeDetails=new bookingChangeDetails().builder()
                             .Price(GetFeeChangeByHotel(hotel))
                             .checkOutDate(CheckoutDate)
                             .checkInDate(CheckInDate)
                             .booking(booking)
                             .createAt(LocalDate.now().toString())
-                            .status(bookingStatus.THANH_TOAN_MIEN_PHI.getMessage())
+                            .status(bookingChangeStatus.CHUAXACNHAN.getMessage())
                             .build();
-                    bookingChangeDetailsRepository.save(bookingChangeDetails);
-                    List<bookingdetails> bookingdetailsList=booking.getBookingdetailsList();
-                    for (bookingdetails bookingdetails:bookingdetailsList){
-                        bookingDetailsService.ChangeScheduleBookingDetails(bookingdetails.getHotelRoom().getTypeRoom(),hotel.getId(),CheckoutDate,CheckInDate,booking.getId());
-                    }
-                    booking.setStatus(bookingStatus.THAYDOI.getMessage());
-                    bookingRepository.save(booking);
+                    bookingChangeDetails bookingChangeDetails1=bookingChangeDetailsRepository.save(bookingChangeDetails);
+                    MyApiResponse myApiResponse=new MyApiResponse().builder()
+                            .bookingChangeId(bookingChangeDetails1.getId())
+                            .Check(false)
+                            .message("Chờ xác nhận ")
+                            .build();
                     String Content="Đơn"+" "+booking.getId().toString()+" "+"của"+" "+booking.getActor().getUsername()+" "+"ngày check in"+CheckInDate.toString()+" ngày Check out"+" "+CheckoutDate.toString();
                     String HotelEmaile=hotel.getEmail();
-                    emailServiceimpl.sendEmail(HotelEmaile, "Yêu cầu đổi lịch",Content);
+                    emailServiceimpl.sendAsyncEmail(HotelEmaile, "Yêu cầu đổi lịch",Content);
                     return myApiResponse;
-
                 }
             }
         }
@@ -194,7 +215,7 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookingResponse;
     }
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 840000)
     public void autoCancleBooking(){
         List<booking> bookingList=findBookingByPending();
         for (booking booking:bookingList){

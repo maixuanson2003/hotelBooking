@@ -30,14 +30,14 @@ public class HotelFacilityServiceimpl implements HotelFacilityService {
         if (hoteFacilities.size()!=0){
             boolean Check=false;
             for (HotelFacility hotelFacility:hoteFacilities){
-                if (hotelFacility.getNameHotelAmenities().equals(hotelFacilityDTO.getNameHotelAmenities())){
+                if (hotelFacility.getNameHotelFacility().equals(hotelFacilityDTO.getNameHotelFacility())){
                     Check=true;
                     break;
                 }
             }
             if (Check){
                 for (HotelFacility hotelFacility:hoteFacilities){
-                    if (hotelFacility.getNameHotelAmenities().equals(hotelFacilityDTO.getNameHotelAmenities())){
+                    if (hotelFacility.getNameHotelFacility().equals(hotelFacilityDTO.getNameHotelFacility())){
                         List<Hotel>  hotelList1=hotelFacility.getHotel();
                         boolean Check2=false;
                         for (Hotel hotel1:hotelList1){
@@ -57,7 +57,7 @@ public class HotelFacilityServiceimpl implements HotelFacilityService {
                 List<Hotel> hotelList=new ArrayList<>();
                 hotelList.add(hotel);
                 HotelFacility hotelFacility=new HotelFacility().builder()
-                        .nameHotelAmenities(hotelFacilityDTO.getNameHotelAmenities())
+                        .nameHotelFacility(hotelFacilityDTO.getNameHotelFacility())
                         .desCription(hotelFacilityDTO.getDesCription())
                         .Hotel(hotelList)
                         .build();
@@ -68,7 +68,7 @@ public class HotelFacilityServiceimpl implements HotelFacilityService {
             List<Hotel> hotelList=new ArrayList<>();
             hotelList.add(hotel);
             HotelFacility hotelFacility=new HotelFacility().builder()
-                    .nameHotelAmenities(hotelFacilityDTO.getNameHotelAmenities())
+                    .nameHotelFacility(hotelFacilityDTO.getNameHotelFacility())
                     .desCription(hotelFacilityDTO.getDesCription())
                     .Hotel(hotelList)
                     .build();
@@ -79,7 +79,7 @@ public class HotelFacilityServiceimpl implements HotelFacilityService {
     @Override
     public void updateHotelFacility(HotelFacilityDTO hotelFacilityDTO, Long HotelFacilityId) {
         HotelFacility hotelFacility=hotelFacilityRepository.findById(HotelFacilityId).orElseThrow(()->new ResourceNotFoundException("notfound"));
-        hotelFacility.setNameHotelAmenities(hotelFacilityDTO.getNameHotelAmenities());
+        hotelFacility.setNameHotelFacility(hotelFacilityDTO.getNameHotelFacility());
         hotelFacility.setDesCription(hotelFacilityDTO.getDesCription());
         hotelFacilityRepository.save(hotelFacility);
     }
@@ -100,7 +100,7 @@ public class HotelFacilityServiceimpl implements HotelFacilityService {
     private HotelFacilityDTO Convert(HotelFacility hotelFacility){
         HotelFacilityDTO hotelFacilityDTO=new HotelFacilityDTO().builder()
                 .desCription(hotelFacility.getDesCription())
-                .nameHotelAmenities(hotelFacility.getNameHotelAmenities())
+                .nameHotelFacility(hotelFacility.getNameHotelFacility())
                 .build();
         return hotelFacilityDTO;
     }

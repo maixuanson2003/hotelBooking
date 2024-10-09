@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/hotels/{hotelId}/rooms")
+@RequestMapping("/api/v1/hotels/rooms")
 public class HotelRoomController {
 
     @Autowired
@@ -41,7 +41,7 @@ public class HotelRoomController {
     }
 
     // 4. Lấy danh sách tất cả các phòng của khách sạn theo hotelId
-    @GetMapping("/all")
+    @GetMapping("/all/{hotelId}")
     public ResponseEntity<List<HotelRoomDTO>> getAllHotelRooms(@PathVariable("hotelId") Long hotelId) {
         List<HotelRoomDTO> hotelRoomDTOList = hotelRoomService.GetAllHotelRoomByHotelId(hotelId);
         return ResponseEntity.ok(hotelRoomDTOList);
@@ -67,9 +67,9 @@ public class HotelRoomController {
         return ResponseEntity.ok(hotelRoomDTOList);
     }
     @PutMapping("/setStatus")
-    public void setStatusRoom(@RequestParam String roomNumber,@RequestHeader String token,@RequestParam int amount){
-        String tokens = token.replace("Bearer ", "");
-        hotelRoomService.setAmountRoom(roomNumber,tokens,amount);
+    public void setStatusRoom(@RequestParam String roomNumber,@RequestParam Long HotelId,@RequestParam int amount){
+        hotelRoomService.setAmountRoom(roomNumber,HotelId,amount);
     }
+
 }
 

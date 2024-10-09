@@ -9,6 +9,7 @@ import com.example.webHotelBooking.Repository.HotelRoomFeaturesRepository;
 import com.example.webHotelBooking.Repository.HotelRoomRepository;
 import com.example.webHotelBooking.Service.HotelRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,6 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 @Service
 public class HotelRoomServiceimpl implements HotelRoomService {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public HotelRoomServiceimpl(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
     @Autowired
     private HotelRoomRepository hotelRoomRepository;
     @Autowired
@@ -30,16 +36,8 @@ public class HotelRoomServiceimpl implements HotelRoomService {
     private HotelRepository hotelRepository;
     @Autowired
     private JwtDecoder jwtDecoder;
-    private List<HotelRoom> findByFloorNumber(int number){
-        List<HotelRoom> hotelRoomList=hotelRoomRepository.findAll();
-        List<HotelRoom> hotelRooms=new ArrayList<>();
-        for (HotelRoom hotelRoom:hotelRoomList){
-            if (hotelRoom.getFloorNumber()==number){
-                hotelRooms.add(hotelRoom);
-            }
-        }
-        return hotelRooms;
-    }
+
+
     @Override
     public void CreateRoomHotel(HotelRoomDTO hotelRoomDTO,Long Hotelid) {
         Hotel hotel=hotelRepository.findById(Hotelid).orElseThrow(()->new RuntimeException("not found"));
@@ -92,7 +90,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoomDTO> hotelRoomDTOList=new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
             HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                    hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                    hotelRoom.getNumbeRoomLast(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
             );
             hotelRoomDTOList.add(hotelRoomDTO);
         }
@@ -205,7 +203,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoomDTO> hotelRoomDTOList=new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
             HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(
-                    hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
+                    hotelRoom.getNumbeRoomLast(), hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getNumberPeople(),hotelRoom.getPricePerNight(),hotelRoom.getImage()
             );
             hotelRoomDTOList.add(hotelRoomDTO);
         }
@@ -223,20 +221,25 @@ public class HotelRoomServiceimpl implements HotelRoomService {
     }
 
     @Override
-    public void setAmountRoom(String TypeRoom,String token,int Amount) {
-        Jwt jwt=jwtDecoder.decode(token);
-        Long HotelId = jwt.getClaim("HotelId");
-        HotelRoom hotelRoom=findHotelRoomByRoomType(TypeRoom,HotelId);
+    public void setAmountRoom(String TypeRoom,Long Hotelid,int Amount) {
+        HotelRoom hotelRoom=findHotelRoomByRoomType(TypeRoom,Hotelid);
         String status=hotelRoom.getStatus();
         switch (status){
             case "HETPHONG":
                 hotelRoom.setNumbeRoomLast(Amount);
                 hotelRoom.setStatus(HotelStatus.CONPHONG.getMessage());
                 hotelRoomRepository.save(hotelRoom);
+                String hotelId=hotelRoom.getHotel().getId().toString();
+                System.out.println(hotelId);
+                String message="Change"+hotelId;
+                messagingTemplate.convertAndSend("/updateHotel/"+ hotelId, message);
                 break;
             case "CONPHONG":
                 hotelRoom.setNumbeRoomLast(Amount);;
                 hotelRoomRepository.save(hotelRoom);
+                String HotelIds=hotelRoom.getHotel().getId().toString();
+                String messages="Change"+ HotelIds;
+                messagingTemplate.convertAndSend("/updateHotel/"+  HotelIds, messages);
                 break;
         }
 

@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.example.webHotelBooking.Repository")
 @EnableScheduling
+@EnableAsync
 public class WebHotelBookingApplication {
 
 	public static void main(String[] args) {
