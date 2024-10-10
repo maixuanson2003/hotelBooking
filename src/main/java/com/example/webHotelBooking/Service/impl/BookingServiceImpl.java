@@ -15,6 +15,7 @@ import com.example.webHotelBooking.Repository.bookingRepository;
 import com.example.webHotelBooking.Repository.bookingdetailsRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.BookingService;
+import com.example.webHotelBooking.Service.HotelRoomService;
 import com.example.webHotelBooking.Service.bookingDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -47,6 +48,8 @@ public class BookingServiceImpl implements BookingService {
     private Queue<String> Email=new LinkedList<>();
     @Autowired
     private EmailServiceimpl emailServiceimpl;
+    @Autowired
+    private HotelRoomService hotelRoomService;
     @Override
     public BookingResponse CreateBooking(BookingRequest bookingRequest, String username) {
         actor actor=userRepository.findByUsername(username);
@@ -215,11 +218,17 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookingResponse;
     }
+
     @Scheduled(fixedRate = 840000)
     public void autoCancleBooking(){
         List<booking> bookingList=findBookingByPending();
         for (booking booking:bookingList){
             booking.setStatus(bookingStatus.HUY.getMessage());
+            List<bookingdetails> bookingdetailsList=booking.getBookingdetailsList();
+            for (bookingdetails bookingdetails:bookingdetailsList){
+                HotelRoom hotelRoom=bookingdetails.getHotelRoom();
+                hotelRoomService.setAmountRoom(hotelRoom.getTypeRoom(),hotelRoom.getHotel().getId(),hotelRoom.getNumbeRoomLast()+bookingdetails.getAmountRoom());
+            }
             bookingRepository.save(booking);
         }
     }

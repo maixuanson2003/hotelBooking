@@ -11,6 +11,7 @@ public interface HotelRoomService {
     public void UpdateRoomHotel(HotelRoomDTO hotelRoomDTO, Long HotelID, Long roomId);
 
     public void DeleteRoomHotelByRoomType(Long HotelId, String roomNumber);
+    public void DeleteRoomHotelByHotel(Hotel hotel);
 
     public List<HotelRoomDTO> GetAllHotelRoomByHotelId(Long HotelId);
 

@@ -3,9 +3,12 @@ package com.example.webHotelBooking.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -47,10 +50,13 @@ public class actor  implements Serializable {
     private String Role;
     @Column(name = "status")
     private String status;
-    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<booking> bookings;
-    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews;
-    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> payments;
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<booking> bookings = new ArrayList<>();;
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Review> reviews = new ArrayList<>();;
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Payment> payments = new ArrayList<>();;
 }

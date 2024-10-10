@@ -16,6 +16,6 @@ public interface HotelService {
     public List<HotelResonse> SortByPrice();
     public void createHotel(HotelRequest hotelRequest);
     public HotelResonse Update(Long HotelId,HotelRequest hotelRequest);
-    public String DeleteHotel(Long id);
-    public String deleteHotelByName(String name);
+    public void DeleteHotel(Long id);
+    public void deleteHotelByName(String name);
 }

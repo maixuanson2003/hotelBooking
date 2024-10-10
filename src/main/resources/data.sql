@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS booking (
    user_id bigint NOT NULL,
    PRIMARY KEY (id),
    KEY FK_booking_user (user_id),
-   CONSTRAINT FK_booking_user FOREIGN KEY (user_id) REFERENCES actor (id)
+   CONSTRAINT FK_booking_user FOREIGN KEY (user_id) REFERENCES actor (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS booking_change_details_repository (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS booking_change_details_repository (
    booking_id bigint NOT NULL,
    PRIMARY KEY (id),
    KEY FK_booking_id (booking_id),
-   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id)
+   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id)ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS bookingdetails (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -59,9 +59,9 @@ CREATE TABLE IF NOT EXISTS bookingdetails (
    KEY FK_sale_code_id (sale_code_id),
    KEY FK_booking_id (booking_id),
    KEY FK_hotel_room_id (hotel_room_id),
-   CONSTRAINT FK_hotel_room_id FOREIGN KEY (hotel_room_id) REFERENCES hotel_room (id),
-   CONSTRAINT FK_sale_code_id FOREIGN KEY (sale_code_id) REFERENCES sale_code (id),
-   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id)
+   CONSTRAINT FK_hotel_room_id FOREIGN KEY (hotel_room_id) REFERENCES hotel_room (id) ON DELETE CASCADE,
+   CONSTRAINT FK_sale_code_id FOREIGN KEY (sale_code_id) REFERENCES sale_code (id) ON DELETE CASCADE,
+   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS city (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS event (
    city_id bigint NOT NULL,
    PRIMARY KEY (id),
    KEY FK_city_id (city_id),
-   CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id)
+   CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS hotel (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -100,8 +100,8 @@ CREATE TABLE IF NOT EXISTS hotel (
    PRIMARY KEY (id),
    UNIQUE KEY UK_account_hotel_id (account_hotel_id),
    KEY FK_city_id (city_id),
-   CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id),
-   CONSTRAINT FK_account_hotel_id FOREIGN KEY (account_hotel_id) REFERENCES account_hotel (id)
+   CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id) ON DELETE CASCADE,
+   CONSTRAINT FK_account_hotel_id FOREIGN KEY (account_hotel_id) REFERENCES account_hotel (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS hotel_facility (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -115,8 +115,8 @@ CREATE TABLE IF NOT EXISTS hotel_hotel_facility_hotel (
    PRIMARY KEY (hotel_facility_id, hotel_id),
    KEY fk_hotel_hotel_facility (hotel_id),
    KEY fk_hotel_facility_hotel (hotel_facility_id),
-   CONSTRAINT fk_hotel_hotel_facility FOREIGN KEY (hotel_id) REFERENCES hotel (id),
-   CONSTRAINT fk_hotel_facility_hotel FOREIGN KEY (hotel_facility_id) REFERENCES hotel_facility (id)
+   CONSTRAINT fk_hotel_hotel_facility FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE,
+   CONSTRAINT fk_hotel_facility_hotel FOREIGN KEY (hotel_facility_id) REFERENCES hotel_facility (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS hotel_image (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS hotel_image (
    hotel_id bigint NOT NULL,
    PRIMARY KEY (id),
    KEY fk_hotel_image_hotel (hotel_id),
-   CONSTRAINT fk_hotel_image_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id)
+   CONSTRAINT fk_hotel_image_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE  IF NOT EXISTS hotel_policy (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -139,8 +139,8 @@ CREATE TABLE IF NOT EXISTS hotel_policy_hotel (
    hotel_id bigint NOT NULL,
    KEY FK_hotel_policy_hotel (hotel_policy_id),
    KEY FK_hotel_policy_hotel_hotel (hotel_id),
-   CONSTRAINT FK_hotel_policy_hotel FOREIGN KEY (hotel_policy_id) REFERENCES hotel_policy (id),
-   CONSTRAINT FK_hotel_policy_hotel_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id)
+   CONSTRAINT FK_hotel_policy_hotel FOREIGN KEY (hotel_policy_id) REFERENCES hotel_policy (id) ON DELETE CASCADE,
+   CONSTRAINT FK_hotel_policy_hotel_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS hotel_room (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS hotel_room (
    hotel_id bigint NOT NULL,
    PRIMARY KEY (id),
    KEY FK_hotel_room_hotel (hotel_id),
-   CONSTRAINT FK_hotel_room_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id)
+   CONSTRAINT FK_hotel_room_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS hotel_room_features (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -170,8 +170,8 @@ CREATE TABLE IF NOT EXISTS hotel_room_features_room (
    PRIMARY KEY (hotel_room_features_id, hotel_room_id),  -- Thêm khóa chính cho bảng nhiều-nhiều
    KEY FK_hotel_room_id (hotel_room_id),
    KEY FK_hotel_room_features_id (hotel_room_features_id),
-   CONSTRAINT FK_hotel_room_features_id FOREIGN KEY (hotel_room_features_id) REFERENCES hotel_room_features (id),
-   CONSTRAINT FK_hotel_room_id FOREIGN KEY (hotel_room_id) REFERENCES hotel_room (id)
+   CONSTRAINT FK_hotel_room_features_id FOREIGN KEY (hotel_room_features_id) REFERENCES hotel_room_features (id) ON DELETE CASCADE,
+   CONSTRAINT FK_hotel_room_id FOREIGN KEY (hotel_room_id) REFERENCES hotel_room (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS payment (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -183,8 +183,8 @@ CREATE TABLE IF NOT EXISTS payment (
    PRIMARY KEY (id),
    UNIQUE KEY UK_booking_id (booking_id), -- Đổi tên cho dễ hiểu
    KEY FK_actor_id (actor_id), -- Đổi tên cho dễ hiểu
-   CONSTRAINT FK_actor_id FOREIGN KEY (actor_id) REFERENCES actor (id),
-   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id)
+   CONSTRAINT FK_actor_id FOREIGN KEY (actor_id) REFERENCES actor (id) ON DELETE CASCADE,
+   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS review (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -195,8 +195,8 @@ CREATE TABLE IF NOT EXISTS review (
    PRIMARY KEY (id),
    KEY FK_hotel_id (hotel_id), -- Đổi tên cho dễ hiểu
    KEY FK_user_id (user_id),   -- Đổi tên cho dễ hiểu
-   CONSTRAINT FK_hotel_id FOREIGN KEY (hotel_id) REFERENCES hotel (id),
-   CONSTRAINT FK_user_id FOREIGN KEY (user_id) REFERENCES actor (id)
+   CONSTRAINT FK_hotel_id FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE,
+   CONSTRAINT FK_user_id FOREIGN KEY (user_id) REFERENCES actor (id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS sale_code (
    id BIGINT NOT NULL AUTO_INCREMENT,                 -- Khóa chính, tự động tăng
@@ -208,6 +208,94 @@ CREATE TABLE IF NOT EXISTS sale_code (
    status VARCHAR(255) DEFAULT NULL,                    -- Trạng thái của mã giảm giá
    PRIMARY KEY (id)                                    -- Khóa chính
 );
+-- Bảng booking
+--ALTER TABLE booking DROP FOREIGN KEY FK_booking_user;
+--ALTER TABLE booking
+--ADD CONSTRAINT FK_booking_user FOREIGN KEY (user_id) REFERENCES actor (id) ON DELETE CASCADE;
+--
+---- Bảng booking_change_details_repository
+--ALTER TABLE booking_change_details_repository DROP FOREIGN KEY FK_booking_id;
+--ALTER TABLE booking_change_details_repository
+--ADD CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE;
+--
+---- Bảng bookingdetails
+--ALTER TABLE bookingdetails DROP FOREIGN KEY FK_booking_id;
+--ALTER TABLE bookingdetails
+--ADD CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE;
+--
+--ALTER TABLE bookingdetails DROP FOREIGN KEY FK_hotel_room_id;
+--ALTER TABLE bookingdetails
+--ADD CONSTRAINT FK_hotel_room_id FOREIGN KEY (hotel_room_id) REFERENCES hotel_room (id) ON DELETE CASCADE;
+--
+--ALTER TABLE bookingdetails DROP FOREIGN KEY FK_sale_code_id;
+--ALTER TABLE bookingdetails
+--ADD CONSTRAINT FK_sale_code_id FOREIGN KEY (sale_code_id) REFERENCES sale_code (id) ON DELETE CASCADE;
+--
+---- Bảng hotel
+--ALTER TABLE hotel DROP FOREIGN KEY FK_account_hotel_id;
+--ALTER TABLE hotel
+--ADD CONSTRAINT FK_account_hotel_id FOREIGN KEY (account_hotel_id) REFERENCES account_hotel (id) ON DELETE CASCADE;
+--
+--ALTER TABLE hotel DROP FOREIGN KEY FK_city_id;
+--ALTER TABLE hotel
+--ADD CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id) ON DELETE CASCADE;
+--
+---- Bảng hotel_hotel_facility_hotel
+--ALTER TABLE hotel_hotel_facility_hotel DROP FOREIGN KEY fk_hotel_hotel_facility;
+--ALTER TABLE hotel_hotel_facility_hotel
+--ADD CONSTRAINT fk_hotel_hotel_facility FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE;
+--
+--ALTER TABLE hotel_hotel_facility_hotel DROP FOREIGN KEY fk_hotel_facility_hotel;
+--ALTER TABLE hotel_hotel_facility_hotel
+--ADD CONSTRAINT fk_hotel_facility_hotel FOREIGN KEY (hotel_facility_id) REFERENCES hotel_facility (id) ON DELETE CASCADE;
+--
+---- Bảng hotel_image
+--ALTER TABLE hotel_image DROP FOREIGN KEY fk_hotel_image_hotel;
+--ALTER TABLE hotel_image
+--ADD CONSTRAINT fk_hotel_image_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE;
+--
+---- Bảng event
+--ALTER TABLE event DROP FOREIGN KEY FK_city_id;
+--ALTER TABLE event
+--ADD CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id) ON DELETE CASCADE;
+--
+---- Bảng hotel_room
+--ALTER TABLE hotel_room DROP FOREIGN KEY FK_hotel_room_hotel;
+--ALTER TABLE hotel_room
+--ADD CONSTRAINT FK_hotel_room_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE;
+--
+---- Bảng hotel_policy_hotel
+--ALTER TABLE hotel_policy_hotel DROP FOREIGN KEY FK_hotel_policy_hotel;
+--ALTER TABLE hotel_policy_hotel
+--ADD CONSTRAINT FK_hotel_policy_hotel FOREIGN KEY (hotel_policy_id) REFERENCES hotel_policy (id) ON DELETE CASCADE;
+--
+--ALTER TABLE hotel_policy_hotel DROP FOREIGN KEY FK_hotel_policy_hotel_hotel;
+--ALTER TABLE hotel_policy_hotel
+--ADD CONSTRAINT FK_hotel_policy_hotel_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE;
+--
+---- Bảng payment
+--ALTER TABLE payment DROP FOREIGN KEY FK_actor_id;
+--ALTER TABLE payment
+--ADD CONSTRAINT FK_actor_id FOREIGN KEY (actor_id) REFERENCES actor (id) ON DELETE CASCADE;
+--
+--ALTER TABLE payment DROP FOREIGN KEY FK_booking_id;
+--ALTER TABLE payment
+--ADD CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE;
+--
+---- Bảng review
+--ALTER TABLE review DROP FOREIGN KEY FK_hotel_id;
+--ALTER TABLE review
+--ADD CONSTRAINT FK_hotel_id FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE;
+--
+--ALTER TABLE review DROP FOREIGN KEY FK_user_id;
+--ALTER TABLE review
+--ADD CONSTRAINT FK_user_id FOREIGN KEY (user_id) REFERENCES actor (id) ON DELETE CASCADE;
+--
+---- Bảng bookingdetails
+--ALTER TABLE bookingdetails DROP FOREIGN KEY FK_hotel_room_id;
+--ALTER TABLE bookingdetails
+--ADD CONSTRAINT FK_hotel_room_id FOREIGN KEY (hotel_room_id) REFERENCES hotel_room (id) ON DELETE CASCADE;
+
 -- Chèn dữ liệu vào bảng city
 INSERT IGNORE  INTO   account_hotel (id,username, password, phone) VALUES
 (1,'account1', 'password1', '123456789'),

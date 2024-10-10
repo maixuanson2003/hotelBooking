@@ -3,8 +3,11 @@ package com.example.webHotelBooking.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,19 +38,23 @@ public class HotelRoom {
     @Column(name = "numberOfBooking")
     private int numberOfBooking;
     @ManyToOne
-    @JoinColumn(name = "Hotel_Id",nullable = false)
-    private Hotel Hotel;
-    @OneToMany(mappedBy = "hotelRoom",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<bookingdetails> bookingdetails;
-    @ManyToMany(mappedBy = "HotelRoom")
-    private List<HotelRoomFeatures> hotelRoomFeaturesList;
-    public HotelRoom(int AmountRoom, String typeRoom,Long numberPeople, String status, Long pricePerNight, long perNight, Hotel hotel){
-         this.AmountRoom=AmountRoom;
-         pricePerNight=perNight;
-        this.numberPeople=numberPeople;
-        this.typeRoom=typeRoom;
-        this.status=status;
-        this.pricePerNight=pricePerNight;
-        this.Hotel=hotel;
+    @JoinColumn(name = "Hotel_Id", nullable = false)
+    private Hotel hotel;
+    @OneToMany(mappedBy = "hotelRoom", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<bookingdetails> bookingdetails = new ArrayList<>();
+    ;
+    @ManyToMany(mappedBy = "HotelRoom", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<HotelRoomFeatures> hotelRoomFeaturesList = new ArrayList<>();
+    ;
+
+    public HotelRoom(int AmountRoom, String typeRoom, Long numberPeople, String status, Long pricePerNight, long perNight, Hotel hotel) {
+        this.AmountRoom = AmountRoom;
+        pricePerNight = perNight;
+        this.numberPeople = numberPeople;
+        this.typeRoom = typeRoom;
+        this.status = status;
+        this.pricePerNight = pricePerNight;
+        this.hotel = hotel;
     }
 }

@@ -9,10 +9,14 @@ import com.example.webHotelBooking.DTO.Response.HotelResonse;
 import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
 import com.example.webHotelBooking.Entity.*;
 import com.example.webHotelBooking.Enums.HotelStatus;
+import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.*;
 import com.example.webHotelBooking.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -27,6 +31,7 @@ class sortByPrice implements Comparator{
 }
 @Service
 public class HotelServiceimpl implements HotelService {
+    private static final Logger logger = LoggerFactory.getLogger(HotelServiceimpl.class);
     @Autowired
     private HotelRepository hotelRepository;
     @Autowired
@@ -292,13 +297,11 @@ public class HotelServiceimpl implements HotelService {
         hotelRepository.save(hotel);
         return this.createHotelResponse(hotel);
     }
-
     @Override
-    public String DeleteHotel(Long id) {
+    @Transactional
+    public void DeleteHotel(Long id) {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hotel not found"));
-
-        // Xóa khách sạn khỏi các tiện ích
         for (HotelFacility facility : hotel.getHotelFacilityList()) {
             facility.getHotel().remove(hotel);
         }
@@ -307,14 +310,33 @@ public class HotelServiceimpl implements HotelService {
         }
         hotel.getHotelPolicyList().clear();
         hotel.getHotelFacilityList().clear();
-        hotelRepository.save(hotel);
+        hotel.getHotelRoomList().removeIf(c -> c.getHotel().getId()== id);
+        hotel.getReviewList().removeIf(c->c.getHotel().getId()==id);
+        hotel.getHotelImageList().clear();
+        List<Hotel> hotelList=hotel.getCity().getHotelList();
+        hotelList.remove(hotel);
         hotelRepository.deleteById(id);
-        return "";
+
     }
 
     @Override
-    public String deleteHotelByName(String name) {
-        //delete
-        return "";
+    @Transactional
+    public void deleteHotelByName(String name) {
+        Hotel hotel=hotelRepository.findByNameHotel(name);
+        if (hotel==null) throw new ResourceNotFoundException("not found");
+        for (HotelFacility facility : hotel.getHotelFacilityList()) {
+            facility.getHotel().remove(hotel);
+        }
+        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
+            Policy.getHotelList().remove(hotel);
+        }
+        hotel.getHotelPolicyList().clear();
+        hotel.getHotelFacilityList().clear();
+        hotel.getHotelRoomList().removeIf(c -> c.getHotel().getId()== hotel.getId());
+        hotel.getReviewList().removeIf(c->c.getHotel().getId()==hotel.getId());
+        hotel.getHotelImageList().clear();
+        List<Hotel> hotelList=hotel.getCity().getHotelList();
+        hotelList.remove(hotel);
+        hotelRepository.delete(hotel);
     }
 }

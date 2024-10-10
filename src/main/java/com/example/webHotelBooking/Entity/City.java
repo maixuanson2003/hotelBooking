@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,10 +25,10 @@ public class City {
     private String nameCity;
     @Column(name="Description")
     private String Descrription;
-    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Hotel> hotelList;
-    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Event> eventList;
+    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<Hotel> hotelList = new ArrayList<>();;
+    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<Event> eventList = new ArrayList<>();;
     public  City(Long id,Long CodeCity,String Descrription,String nameCity){
         this.id=id;
         this.CodeCity=CodeCity;

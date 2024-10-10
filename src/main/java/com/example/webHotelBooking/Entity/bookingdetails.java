@@ -27,7 +27,7 @@ public class bookingdetails {
     @Column(name="price")
     private  long price;
     @Column(name="amountRoom")
-    private  long amountRoom;
+    private  int amountRoom;
     @Column(name="createAt")
     private  String createAt;
     @ManyToOne

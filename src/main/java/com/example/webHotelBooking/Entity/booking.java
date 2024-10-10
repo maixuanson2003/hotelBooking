@@ -3,8 +3,11 @@ package com.example.webHotelBooking.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,9 +36,11 @@ public class booking {
     private int numberPeople;
 
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<bookingdetails> bookingdetailsList;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<bookingdetails> bookingdetailsList = new ArrayList<>();;
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<bookingChangeDetails> bookingChangeDetailsList;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<bookingChangeDetails> bookingChangeDetailsList = new ArrayList<>();;
     @OneToOne(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
     private Payment payment;
 }

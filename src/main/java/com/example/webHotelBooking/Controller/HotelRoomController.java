@@ -17,7 +17,7 @@ public class HotelRoomController {
 
     // 1. Tạo một phòng khách sạn mới
     @PostMapping("/create")
-    public ResponseEntity<String> createRoomHotel(@PathVariable("hotelId") Long hotelId,
+    public ResponseEntity<String> createRoomHotel(@RequestParam("hotelId") Long hotelId,
                                                   @RequestBody HotelRoomDTO hotelRoomDTO) {
         hotelRoomService.CreateRoomHotel(hotelRoomDTO, hotelId);
         return ResponseEntity.ok("Hotel room created successfully.");
@@ -33,9 +33,9 @@ public class HotelRoomController {
     }
 
     // 3. Xóa phòng khách sạn bằng số phòng
-    @DeleteMapping("/delete/{roomNumber}")
-    public ResponseEntity<String> deleteRoomHotel(@PathVariable("hotelId") Long hotelId,
-                                                  @PathVariable("roomNumber") String roomNumber) {
+    @DeleteMapping("/delete/roomNumber")
+    public ResponseEntity<String> deleteRoomHotel(@RequestParam("hotelId") Long hotelId,
+                                                  @RequestParam("roomNumber") String roomNumber) {
         hotelRoomService.DeleteRoomHotelByRoomType(hotelId, roomNumber);
         return ResponseEntity.ok("Hotel room deleted successfully.");
     }

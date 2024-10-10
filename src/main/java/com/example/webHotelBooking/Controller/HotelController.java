@@ -70,16 +70,16 @@ public class HotelController {
 
     // Delete hotel by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteHotel(@PathVariable Long id) {
-        String result = hotelService.DeleteHotel(id);
-        return ResponseEntity.ok(result);
+    public void deleteHotel(@PathVariable Long id) {
+         hotelService.DeleteHotel(id);
+
     }
 
     // Delete hotel by name
     @DeleteMapping("/deleteByName")
-    public ResponseEntity<String> deleteHotelByName(@RequestParam String name) {
-        String result = hotelService.deleteHotelByName(name);
-        return ResponseEntity.ok(result);
+    public void deleteHotelByName(@RequestParam String name) {
+         hotelService.deleteHotelByName(name);
+
     }
 }
 

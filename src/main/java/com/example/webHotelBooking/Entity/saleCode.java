@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,6 +31,6 @@ public class saleCode {
     private float discountPercentage;
     @Column(name = "status")
     private String status;
-    @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<bookingdetails> BookingdetailsList;
+    @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<bookingdetails> BookingdetailsList = new ArrayList<>();;
 }
