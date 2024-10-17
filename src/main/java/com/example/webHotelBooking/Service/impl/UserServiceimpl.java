@@ -85,9 +85,6 @@ public class UserServiceimpl implements UserService {
                 .username(request.getUsername())
                 .build();
         userRepository.save(actor);
-        String OTP=GenerateOTP(actor.getEmail());
-        String userEmail = actor.getEmail();// card.getUser() cần được định nghĩa trong entity LibraryCard
-        emailServiceimpl.sendAsyncEmail(userEmail, "Xác thực Mã OTP",OTP);
         actorResponse actorResponse=new actorResponse(actor);
         return actorResponse;
     }
@@ -285,28 +282,13 @@ public class UserServiceimpl implements UserService {
     public String DeleteActorByUsername(String username) {
         actor actor=findActorUsername(username);
         userRepository.delete(actor);
-        return "";
+        return "ok";
     }
 
     @Override
     public String DeleteActorById(Long id) {
         actor actor=userRepository.findById(id).orElseThrow(()->new RuntimeException("notfound"));
         userRepository.delete(actor);
-        return "";
+        return "ok";
     }
-    private String  GenerateOTP(String useremail){
-        String OTP="";
-        Random rand = new Random();
-        for (int i=0;i<5;i++){
-            int randomInt = rand.nextInt(9);
-            String code=String.valueOf(randomInt);
-            OTP=OTP+code;
-        }
-        OTP otp=new OTP();
-        otp.setOTP(OTP);
-        otp.setUseremail(useremail);
-        otpRepository.save(otp);
-        return OTP;
-    }
-
 }

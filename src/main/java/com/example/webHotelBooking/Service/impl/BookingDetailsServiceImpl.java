@@ -59,7 +59,7 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
         long originalPrice = totalPrice * daysBetween;
         if (salecode != null) {
             double discount = salecode.getDiscountPercentage();
-            originalPrice -= (originalPrice * discount);
+            originalPrice -= (long) ((originalPrice * discount)/100);
         }
         long priceWithVAT = originalPrice + (long)(originalPrice *  VAT_PERCENTAGE);
         if (hotelRoom==null){

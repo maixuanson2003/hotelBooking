@@ -25,9 +25,9 @@ public class City {
     private String nameCity;
     @Column(name="Description")
     private String Descrription;
-    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Hotel> hotelList = new ArrayList<>();;
-    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy ="City",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> eventList = new ArrayList<>();;
     public  City(Long id,Long CodeCity,String Descrription,String nameCity){
         this.id=id;

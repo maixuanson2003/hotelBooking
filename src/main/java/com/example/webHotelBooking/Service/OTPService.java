@@ -1,5 +1,8 @@
 package com.example.webHotelBooking.Service;
 
+import com.example.webHotelBooking.DTO.Response.MyApiResponse;
+
 public interface OTPService {
-    public String RegisterVerifyOTP(String OTP);
+    public MyApiResponse RegisterVerifyOTP(String OTP);
+    public void SendOTP(String email);
 }

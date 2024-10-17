@@ -34,13 +34,10 @@ public class booking {
     private String status;
     @Column(name="numberPeople")
     private int numberPeople;
-
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<bookingdetails> bookingdetailsList = new ArrayList<>();;
+    private List<bookingdetails> bookingdetailsList;
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<bookingChangeDetails> bookingChangeDetailsList = new ArrayList<>();;
+    private List<bookingChangeDetails> bookingChangeDetailsList;
     @OneToOne(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
     private Payment payment;
 }

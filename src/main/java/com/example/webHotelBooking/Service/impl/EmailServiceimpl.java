@@ -12,11 +12,8 @@ public class EmailServiceimpl {
     private JavaMailSender mailSender;
     @Async
     public void sendAsyncEmail(String to, String subject, String content) {
-        // Gửi email logic
         sendEmail(to, subject, content);
     }
-
-
     public  void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

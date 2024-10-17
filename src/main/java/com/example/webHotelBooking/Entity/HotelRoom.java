@@ -40,11 +40,11 @@ public class HotelRoom {
     @ManyToOne
     @JoinColumn(name = "Hotel_Id", nullable = false)
     private Hotel hotel;
-    @OneToMany(mappedBy = "hotelRoom", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hotelRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<bookingdetails> bookingdetails = new ArrayList<>();
     ;
-    @ManyToMany(mappedBy = "HotelRoom", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "HotelRoom", cascade = CascadeType.ALL)
     private List<HotelRoomFeatures> hotelRoomFeaturesList = new ArrayList<>();
     ;
 

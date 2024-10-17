@@ -17,10 +17,13 @@ import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.BookingService;
 import com.example.webHotelBooking.Service.HotelRoomService;
 import com.example.webHotelBooking.Service.bookingDetailsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ import java.util.Queue;
 
 @Service
 public class BookingServiceImpl implements BookingService {
+    private static final Logger logger = LoggerFactory.getLogger(BookingServiceImpl.class);
     private final SimpMessagingTemplate messagingTemplate;
 
     public BookingServiceImpl(SimpMessagingTemplate messagingTemplate) {
@@ -51,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private HotelRoomService hotelRoomService;
     @Override
+    @Transactional
     public BookingResponse CreateBooking(BookingRequest bookingRequest, String username) {
         actor actor=userRepository.findByUsername(username);
         if (actor==null){
@@ -86,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
         booking1.setTotalPrice(totalPrice);
         booking booking2= bookingRepository.save(booking1);
         BookingResponse bookingResponse=new BookingResponse(booking1);
-        String hotelId=booking1.getBookingdetailsList().get(0).getHotelRoom().getHotel().getId().toString();
+        String hotelId=bookingRequest.getHotelId().toString();
         String message="Change"+hotelId;
         messagingTemplate.convertAndSend("/updateHotel/"+ hotelId, message);
         return bookingResponse;
@@ -220,16 +225,22 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Scheduled(fixedRate = 840000)
+    @Transactional
     public void autoCancleBooking(){
         List<booking> bookingList=findBookingByPending();
         for (booking booking:bookingList){
-            booking.setStatus(bookingStatus.HUY.getMessage());
-            List<bookingdetails> bookingdetailsList=booking.getBookingdetailsList();
-            for (bookingdetails bookingdetails:bookingdetailsList){
-                HotelRoom hotelRoom=bookingdetails.getHotelRoom();
-                hotelRoomService.setAmountRoom(hotelRoom.getTypeRoom(),hotelRoom.getHotel().getId(),hotelRoom.getNumbeRoomLast()+bookingdetails.getAmountRoom());
-            }
-            bookingRepository.save(booking);
+          try {
+              booking.setStatus(bookingStatus.HUY.getMessage());
+
+              List<bookingdetails> bookingdetailsList = booking.getBookingdetailsList();
+              for (bookingdetails bookingdetails : bookingdetailsList) {
+                  HotelRoom hotelRoom = bookingdetails.getHotelRoom();
+                  hotelRoomService.setAmountRoom(hotelRoom.getTypeRoom(), hotelRoom.getHotel().getId(), hotelRoom.getNumbeRoomLast() + bookingdetails.getAmountRoom());
+              }
+              bookingRepository.save(booking);
+          }catch (Exception e){
+              logger.error("Error cancelling booking: " + booking.getId(), e);
+          }
         }
     }
 }

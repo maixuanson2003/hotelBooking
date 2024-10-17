@@ -50,13 +50,17 @@ public class actor  implements Serializable {
     private String Role;
     @Column(name = "status")
     private String status;
-    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<booking> bookings = new ArrayList<>();;
-    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Review> reviews = new ArrayList<>();;
-    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Payment> payments = new ArrayList<>();;
+    @ManyToMany(mappedBy = "actors", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Conversations> Conservations;
+
 }

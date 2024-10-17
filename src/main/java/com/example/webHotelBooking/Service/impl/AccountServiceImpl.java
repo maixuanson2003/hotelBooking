@@ -28,8 +28,8 @@ public class AccountServiceImpl implements AccountHotelService {
     public void CreatAccountByHotel(Long HotelId) {
         BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
         Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new ResourceNotFoundException("not found"));
-        String userName=hotel.getNameHotel()+"ADMIN";
-        String password=hotel.getNameHotel()+"ADMIN";
+        String userName=hotel.getEmail();
+        String password=hotel.getHotline();
         AccountHotel accountHotel=new AccountHotel().builder()
                 .phone(hotel.getHotline())
                 .hotel(hotel)

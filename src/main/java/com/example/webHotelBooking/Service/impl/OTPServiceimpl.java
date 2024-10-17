@@ -1,5 +1,6 @@
 package com.example.webHotelBooking.Service.impl;
 
+import com.example.webHotelBooking.DTO.Response.MyApiResponse;
 import com.example.webHotelBooking.Entity.OTP;
 import com.example.webHotelBooking.Entity.actor;
 import com.example.webHotelBooking.Enums.AccountStatus;
@@ -17,20 +18,32 @@ public class OTPServiceimpl implements OTPService {
     private OTPRepository otpRepository;
     @Autowired
     private userRepository userRepository;
+    @Autowired
+    private EmailServiceimpl emailServiceimpl;
     @Override
-    public String RegisterVerifyOTP(String OTP) {
-        List<actor> actorList=userRepository.findAll();
-        for (actor actor:actorList){
-            OTP otp=findOTPByOTP(OTP);
-            if (actor.getEmail().equals(otp.getUseremail())){
-                actor.setStatus(AccountStatus.ĐAĐANGKY.getMessage());
-                userRepository.save(actor);
-                otpRepository.delete(otp);
-                break;
-            }
+    public MyApiResponse RegisterVerifyOTP(String OTP) {
+        OTP otp = findOTPByOTP(OTP);
+        if (otp == null) {
+            return new MyApiResponse().builder()
+                    .Check(false)
+                    .message("OTP không hợp lệ")
+                    .build();
+        }else {
+            otpRepository.delete(otp);
+            return new MyApiResponse().builder()
+                    .Check(true)
+                    .message("OTP  hợp lệ")
+                    .build();
         }
-        return "OK";
     }
+
+    @Override
+    public void SendOTP(String email) {
+        String OTP=GenerateOTP(email);
+        String userEmail = email;// card.getUser() cần được định nghĩa trong entity LibraryCard
+        emailServiceimpl.sendAsyncEmail(userEmail, "Xác thực Mã OTP",OTP);
+    }
+
     private OTP findOTPByOTP(String OTP){
         List<OTP> otpList=otpRepository.findAll();
         for(OTP otp:otpList){
@@ -39,6 +52,20 @@ public class OTPServiceimpl implements OTPService {
             }
         }
         return null;
+    }
+    private String  GenerateOTP(String useremail){
+        String OTP="";
+        Random rand = new Random();
+        for (int i=0;i<5;i++){
+            int randomInt = rand.nextInt(9);
+            String code=String.valueOf(randomInt);
+            OTP=OTP+code;
+        }
+        OTP otp=new OTP();
+        otp.setOTP(OTP);
+        otp.setUseremail(useremail);
+        otpRepository.save(otp);
+        return OTP;
     }
 
 }

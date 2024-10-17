@@ -44,15 +44,15 @@ public class Hotel {
     @ManyToOne
     @JoinColumn(name = "cityId",nullable = false)
     private City City;
-    @OneToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<HotelImage> hotelImageList = new ArrayList<>();;
-    @OneToMany(mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<HotelRoom> hotelRoomList = new ArrayList<>();;
-    @ManyToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "Hotel",cascade = CascadeType.ALL)
     private List<HotelFacility> hotelFacilityList ;
-    @OneToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Review> reviewList = new ArrayList<>();;
     @ManyToMany(mappedBy = "hotelList")
     private List<HotelPolicy> hotelPolicyList= new ArrayList<>();;

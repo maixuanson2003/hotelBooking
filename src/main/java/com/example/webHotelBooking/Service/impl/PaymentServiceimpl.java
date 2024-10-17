@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -130,6 +131,7 @@ public class PaymentServiceimpl implements PaymentService {
         return paymentResponseList;
     }
     @Scheduled(fixedRate = 1000)
+    @Transactional
     public void SendEmail(){
         while (!Email.isEmpty()) {
 

@@ -31,6 +31,6 @@ public class saleCode {
     private float discountPercentage;
     @Column(name = "status")
     private String status;
-    @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<bookingdetails> BookingdetailsList = new ArrayList<>();;
 }

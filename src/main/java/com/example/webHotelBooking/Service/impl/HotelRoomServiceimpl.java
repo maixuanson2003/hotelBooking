@@ -101,14 +101,12 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
         for (HotelRoom hotelRoom : hotelRoomList) {
             List<bookingdetails> bookingdetails = hotelRoom.getBookingdetails();
-            for (bookingdetails detail : bookingdetails) {
-                bookingdetailsRepository.delete(detail);
-            }
+            bookingdetails.removeIf(c->c.getHotelRoom().getId()==hotelRoom.getId());
             List<HotelRoomFeatures> hotelRoomFeaturesList = hotelRoom.getHotelRoomFeaturesList();
             hotelRoomFeaturesList.removeIf(c->c.getHotelRoom().equals(hotelRoom));
-
+            hotelRoomRepository.save(hotelRoom);
         }
-        hotelRoomRepository.deleteByHotel(hotel);
+
     }
     @Override
     public List<HotelRoomDTO> GetAllHotelRoomByHotelId(Long HotelId) {

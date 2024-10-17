@@ -1,5 +1,6 @@
 package com.example.webHotelBooking.Controller;
 
+import com.example.webHotelBooking.DTO.Response.MyApiResponse;
 import com.example.webHotelBooking.Service.impl.OTPServiceimpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,21 @@ public class OTPController {
     private OTPServiceimpl otpServiceimpl;
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOTP(@RequestParam String otp) {
-        String result = otpServiceimpl.RegisterVerifyOTP(otp);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<MyApiResponse> verifyOTP(@RequestParam(required = true) String OTP) {
+        MyApiResponse response = otpServiceimpl.RegisterVerifyOTP(OTP);
+
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(new MyApiResponse().builder()
+                    .Check(false)
+                    .message("Xác thực thất bại.")
+                    .build());
+        }
+    }
+    @PostMapping("/send")
+    public void sendOTP(@RequestParam String email) {
+        otpServiceimpl.SendOTP(email);
+
     }
 }

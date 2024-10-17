@@ -19,12 +19,13 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-
+@Service
 public class AuthenticationServiceimpl implements AuthenticationService {
     @Autowired
     private TokenInvalidRepository tokenInvalidRepository;
@@ -79,9 +80,17 @@ public class AuthenticationServiceimpl implements AuthenticationService {
         if (userfind == null&&accountHotel==null) {
             throw new RuntimeException("khong xac thuc duoc");
         }
-        boolean AuthenUser = passwordCheck.matches(requests.getPassword(), userfind.getPassword());
-        boolean AuthenHotel = passwordCheck.matches(requests.getPassword(), accountHotel.getPassword());
+        boolean AuthenUser=false;
+        if (userfind!=null){
+            AuthenUser= passwordCheck.matches(requests.getPassword(), userfind.getPassword());
+        }
+        boolean AuthenHotel=false;
+        if (accountHotel!=null){
+            AuthenHotel = passwordCheck.matches(requests.getPassword(), accountHotel.getPassword());
+        }
+
         if (AuthenUser) {
+
             final String token = GenerateToken(userfind);
             authenCheck.setToken(token);
             authenCheck.setAuthenticated(true);
