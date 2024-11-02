@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 @Service
@@ -109,6 +111,43 @@ public class AuthenticationServiceimpl implements AuthenticationService {
         return authenCheck;
 
     }
+
+    @Override
+    public AuthenticationResponse RefresToken(String token)throws JOSEException, ParseException {
+        SignedJWT sign = verifyToken(token);
+        Date tokenExpiry = sign.getJWTClaimsSet().getExpirationTime();
+
+        Date currentTime = new Date();
+        if (tokenExpiry.after(currentTime) && tokenExpiry.getTime() - currentTime.getTime() > 5 * 60 * 1000) {
+            throw new RuntimeException("Token vẫn còn hiệu lực, không cần làm mới");
+        }
+        String scope = sign.getJWTClaimsSet().getStringClaim("scope");
+        if (scope.equals(Role.USER.getDescription())){
+            Long userId = sign.getJWTClaimsSet().getLongClaim("userid");
+            actor actor=actors.findById(userId).orElseThrow(()->new RuntimeException("not found"));
+            return new AuthenticationResponse().builder()
+                    .Authenticated(true)
+                    .token(GenerateToken(actor))
+                    .Type(actor.getRole())
+                    .username(actor.getUsername())
+                    .HotelId(null)
+                    .build();
+        }
+        if (scope.equals(Role.HOTELADMIN.getDescription())){
+            Long Hotelid = sign.getJWTClaimsSet().getLongClaim("HotelId");
+            AccountHotel accountHotel=accountHotelRepository.findById(Hotelid).orElseThrow(()->new RuntimeException("not found"));
+            return new AuthenticationResponse().builder()
+                    .Authenticated(true)
+                    .token(GenerateTokenForHotelAdmin(accountHotel))
+                    .Type(Role.HOTELADMIN.getDescription())
+                    .username(accountHotel.getUsername())
+                    .HotelId(accountHotel.getId())
+                    .build();
+        }
+
+        return null;
+    }
+
     @Override
     public void Logout(String token) throws ParseException, JOSEException {
         var signtoken=verifyToken( token);
@@ -139,6 +178,7 @@ public class AuthenticationServiceimpl implements AuthenticationService {
         JWTClaimsSet jwtClaimSet = new JWTClaimsSet.Builder().subject(actors.getUsername()).issuer("son.com").issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .jwtID(actors.getId().toString()+ + LocalDateTime.now().getHour()+LocalDateTime.now().getSecond())
                 .claim("scope", actors.getRole()).claim("userid",actors.getId()).build();
         Payload payload = new Payload(jwtClaimSet.toJSONObject());
 
@@ -157,6 +197,7 @@ public class AuthenticationServiceimpl implements AuthenticationService {
         JWTClaimsSet jwtClaimSet = new JWTClaimsSet.Builder().subject(accountHotel.getUsername()).issuer("son.com").issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .jwtID(accountHotel.getId().toString()+ LocalDateTime.now().getHour()+LocalDateTime.now().getSecond())
                 .claim("scope", Role.HOTELADMIN.getDescription()).claim("HotelId",accountHotel.getHotel().getId()).build();
         Payload payload = new Payload(jwtClaimSet.toJSONObject());
 

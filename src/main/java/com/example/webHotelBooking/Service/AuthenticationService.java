@@ -13,5 +13,6 @@ public interface AuthenticationService {
     public void Logout(String token) throws ParseException, JOSEException;
 
     public AuthenticationResponse login(AuthenticationRequest requests);
+    public AuthenticationResponse RefresToken(String token)throws JOSEException, ParseException;
 
 }

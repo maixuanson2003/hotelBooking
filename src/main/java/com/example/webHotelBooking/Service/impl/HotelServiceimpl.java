@@ -4,7 +4,7 @@ import com.example.webHotelBooking.DTO.Request.HotelRequest;
 import com.example.webHotelBooking.DTO.Request.HotelSearch;
 import com.example.webHotelBooking.DTO.Request.RoomRequest;
 import com.example.webHotelBooking.DTO.Response.HotelFacilityDTO;
-import com.example.webHotelBooking.DTO.Response.HotelPolicyDTO;
+import com.example.webHotelBooking.DTO.Response.HotelPolicyDetailsDTO;
 import com.example.webHotelBooking.DTO.Response.HotelResonse;
 import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
 import com.example.webHotelBooking.Entity.*;
@@ -20,13 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-class sortByPrice implements Comparator{
-    public int compare(Object obj1, Object obj2) {
+class sortByPrice implements Comparator<Hotel>{
+    public int compare(Hotel a, Hotel b) {
         // Make sure that the objects are Car objects
-        Hotel a = (Hotel) obj1;
-        Hotel b = (Hotel) obj2;
-        if (a.getStarPoint() > b.getStarPoint()) return 1;
-        return 0;
+
+        return Integer.compare(b.getStarPoint(), a.getStarPoint());
     }
 }
 @Service
@@ -51,7 +49,7 @@ public class HotelServiceimpl implements HotelService {
     @Autowired
     private CityService cityService;
     @Autowired
-    private HotelPolicyService hotelPolicyService;
+    private HotelPolicyDetailService hotelPolicyDetailService;
     @Autowired
     private HotelImageService hotelImageService;
     @Autowired
@@ -81,9 +79,9 @@ public class HotelServiceimpl implements HotelService {
             hotelImageService.createHotelImage(image,HotelId);
         }
     }
-    private void createHotelPolicy(List<HotelPolicyDTO> hotelPolicyDTOList,Long HotelId){
-        for (HotelPolicyDTO hotelPolicyDTO:hotelPolicyDTOList){
-           hotelPolicyService.createHotelPolicy(hotelPolicyDTO,HotelId);
+    private void createHotelPolicy(List<HotelPolicyDetailsDTO> hotelPolicyDTOList,Long HotelId){
+        for (HotelPolicyDetailsDTO hotelPolicyDTO:hotelPolicyDTOList){
+           hotelPolicyDetailService.CreateHotelPolicyDetails(hotelPolicyDTO,HotelId);
         }
     }
     private HotelResonse createHotelResponse(Hotel hotel){
@@ -99,11 +97,11 @@ public class HotelServiceimpl implements HotelService {
             HotelFacilityDTO hotelFacilityDTO =new HotelFacilityDTO(hotelFacility.getNameHotelFacility(),hotelFacility.getDesCription());
             hotelFacilityDTOList.add(hotelFacilityDTO);
         }
-        List<HotelPolicy> hotelPolicyList=hotel.getHotelPolicyList();
-        List<HotelPolicyDTO> hotelPolicyDTOList =new ArrayList<>();
-        for (HotelPolicy hotelPolicy:hotelPolicyList){
-            HotelPolicyDTO hotelPolicyDTO =new HotelPolicyDTO(hotelPolicy.getNamePolicy(),hotelPolicy.getDescription(),hotelPolicy.getIsRelatedFee());
-            hotelPolicyDTOList.add(hotelPolicyDTO);
+        List<HotelPolicyDetails> hotelPolicyList=hotel.getHotelPolicyDetailsList();
+        List<HotelPolicyDetailsDTO> hotelPolicyDTOList =new ArrayList<>();
+        for (HotelPolicyDetails hotelPolicy:hotelPolicyList){
+            HotelPolicyDetailsDTO hotelPolicyDetailsDTO =new HotelPolicyDetailsDTO(hotelPolicy);
+            hotelPolicyDTOList.add(hotelPolicyDetailsDTO);
         }
         List<HotelImage> hotelImageList=hotel.getHotelImageList();
         List<String> imageList=new ArrayList<>();
@@ -111,7 +109,7 @@ public class HotelServiceimpl implements HotelService {
             imageList.add(hotelImage.getLinkImage());
         }
 
-        HotelResonse hotelResonse=new HotelResonse(hotel.getId(),hotel.getNameHotel(),hotel.getAddress(),hotel.getCity().getNameCity(), hotelFacilityDTOList, hotelPolicyDTOList, hotelRoomDTOList,imageList);
+        HotelResonse hotelResonse=new HotelResonse(hotel.getId(),hotel.getNameHotel(),hotel.getAddress(),hotel.getCity().getNameCity(),hotel.getStarPoint(), hotelFacilityDTOList, hotelPolicyDTOList, hotelRoomDTOList,imageList);
          return hotelResonse;
     }
 
@@ -127,6 +125,8 @@ public class HotelServiceimpl implements HotelService {
         }
         Long numberRoomCheck=numberRoomLast-roomRequest.getAmountRoom();
         Long numberPeopleCheck= numberPeople-roomRequest.getNumberPeople();
+        System.out.println("numberPeople"+numberPeopleCheck);
+        System.out.println("number"+numberPeopleCheck);
         if (numberRoomCheck>=0||numberPeopleCheck>=0){
             return true;
         }else{
@@ -153,7 +153,9 @@ public class HotelServiceimpl implements HotelService {
         List<Hotel> hotelList=hotelRepository.findAllByCity(address);
         List<HotelResonse> hotelResonseList=new ArrayList<>();
         for (Hotel hotel:hotelList){
+         logger.debug("s"+CheckRoomRequest(roomRequest,hotel));
             if (CheckRoomRequest(roomRequest,hotel)){
+
                 hotelResonseList.add(this.createHotelResponse(hotel));
             }
         }
@@ -168,12 +170,16 @@ public class HotelServiceimpl implements HotelService {
         }
         Value=0;
         int result=0;
-        List<HotelPolicy> hotelPolicyList1=hotel.getHotelPolicyList();
-        for (HotelPolicy hotelPolicy:hotelPolicyList1){
+        List<HotelPolicyDetails> hotelPolicyList1=hotel.getHotelPolicyDetailsList();
+        List<String> hotelPolicyName=new ArrayList<>();
+        for (HotelPolicyDetails hotelPolicyDetails :hotelPolicyList1){
+            hotelPolicyName.add(hotelPolicyDetails.getHotelPolicy().getNamePolicy());
+        }
+        for (String hotelPolicy:hotelPolicyName){
 
             for (int i=0;i<Check.size();i++){
                 Value++;
-                if (hotelPolicy.getNamePolicy().equals(Check.get(Value))){
+                if (hotelPolicy.equals(Check.get(Value))){
                     result++;
                 }
             }
@@ -196,6 +202,7 @@ public class HotelServiceimpl implements HotelService {
         if(CheckCodition1){
             for (Hotel hotel:hotelList){
                 if (CheckRoomRequest(roomRequest,hotel)){
+                    System.out.println(CheckRoomRequest(roomRequest,hotel));
                     hotelResonseList.add(this.createHotelResponse(hotel));
                 }
             }
@@ -236,6 +243,10 @@ public class HotelServiceimpl implements HotelService {
     @Override
     public void createHotel(HotelRequest hotelRequest) {
         Hotel hotel = new Hotel();
+        Optional<City> city1= Optional.ofNullable(cityRepository.findCityByNameCity(hotelRequest.getCity()));
+        if (!city1.isPresent()){
+            throw new ResourceNotFoundException("not found");
+        }
         boolean checkExists = false;
         List<Hotel> hotelList = hotelRepository.findAll();
         for (Hotel hotel1 : hotelList) {
@@ -244,41 +255,16 @@ public class HotelServiceimpl implements HotelService {
             }
         }
         if (!checkExists) {
-            int ResultForCancelation=0;
-            int ResultForChange=0;
             hotel.setAddress(hotelRequest.getAddress());
             hotel.setNameHotel(hotelRequest.getName());
             hotel.setDescription(hotelRequest.getDesCription());
             hotel.setHotline(hotelRequest.getHotline());
             hotel.setEmail(hotelRequest.getEmail());
-            List<HotelPolicyDTO> hotelPolicyDTOList=hotelRequest.getHotelPolicyDTOList();
-            for (HotelPolicyDTO hotelPolicyDTO:hotelPolicyDTOList){
-                if (hotelPolicyDTO.getIsRelatedFee()){
-                        if (hotelPolicyDTO.getNamePolicy().equals("Hỗ trợ Đổi Lịch")){
-                            ResultForChange++;
-                        }
-                        if (hotelPolicyDTO.getNamePolicy().equals("Hỗ trợ Hủy Lịch")){
-                            ResultForCancelation++;
-                        }
-                }
-            }
-            if (ResultForCancelation == 1) {
-                hotel.setCancelfee(hotelRequest.getCancelfee());
-            } else {
-                hotel.setCancelfee(0L);
-            }
-
-            // Cài đặt phí đổi nếu có chính sách đổi
-            if (ResultForChange == 1) {
-                hotel.setChangefee(hotelRequest.getChaneFee());
-            } else {
-                hotel.setChangefee(0L);
-            }
-            cityService.createCity(hotelRequest.getCity());
-            hotel.setCity(cityRepository.findCityByNameCity(hotelRequest.getCity().getNameCity()));
+            hotel.setTotalRoom(hotelRequest.getTotalRoom());
+            hotel.setStarPoint(hotelRequest.getStarpoint());
+            hotel.setCity(city1.get());
             hotelRepository.save(hotel);
             Hotel hotel1=hotelRepository.findByNameHotel(hotelRequest.getName());
-            System.out.println(hotel1);
             createHotelPolicy(hotelRequest.getHotelPolicyDTOList(),hotel1.getId());
             createHotelFacility(hotelRequest.getHotelFacilityList(), hotel1.getId());
             createHotelRoom(hotelRequest.getHotelRoomDTOList(),hotel1.getId());
@@ -305,10 +291,10 @@ public class HotelServiceimpl implements HotelService {
         for (HotelFacility facility : hotel.getHotelFacilityList()) {
             facility.getHotel().remove(hotel);
         }
-        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
-            Policy.getHotelList().remove(hotel);
-        }
-        hotel.getHotelPolicyList().clear();
+//        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
+//            Policy.getHotelList().remove(hotel);
+//        }
+//        hotel.getHotelPolicyList().clear();
         hotel.getHotelFacilityList().clear();
         hotelRoomService.DeleteRoomHotelByHotel(hotel);
         hotel.getHotelRoomList().removeIf(c -> c.getHotel().getId()== id);
@@ -328,10 +314,10 @@ public class HotelServiceimpl implements HotelService {
         for (HotelFacility facility : hotel.getHotelFacilityList()) {
             facility.getHotel().remove(hotel);
         }
-        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
-            Policy.getHotelList().remove(hotel);
-        }
-        hotel.getHotelPolicyList().clear();
+//        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
+//            Policy.getHotelList().remove(hotel);
+//        }
+//        hotel.getHotelPolicyList().clear();
         hotel.getHotelFacilityList().clear();
         hotelRoomService.DeleteRoomHotelByHotel(hotel);
         hotel.getHotelRoomList().removeIf(c -> c.getHotel().getId()== hotel.getId());

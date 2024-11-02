@@ -264,7 +264,6 @@ public class HotelRoomServiceimpl implements HotelRoomService {
                 break;
             case "CONPHONG":
                 hotelRoom.setNumbeRoomLast(Amount);
-                ;
                 hotelRoomRepository.save(hotelRoom);
                 String HotelIds = hotelRoom.getHotel().getId().toString();
                 String messages = "Change" + HotelIds;

@@ -22,10 +22,10 @@ public class Review {
     private int StarPont;
     private LocalDateTime CreatAt;
     private String status;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Hotel_Id",nullable = false)
     private Hotel Hotel;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "user_Id",nullable = false)
     private actor actor;
 }

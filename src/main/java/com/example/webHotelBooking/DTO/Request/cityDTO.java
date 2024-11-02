@@ -12,4 +12,5 @@ public class cityDTO {
     private Long CodeCity;
     private String nameCity;
     private String Descrription;
+    private String image;
 }

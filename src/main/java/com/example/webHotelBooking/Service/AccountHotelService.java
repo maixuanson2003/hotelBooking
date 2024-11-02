@@ -8,6 +8,7 @@ import java.util.List;
 public interface AccountHotelService {
     public void CreatAccountByHotel(Long HotelId);
     public void DeleteAccountById(Long Id);
+    public void CreateAllAccountHotel();
     public List<AccountHotelDTO> GetAllAccountHotel();
     public String ChangePassWord(String password,String oldPassword,Long accountId);
 }

@@ -76,8 +76,8 @@ public class HotelController {
     }
 
     // Delete hotel by name
-    @DeleteMapping("/deleteByName")
-    public void deleteHotelByName(@RequestParam String name) {
+    @DeleteMapping("/deleteByName/{name}")
+    public void deleteHotelByName(@PathVariable String name) {
          hotelService.deleteHotelByName(name);
 
     }

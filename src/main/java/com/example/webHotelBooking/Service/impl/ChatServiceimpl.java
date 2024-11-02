@@ -50,7 +50,7 @@ public class ChatServiceimpl implements ChatService {
         actor actors=actorRepository.findById(useridLong).orElseThrow(()->new RuntimeException("notfound"));
         Conversations conversations=conversationRepository.findById(message.getConversationId()).orElseThrow(()->new RuntimeException("sss"));
         Chat chat=new Chat().builder()
-                .actors(actors)
+                .actor(actors)
                 .Content(message.getContent())
                 .userSend(message.getUserSender())
                 .Conversation(conversations)

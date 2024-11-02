@@ -15,7 +15,7 @@ public class Chat {
     private Long Id;
     @ManyToOne
     @JoinColumn(name="actor_id",nullable = false)
-    private actor actors;
+    private actor actor;
     @ManyToOne
     @JoinColumn(name="Conversation_id",nullable = false)
     private Conversations Conversation;

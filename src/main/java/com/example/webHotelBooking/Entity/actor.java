@@ -62,5 +62,8 @@ public class actor  implements Serializable {
     @ManyToMany(mappedBy = "actors", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Conversations> Conservations;
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Chat> chats = new ArrayList<>();;
 
 }

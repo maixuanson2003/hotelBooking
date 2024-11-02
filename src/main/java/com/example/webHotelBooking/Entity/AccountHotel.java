@@ -20,6 +20,7 @@ public class AccountHotel {
     private String password;
     @Column(name = "phone")
     private String phone;
-    @OneToOne(mappedBy = "AccountHotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToOne
+    @JoinColumn(name = "hotel_id",nullable = false)
     private Hotel hotel;
 }

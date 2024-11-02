@@ -56,12 +56,14 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
         saleCode salecode=findSaleCode(saleCode);
         long totalPrice = hotelRoom.getPricePerNight();
         long daysBetween = ChronoUnit.DAYS.between(CheckinDate,  CheckoutDate);
+
+        daysBetween=Math.abs(daysBetween);
         long originalPrice = totalPrice * daysBetween;
         if (salecode != null) {
-            double discount = salecode.getDiscountPercentage();
-            originalPrice -= (long) ((originalPrice * discount)/100);
+            long discount = salecode.getDiscountPercentage();
+            originalPrice -=  ((originalPrice * discount)/100);
         }
-        long priceWithVAT = originalPrice + (long)(originalPrice *  VAT_PERCENTAGE);
+        long priceWithVAT = originalPrice + ((originalPrice *  VAT_PERCENTAGE)/100);
         if (hotelRoom==null){
             throw new ResourceNotFoundException("not found");
         }

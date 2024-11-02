@@ -3,6 +3,7 @@ package com.example.webHotelBooking.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,24 +19,8 @@ public class HotelPolicy {
     private Long id;
     @Column(name = "namePolicy")
     private String namePolicy;
-    @Column(name = "Description")
-    private String Description;
-    @Column(name="isRelatedFee")
-    private Boolean isRelatedFee;
-    @Column(name="isFree")
-    private Boolean isFree;
-    @ManyToMany
-    @JoinTable(
-            name = " HotelPolicy_Hotel",
-            joinColumns = @JoinColumn(name = "HotelPolicyId", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "Hotel_Id", referencedColumnName = "id")
-    )
-    private List<Hotel> hotelList;
-    public HotelPolicy(String namePolicy, String Description, String description, Boolean isRelatedFee,Boolean isFree){
+    @OneToMany(mappedBy = "hotelPolicy",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<HotelPolicyDetails> hotelPolicyDetailsList=new ArrayList<>();
 
-        this.namePolicy=namePolicy;
-        this.Description=Description;
-        this.isRelatedFee=isRelatedFee;
-        this.isFree=isFree;
-    }
+
 }

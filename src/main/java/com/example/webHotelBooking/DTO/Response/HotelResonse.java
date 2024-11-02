@@ -1,5 +1,6 @@
 package com.example.webHotelBooking.DTO.Response;
 
+import com.example.webHotelBooking.Entity.HotelPolicyDetails;
 import lombok.*;
 
 import java.util.List;
@@ -13,8 +14,9 @@ public class HotelResonse {
     private String name;
     private String address;
     private String City;
+    private Integer  starPoint;
     private List<HotelFacilityDTO> hotelFacilityList;
-    private List<HotelPolicyDTO> hotelPolicyDTOList;
+    private List<HotelPolicyDetailsDTO> hotelPolicyDTOList;
     private List<HotelRoomDTO> hotelRoomDTOList;
     private List<String> imageList;
 

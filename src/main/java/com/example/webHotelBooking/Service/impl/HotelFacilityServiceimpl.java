@@ -1,7 +1,7 @@
 package com.example.webHotelBooking.Service.impl;
 
 import com.example.webHotelBooking.DTO.Response.HotelFacilityDTO;
-import com.example.webHotelBooking.DTO.Response.HotelPolicyDTO;
+
 import com.example.webHotelBooking.Entity.Hotel;
 import com.example.webHotelBooking.Entity.HotelFacility;
 import com.example.webHotelBooking.Entity.HotelPolicy;

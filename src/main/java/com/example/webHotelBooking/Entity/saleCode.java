@@ -28,7 +28,7 @@ public class saleCode {
     @Column(name = "Description")
     private String Description;
     @Column(name = "discountPercentage")
-    private float discountPercentage;
+    private long discountPercentage;
     @Column(name = "status")
     private String status;
     @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true)

@@ -139,21 +139,16 @@ public class BookingServiceImpl implements BookingService {
         return null;
     }
     private Long GetFeeChangeByHotel(Hotel hotel){
-        List<HotelPolicy> hotelPolicies=hotel.getHotelPolicyList();
-        if (hotelPolicies.isEmpty()){
+        List<HotelPolicyDetails> hotelPolicyDetails=hotel.getHotelPolicyDetailsList();
+        if (hotelPolicyDetails.isEmpty()){
             throw new ResourceNotFoundException("Khach sạn không có chính sách");
         }
-        int numberPolicyCheck=0;
         Long fee=0L;
-        for (HotelPolicy hotelPolicy:hotelPolicies){
-            if (hotelPolicy.getIsRelatedFee()){
-                numberPolicyCheck++;
+        for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
+            if (hotelPolicyDetails1.getFee()!=null && hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals("Chính sách đổi lịch")){
+                fee+=hotelPolicyDetails1.getFee();
             }
         }
-        if (numberPolicyCheck==0 && hotel.getChangefee()==0L ){
-            throw new ResourceNotFoundException("Khach sạn không có chính sách");
-        }
-        fee= hotel.getChangefee();
         return fee;
     }
 

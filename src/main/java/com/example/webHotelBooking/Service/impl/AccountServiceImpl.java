@@ -36,13 +36,35 @@ public class AccountServiceImpl implements AccountHotelService {
                 .username(userName)
                 .password(passwordEncoder.encode(password))
                 .build();
-        accountHotelRepository.save(accountHotel);
+       AccountHotel accountHotel1= accountHotelRepository.save(accountHotel);
+        hotel.setAccountHotel(accountHotel1);
+        hotelRepository.save(hotel);
     }
 
     @Override
     @Transactional
     public void DeleteAccountById(Long Id) {
         accountHotelRepository.deleteById(Id);
+    }
+
+    @Override
+    @Transactional
+    public void CreateAllAccountHotel() {
+        BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
+        List<Hotel> hotelList=hotelRepository.findAll();
+        for (Hotel hotel:hotelList){
+            String userName=hotel.getEmail();
+            String password=hotel.getHotline();
+            AccountHotel accountHotel=new AccountHotel().builder()
+                    .phone(hotel.getHotline())
+                    .hotel(hotel)
+                    .username(userName)
+                    .password(passwordEncoder.encode(password))
+                    .build();
+            AccountHotel accountHotel1= accountHotelRepository.save(accountHotel);
+            hotel.setAccountHotel(accountHotel1);
+            hotelRepository.save(hotel);
+        }
     }
 
     @Override

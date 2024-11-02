@@ -13,5 +13,5 @@ public class SaleCodeDTO {
     private String DateStart;
     private String DateEnd;
     private String Description;
-    private float discountPercentage;
+    private long discountPercentage;
 }

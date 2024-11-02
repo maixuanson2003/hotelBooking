@@ -5,11 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.type.SqlTypes;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,26 +34,21 @@ public class Hotel {
     private Integer  TotalRoom;
     @Column(name="starPoint")
     private Integer  starPoint;
-    @Column(name = "changefee")
-    private Long changefee;
-    @Column(name = "cancelfee")
-    private Long cancelfee;
     @ManyToOne
     @JoinColumn(name = "cityId",nullable = false)
     private City City;
-    @OneToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "Hotel",cascade = {CascadeType.ALL, CascadeType.REMOVE},orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<HotelImage> hotelImageList = new ArrayList<>();;
-    @OneToMany(mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "hotel",cascade = {CascadeType.ALL, CascadeType.REMOVE},orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<HotelRoom> hotelRoomList = new ArrayList<>();;
     @ManyToMany(mappedBy = "Hotel",cascade = CascadeType.ALL)
     private List<HotelFacility> hotelFacilityList ;
-    @OneToMany(mappedBy = "Hotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "Hotel",cascade = {CascadeType.ALL, CascadeType.REMOVE},orphanRemoval = true)
     private List<Review> reviewList = new ArrayList<>();;
-    @ManyToMany(mappedBy = "hotelList")
-    private List<HotelPolicy> hotelPolicyList= new ArrayList<>();;
-    @OneToOne
-    @JoinColumn(name = "AccountHotelId")
+    @OneToMany (mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<HotelPolicyDetails> hotelPolicyDetailsList= new ArrayList<>();
+    @OneToOne(mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
     private AccountHotel AccountHotel;
 }

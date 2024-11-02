@@ -22,7 +22,7 @@ public class HotelFacility {
     private String nameHotelFacility;
     @Column(name = "description")
     private String desCription;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.ALL, CascadeType.REMOVE})
     @JoinTable(
             name = "HotelHotelFacility_Hotel",
             joinColumns = @JoinColumn(name = "HotelFacility_Id", referencedColumnName = "id"),

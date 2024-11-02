@@ -64,4 +64,9 @@ public class AccountHotelController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra khi thay đổi mật khẩu.");
         }
     }
+    @PostMapping("/creat/all")
+    public  void  CreatAllAccount(){
+        accountHotelService.CreateAllAccountHotel();
+    }
+
 }
