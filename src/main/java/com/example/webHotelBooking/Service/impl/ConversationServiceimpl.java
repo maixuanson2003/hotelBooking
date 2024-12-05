@@ -34,14 +34,14 @@ public class ConversationServiceimpl implements ConversationService {
     }
 
     @Override
-    public void CreateConversation(String token) {
-        System.out.println("Received Token: " + token);
-        Jwt jwt=jwtDecoder.decode(token);
-        Long userid = jwt.getClaim("userid");
+    public void CreateConversation(Long userid) {
         boolean CheckCOnversationExists=false;
         actor actors=actorRepository.findById(userid).orElseThrow(()->new RuntimeException("not found"));
         List<Conversations> conversationOfActors=actors.getConservations();
         List<Conversations> conversations=conversationRepository.findAll();
+        if(conversationOfActors==null){
+            conversationOfActors=new ArrayList<>();
+        }
         int result=0;
         for (Conversations conversationactor:conversationOfActors){
             for (Conversations conversations1:conversations){

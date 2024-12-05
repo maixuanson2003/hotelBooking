@@ -10,4 +10,5 @@ public interface SaleCodeService {
     public void DeleteSaleCode(Long SaleCodeId);
     public void AutoDeleteSaleCode();
     public List<SaleCodeDTO> GetAllSaleCode();
+    public SaleCodeDTO GetSaleCodeById(Long id);
 }

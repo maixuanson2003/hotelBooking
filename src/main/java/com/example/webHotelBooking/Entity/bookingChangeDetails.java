@@ -26,6 +26,10 @@ public class bookingChangeDetails {
     private Long Price;
     @Column(name = "status")
     private String status;
+    @Column(name = "Checks")
+    private boolean Checks;
+    @OneToOne(mappedBy = "bookingChangeDetails",cascade = CascadeType.ALL,orphanRemoval = true)
+    private Payment payment;
     @ManyToOne
     @JoinColumn(name="booking_Id",nullable = false)
     private booking booking;

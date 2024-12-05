@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class cityDTO {
+    private Long id;
     private Long CodeCity;
     private String nameCity;
     private String Descrription;

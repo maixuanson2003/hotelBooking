@@ -43,6 +43,11 @@ public class SaleCodeController {
         List<SaleCodeDTO> saleCodeDTOList = saleCodeService.GetAllSaleCode();
         return ResponseEntity.ok(saleCodeDTOList);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<SaleCodeDTO> getSaleCodesById(@PathVariable("id") Long id) {
+        SaleCodeDTO saleCodeDTO = saleCodeService.GetSaleCodeById(id);
+        return ResponseEntity.ok(saleCodeDTO);
+    }
 
     // Auto-delete SaleCodes đã hết hạn (sử dụng thủ công cho testing)
     @DeleteMapping("/autodelete")

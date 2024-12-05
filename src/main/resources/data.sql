@@ -98,6 +98,8 @@ CREATE TABLE IF NOT EXISTS hotel (
    star_point int DEFAULT NULL,
    account_hotel_id bigint DEFAULT NULL,
    city_id bigint NOT NULL,
+   bank_name varchar(255) DEFAULT NULL,
+   bankaccountnumber bigint DEFAULT NULL,
    PRIMARY KEY (id),
    UNIQUE KEY UK_account_hotel_id (account_hotel_id),
    KEY FK_city_id (city_id),
@@ -139,6 +141,8 @@ CREATE TABLE IF NOT EXISTS hotel_policy_details (
    fee BIGINT DEFAULT NULL,
    hotel_id BIGINT NOT NULL,
    hotel_policy_id BIGINT NOT NULL,
+   before_day_amount bigint DEFAULT NULL,
+   note varchar(255) DEFAULT NULL,
    PRIMARY KEY (id),
    KEY FK_hotel_policy_details_hotel (hotel_id),
    KEY FK_hotel_policy_details_policy (hotel_policy_id),
@@ -183,11 +187,13 @@ CREATE TABLE IF NOT EXISTS payment (
    status varchar(255) DEFAULT NULL,
    actor_id bigint DEFAULT NULL, -- Đổi tên cho dễ hiểu
    booking_id bigint DEFAULT NULL,
+   booking_change_id bigint DEFAULT NULL,
    PRIMARY KEY (id),
    UNIQUE KEY UK_booking_id (booking_id), -- Đổi tên cho dễ hiểu
    KEY FK_actor_id (actor_id), -- Đổi tên cho dễ hiểu
    CONSTRAINT FK_actor_id FOREIGN KEY (actor_id) REFERENCES actor (id) ON DELETE CASCADE,
-   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE
+   CONSTRAINT FK_booking_id FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE,
+    CONSTRAINT FK_booking_change_id FOREIGN KEY (booking_change_id) REFERENCES booking_change_details_repository (id) ON DELETE CASCADE
 ) ;
 CREATE TABLE IF NOT EXISTS review (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -207,7 +213,9 @@ CREATE TABLE IF NOT EXISTS sale_code (
    start_date DATETIME DEFAULT NULL,                   -- Ngày bắt đầu
    end_date DATETIME DEFAULT NULL,                     -- Ngày kết thúc
    description VARCHAR(255) DEFAULT NULL,              -- Mô tả về mã giảm giá
-   discount_percentage FLOAT DEFAULT NULL,              -- Phần trăm giảm giá
+   discount_percentage FLOAT DEFAULT NULL,
+   title varchar(255) DEFAULT NULL,
+   image varchar(255) DEFAULT NULL,
    status VARCHAR(255) DEFAULT NULL,                    -- Trạng thái của mã giảm giá
    PRIMARY KEY (id)                                    -- Khóa chính
 );
@@ -394,86 +402,110 @@ INSERT IGNORE INTO city (id, code_city, name_city, description, image) VALUES
 (14, 51, 'Tuyên Quang', 'Nơi có nhiều truyền thống lịch sử', 'https://www.originvietnam.com/wp-content/uploads/Tuyen_Quang_Header.jpg'),
 (15, 23, 'Thái Nguyên', 'Thành phố thuộc tỉnh Thái Nguyên','https://tourre.vn/wp-content/uploads/2020/12/ho-nui-coc-thai-nguyen.jpg');
 
+--INSERT INTO event (id, name_event, date_start, date_end, description, image, city_id,status) VALUES
+---- Sự kiện cho Hà Nội
+--(1, 'Lễ hội Âm nhạc Hà Nội', '2025-01-10T00:00:00Z', '2025-01-15T00:00:00Z', 'Một lễ hội âm nhạc lớn tại Hà Nội.', 'https://special.nhandan.vn/docdaolehoitrungthutuyenquang/assets/FcgmBAu1xQ/ca-chep-d-2560x1440.jpeg', 1,"SAPDIENRA"),
+--(2, 'Triển lãm Văn hóa Hà Nội', '2025-02-T00:00:00Z', '2025-02-05T00:00:00Z', 'Triển lãm văn hóa truyền thống tại Hà Nội.', 'https://special.nhandan.vn/docdaolehoitrungthutuyenquang/assets/FcgmBAu1xQ/ca-chep-d-2560x1440.jpeg', 1,"SAPDIENRA"),
+--(3, 'Hội chợ Xuân Hà Nội', '2025-02-20T00:00:00Z', '2025-02-T00:00:00Z', 'Hội chợ mùa xuân với các hoạt động truyền thống.', 'https://special.nhandan.vn/docdaolehoitrungthutuyenquang/assets/FcgmBAu1xQ/ca-chep-d-2560x1440.jpeg', 1,"SAPDIENRA"),
+--
+---- Sự kiện cho Hải Phòng
+--(4, 'Lễ hội Hoa Phượng Đỏ', '2025-03-01', '2025-03-05', 'Lễ hội biểu tượng của Hải Phòng.', 'https://img.giaoduc.net.vn/1200x630/Uploaded/2023/rgzokt/2023_05_13/le-hoi-hoa-phuong-9-5360.jpeg', 2,"SAPDIENRA"),
+--(5, 'Triển lãm Nghệ thuật Biển', '2025-04-10', '2025-04-15', 'Triển lãm nghệ thuật lấy cảm hứng từ biển.', 'https://img.giaoduc.net.vn/1200x630/Uploaded/2023/rgzokt/2023_05_13/le-hoi-hoa-phuong-9-5360.jpeg', 2,"SAPDIENRA"),
+--(6, 'Ngày Hội Biển Hải Phòng', '2025-05-20', '2025-05-25', 'Ngày hội đặc sắc về văn hóa biển.', 'https://img.giaoduc.net.vn/1200x630/Uploaded/2023/rgzokt/2023_05_13/le-hoi-hoa-phuong-9-5360.jpeg', 2,"SAPDIENRA"),
+--
+---- Sự kiện cho Đà Nẵng
+--(7, 'Cuộc thi Pháo hoa Quốc tế', '2025-06-01', '2025-06-10', 'Cuộc thi pháo hoa hấp dẫn tại Đà Nẵng.', 'https://dulichtaybac.vn/wp-content/uploads/2021/11/4.-L%E1%BB%85-h%E1%BB%99i-Hoa-Ban.jpg', 3,"SAPDIENRA"),
+--(8, 'Lễ hội Ẩm thực Đà Nẵng', '2025-07-01', '2025-07-05', 'Lễ hội với các món ăn đặc trưng miền Trung.', 'https://tse2.mm.bing.net/th?id=OIP.Q9XP-o_5MY-tyc1wx-o35AHaEo&pid=Api&P=0&h=220', 3,"SAPDIENRA"),
+--(9, 'Giải Marathon Quốc tế Đà Nẵng', '2025-08-20', '2025-08-25', 'Sự kiện thể thao nổi tiếng.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 3,"SAPDIENRA"),
+--
+---- Sự kiện cho TP. Hồ Chí Minh
+--(10, 'Hội chợ Công nghệ TP.HCM', '2025-09-01', '2025-09-05', 'Hội chợ về các sản phẩm công nghệ.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 4,"SAPDIENRA"),
+--(11, 'Lễ hội Ánh sáng Sài Gòn', '2025-10-10', '2025-10-15', 'Lễ hội ánh sáng độc đáo tại TP.HCM.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 4,"SAPDIENRA"),
+--(12, 'Triển lãm Nghệ thuật Hiện đại', '2025-11-01', '2025-11-10', 'Triển lãm nghệ thuật hiện đại.', 'https://example.com/event12.jpg', 4,"SAPDIENRA"),
+--
+---- Sự kiện cho Cần Thơ
+--(13, 'Lễ hội Lúa Gạo', '2025-12-01', '2025-12-05', 'Lễ hội truyền thống vùng Đồng bằng sông Cửu Long.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 5,"SAPDIENRA"),
+--(14, 'Festival Sông Hậu', '2025-01-01', '2025-01-10', 'Festival với các hoạt động văn hóa đặc sắc.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 5,"SAPDIENRA"),
+--(15, 'Ngày hội Du lịch Cần Thơ', '2025-02-01', '2025-02-07', 'Ngày hội quảng bá du lịch Cần Thơ.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 5,"SAPDIENRA");
 
 
-
-INSERT IGNORE INTO hotel (id, address, description, email, hotline, total_room, name_hotel, star_point, city_id) VALUES
-(1, '44B Lý Thường Kiệt, Hoàn Kiếm, Hà Nội', 'Khách sạn sang trọng với kiến trúc độc đáo', 'hotel1_hanoi@example.com', '02439330500', 268, 'Sofitel Legend Metropole Hanoi', 5, 1),
-(2, '1 Phan Đình Phùng, Ba Đình, Hà Nội', 'Khách sạn cổ điển giữa lòng Hà Nội', 'hotel2_hanoi@example.com', '02438253355', 117, 'Hanoi Daewoo Hotel', 5, 1),
-(3, '40 Cát Linh, Đống Đa, Hà Nội', 'Khách sạn 5 sao với hồ bơi ngoài trời', 'hotel3_hanoi@example.com', '02437330888', 300, 'Pullman Hanoi Hotel', 4, 1),
-(4, '15 Ngọc Khánh, Ba Đình, Hà Nội', 'Khách sạn hiện đại với các tiện nghi cao cấp', 'hotel4_hanoi@example.com', '02437661000', 377, 'Lotte Hotel Hanoi', 5, 1),
-(5, '83A Lý Thường Kiệt, Hoàn Kiếm, Hà Nội', 'Khách sạn boutique giữa trung tâm Hà Nội', 'hotel5_hanoi@example.com', '02438258888', 81, 'Hilton Hanoi Opera', 4, 1),
-(6, '2 Công trường Lam Sơn, Quận 1, TP. Hồ Chí Minh', 'Khách sạn sang trọng với vị trí trung tâm', 'hotel1_hcm@example.com', '02838234999', 244, 'Park Hyatt Saigon', 5, 4),
-(7, '76 Lê Lai, Quận 1, TP. Hồ Chí Minh', 'Khách sạn nổi tiếng với phong cách hiện đại', 'hotel2_hcm@example.com', '02838223888', 286, 'New World Saigon Hotel', 5, 4),
-(8, '88 Đồng Khởi, Quận 1, TP. Hồ Chí Minh', 'Khách sạn cổ điển với tiện nghi hiện đại', 'hotel3_hcm@example.com', '02838292018', 533, 'Sheraton Saigon Hotel & Towers', 5, 4),
-(9, '141 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh', 'Khách sạn 5 sao với tầm nhìn toàn cảnh thành phố', 'hotel4_hcm@example.com', '02838223366', 321, 'Rex Hotel Saigon', 5, 4),
-(10, '39 Lê Duẩn, Quận 1, TP. Hồ Chí Minh', 'Khách sạn đẳng cấp quốc tế tại trung tâm thành phố', 'hotel5_hcm@example.com', '02838272828', 286, 'InterContinental Saigon', 5, 4),
-(11, '36 Bạch Đằng, Hải Châu, Đà Nẵng', 'Khách sạn hiện đại bên sông Hàn', 'hotel1_danang@example.com', '02363655888', 323, 'Novotel Danang Premier Han River', 5, 3),
- (12, '118-120 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng', 'Khách sạn sang trọng với bãi biển riêng', 'hotel2_danang@example.com', '02363953707', 200, 'Furama Resort Danang', 5, 3),
-(13, '210 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng', 'Khách sạn 5 sao bên bờ biển', 'hotel3_danang@example.com', '02363885868', 187, 'TMS Hotel Da Nang Beach', 4, 3),
-(14, '35 Trần Hưng Đạo, Sơn Trà, Đà Nẵng', 'Khách sạn với hồ bơi vô cực', 'hotel4_danang@example.com', '02363928866', 242, 'Hilton Da Nang', 5, 3),
-(15, '38 Bạch Đằng, Hải Châu, Đà Nẵng', 'Khách sạn boutique giữa trung tâm thành phố', 'hotel5_danang@example.com', '02363882828', 234, 'Vinpearl Condotel Riverfront Da Nang', 4, 3),
-(16, '60A Nguyễn Bỉnh Khiêm, Hải An, Hải Phòng', 'Khách sạn với tiện nghi cao cấp', 'hotel1_haiphong@example.com', '02253835100', 350, 'Melia Vinpearl Hai Phong Rivera', 5, 2),
-(17, '4 Trần Phú, Ngô Quyền, Hải Phòng', 'Khách sạn phong cách cổ điển', 'hotel2_haiphong@example.com', '02253731121', 125, 'Avani Hai Phong Harbour View', 4, 2),
-(18, '12 Trần Phú, Ngô Quyền, Hải Phòng', 'Khách sạn sang trọng tại trung tâm Hải Phòng', 'hotel3_haiphong@example.com', '02253827127', 152, 'Mercure Hai Phong', 4, 2),
-(19, '275 Lạch Tray, Ngô Quyền, Hải Phòng', 'Khách sạn 4 sao với bể bơi ngoài trời', 'hotel4_haiphong@example.com', '02253823145', 100, 'Lac Long Hotel', 4, 2),
-(20, '12 Hồng Bàng, Hồng Bàng, Hải Phòng', 'Khách sạn hiện đại với hồ bơi', 'hotel5_haiphong@example.com', '02253721114', 200, 'Manoir Des Arts Hotel', 5, 2),
-(21, '209 Đường 30/4, Ninh Kiều, Cần Thơ', 'Khách sạn 5 sao ven sông Hậu', 'hotel1_cantho@example.com', '02923824306', 225, 'Vinpearl Hotel Can Tho', 5, 5),
-(22, '208 Đường 30/4, Ninh Kiều, Cần Thơ', 'Khách sạn sang trọng bên bờ sông', 'hotel2_cantho@example.com', '02923812121', 165, 'Ninh Kieu Riverside Hotel', 4, 5),
-(23, '22 Đường Hai Bà Trưng, Ninh Kiều, Cần Thơ', 'Khách sạn 4 sao với tầm nhìn đẹp', 'hotel3_cantho@example.com', '02923719999', 107, 'TTC Hotel Premium Can Tho', 4, 5),
-(24, '61 Trần Văn Khéo, Ninh Kiều, Cần Thơ', 'Khách sạn hiện đại với hồ bơi ngoài trời', 'hotel4_cantho@example.com', '02923761001', 150, 'Muong Thanh Luxury Can Tho Hotel', 5, 5),
-(25, '51 Đường 30/4, Ninh Kiều, Cần Thơ', 'Khách sạn boutique giữa trung tâm thành phố', 'hotel5_cantho@example.com', '02923827127', 90, 'International Hotel Can Tho', 4, 5),
-(26, '32-34 Trần Phú, Nha Trang', 'Khách sạn 5 sao bên bờ biển Nha Trang', 'hotel1_nhatrang@example.com', '02583834444', 120, 'InterContinental Nha Trang', 5, 6),
-(27, '96-98 Trần Phú, Nha Trang', 'Khách sạn sang trọng với bể bơi vô cực', 'hotel2_nhatrang@example.com', '02583818181', 200, 'Vinpearl Luxury Nha Trang', 5, 6),
-(28, '38 Trần Phú, Nha Trang', 'Khách sạn hiện đại với vị trí trung tâm', 'hotel3_nhatrang@example.com', '02583856565', 300, 'Sheraton Nha Trang', 5, 6),
-(29, '8 Hùng Vương, Nha Trang', 'Khách sạn 4 sao gần biển', 'hotel4_nhatrang@example.com', '02583866666', 150, 'Havana Nha Trang', 4, 6),
-(30, '88/8 Trần Phú, Nha Trang', 'Khách sạn boutique hiện đại', 'hotel5_nhatrang@example.com', '02583877777', 100, 'Asia Paradise Hotel', 3, 6),
-(31, '42 Nguyễn Văn Trỗi, Đà Lạt', 'Khách sạn đẹp giữa trung tâm Đà Lạt', 'hotel1_dalat@example.com', '02633551999', 100, 'Terracotta Hotel Dalat', 4, 7),
-(32, '36 Đường Hùng Vương, Đà Lạt', 'Khách sạn 5 sao với tầm nhìn đẹp', 'hotel2_dalat@example.com', '02633554445', 120, 'Da Lat Palace Hotel', 5, 7),
-(33, '19 Đường Trần Hưng Đạo, Đà Lạt', 'Khách sạn sang trọng gần hồ Xuân Hương', 'hotel3_dalat@example.com', '02633555555', 80, 'Novotel Dalat', 4, 7),
-(34, '66 Đường Trần Quốc Toản, Đà Lạt', 'Khách sạn yên tĩnh với không gian thoáng đãng', 'hotel4_dalat@example.com', '02633533333', 60, 'Sofia Hotel Dalat', 3, 7),
-(35, '39 Đường Đống Đa, Đà Lạt', 'Khách sạn giá rẻ với dịch vụ tốt', 'hotel5_dalat@example.com', '02633544332', 40, 'An Vui Hotel', 2, 7),
-(36, '01 Lê Lợi, Phú Nhuận, Huế', 'Khách sạn 5 sao lịch sử gần sông Hương', 'hotel1_hue@example.com', '02343812222', 140, 'Azerai La Residence Hue', 5, 8),
-(37, '94 Hùng Vương, Huế', 'Khách sạn sang trọng với hồ bơi', 'hotel2_hue@example.com', '02343816666', 100, 'Indochine Palace', 5, 8),
-(38, '10 Trần Hưng Đạo, Huế', 'Khách sạn 4 sao với dịch vụ tốt', 'hotel3_hue@example.com', '02343814444', 120, 'Grand Hue Hotel', 4, 8),
-(39, '15 Lê Lợi, Huế', 'Khách sạn hiện đại giữa trung tâm', 'hotel4_hue@example.com', '02343812111', 80, 'Moonlight Hotel Hue', 4, 8),
-(40, '18 Đường Lê Ngô Cát, Huế', 'Khách sạn giá rẻ gần phố cổ', 'hotel5_hue@example.com', '02343815555', 60, 'Sunny Hotel Hue', 3, 8),
-(41, '28 Thùy Vân, Vũng Tàu', 'Khách sạn 5 sao bên bờ biển', 'hotel1_vungtau@example.com', '02543895555', 200, 'Imperial Hotel Vung Tau', 5, 9),
-(42, '1A Lê Hồng Phong, Vũng Tàu', 'Khách sạn hiện đại với tiện nghi đầy đủ', 'hotel2_vungtau@example.com', '02543896444', 150, 'Pullman Vung Tau', 5, 9),
-(43, '31 Trần Phú, Vũng Tàu', 'Khách sạn 4 sao gần biển', 'hotel3_vungtau@example.com', '02543895111', 120, 'Vung Tau Intourco Resort', 4, 9),
-(44, '92 Hạ Long, Vũng Tàu', 'Khách sạn sang trọng với bể bơi', 'hotel4_vungtau@example.com', '02543894222', 90, 'Lan Rung Resort & Spa', 4, 9),
-(45, '33 Lê Hồng Phong, Vũng Tàu', 'Khách sạn giá rẻ với vị trí trung tâm', 'hotel5_vungtau@example.com', '02543892333', 50, 'Hai Duong Hotel', 2, 9),
-(46, '123 Hùng Vương, Hà Giang', 'Khách sạn với tầm nhìn tuyệt đẹp', 'hotel1_hagiang@example.com', '02193854444', 60, 'Hà Giang Hotel', 3, 11),
-(47, '45 Nguyễn Trãi, Hà Giang', 'Khách sạn bình dân với dịch vụ tốt', 'hotel2_hagiang@example.com', '02193853333', 50, 'Thien Ha Hotel', 2, 11),
-(48, '88 Đường Trần Hưng Đạo, Hà Giang', 'Khách sạn sạch sẽ và tiện lợi', 'hotel3_hagiang@example.com', '02193852222', 40, 'Phu Linh Hotel', 2, 11),
-(49, '10 Phố Mã Pì Lèng, Hà Giang', 'Khách sạn nằm trong khu du lịch', 'hotel4_hagiang@example.com', '02193851111', 30, 'Mã Pì Lèng Hotel', 1, 11),
-(50 , '100 Đường Quang Trung, Hà Giang', 'Khách sạn gần trung tâm thành phố', 'hotel5_hagiang@example.com', '02193850000', 20, 'Hoa Cuong Hotel', 1, 11),
-(51, '24 Trần Phú, Lào Cai', 'Khách sạn gần trung tâm, dịch vụ tốt.', 'info@laocaigroup.com', '0214 3838 888', 30, 'Khách sạn Mường Thanh Lào Cai', 4, 12),
-(52, '06 Lê Lợi, Lào Cai', 'Khách sạn sang trọng, gần các điểm du lịch.', 'reservation@hotel.com', '0214 3838 999', 40, 'Khách sạn Victoria Sapa', 5, 12),
-(53, '10 Hùng Vương, Lào Cai', 'Khách sạn hiện đại với không gian thoải mái.', 'contact@hotel.com', '0214 3838 777', 20, 'Khách sạn Sapa Jade Hill', 3, 12),
-(54, '30 Phan Đình Phùng, Lào Cai', 'Khách sạn tiện nghi, phục vụ 24/7.', 'support@laocaigroup.com', '0214 3838 666', 25, 'Khách sạn Sapa Legend Hotel', 4, 12),
-(55, '20 Lê Quý Đôn, Lào Cai', 'Khách sạn sạch sẽ, dịch vụ tận tình.', 'info@hotel.com', '0214 3838 555', 15, 'Khách sạn Green View', 3, 12),
-(56, '1 Đường Mới, Yên Bái', 'Khách sạn mới xây, tiện nghi đầy đủ.', 'info@yenbaihotel.com', '0216 3838 888', 30, 'Khách sạn Muong Thanh Yên Bái', 4, 13),
-(57, '5 Đường Phạm Ngũ Lão, Yên Bái', 'Khách sạn view đẹp, gần sông Hồng.', 'reservation@hotel.com', '0216 3838 999', 35, 'Khách sạn Hương Giang', 5, 13),
-(58, '7 Đường Hoàng Quốc Việt, Yên Bái', 'Khách sạn tiện nghi, phục vụ chu đáo.', 'contact@hotel.com', '0216 3838 777', 20, 'Khách sạn Thảo Nguyên', 3, 13),
-(59, '10 Đường 30/4, Yên Bái', 'Khách sạn gần các điểm du lịch nổi tiếng.', 'support@yenbaihotel.com', '0216 3838 666', 40, 'Khách sạn Quang Minh', 4, 13),
-(60, '15 Đường Bến Lâm, Yên Bái', 'Khách sạn yên tĩnh, thoải mái.', 'info@hotel.com', '0216 3838 555', 25, 'Khách sạn Anh Đào', 3, 13),
-(61, '1 Đường Phú Thịnh, Tuyên Quang', 'Khách sạn sang trọng với dịch vụ tốt.', 'info@tuyenquanghotel.com', '0217 3838 888', 30, 'Khách sạn Tuyên Quang 1', 4, 14),
-(62, '3 Đường 30/4, Tuyên Quang', 'Khách sạn tiện nghi, dịch vụ chuyên nghiệp.', 'reservation@hotel.com', '0217 3838 999', 25, 'Khách sạn Tuyên Quang 2', 5, 14),
-(63, '5 Đường Nguyễn Trãi, Tuyên Quang', 'Khách sạn hiện đại với không gian thoải mái.', 'contact@hotel.com', '0217 3838 777', 20, 'Khách sạn Tuyên Quang 3', 4, 14),
-(64, '10 Đường Trường Chinh, Tuyên Quang', 'Khách sạn sạch sẽ, phục vụ 24/7.', 'support@tuyenquanghotel.com', '0217 3838 666', 15, 'Khách sạn Tuyên Quang 4', 3, 14),
-(65, '15 Đường Lê Lợi, Tuyên Quang', 'Khách sạn gần khu vui chơi giải trí.', 'info@hotel.com', '0217 3838 555', 10, 'Khách sạn Tuyên Quang 5', 4, 14),
-
-(66, '1 Đường Hoàng Văn Thụ, Thái Nguyên', 'Khách sạn hiện đại với dịch vụ tốt.', 'info@thainguyenhotel.com', '0218 3838 888', 30, 'Khách sạn Thái Nguyên 1', 4, 15),
-(67, '3 Đường Lê Hồng Phong, Thái Nguyên', 'Khách sạn gần trung tâm thành phố.', 'reservation@hotel.com', '0218 3838 999', 25, 'Khách sạn Thái Nguyên 2', 5, 15),
-(68, '5 Đường 3/2, Thái Nguyên', 'Khách sạn có nhiều dịch vụ tiện ích.', 'contact@hotel.com', '0218 3838 777', 20, 'Khách sạn Thái Nguyên 3', 3, 15),
-(69, '10 Đường Trường Chinh, Thái Nguyên', 'Khách sạn gần các khu vui chơi.', 'support@thainguyenhotel.com', '0218 3838 666', 15, 'Khách sạn Thái Nguyên 4', 4, 15),
-(70, '15 Đường Phan Đình Phùng, Thái Nguyên', 'Khách sạn với không gian thoải mái.', 'info@hotel.com', '0218 3838 555', 10, 'Khách sạn Thái Nguyên 5', 5, 15),
-(71, '123 Trần Hưng Đạo, Bà Rịa', 'Khách sạn gần biển, dịch vụ chu đáo.', 'info@bariahotel.com', '0254 3838 888', 40, 'Khách sạn Hoàng Anh', 4, 10),
-(72, '456 Lê Duẩn, Bà Rịa', 'Khách sạn sang trọng, view biển đẹp.', 'reservation@hotel.com', '0254 3838 999', 35, 'Khách sạn Paradise', 5, 10),
-(73, '789 Nguyễn Thái Học, Bà Rịa', 'Khách sạn tiện nghi, phục vụ 24/7.', 'contact@hotel.com', '0254 3838 777', 30, 'Khách sạn Đại Dương', 3, 10),
-(74, '321 Hùng Vương, Bà Rịa', 'Khách sạn gần trung tâm, dịch vụ tốt.', 'support@bariahotel.com', '0254 3838 666', 20, 'Khách sạn Thanh Bình', 4, 10),
-(75, '654 Phạm Hồng Thái, Bà Rịa', 'Khách sạn sạch sẽ, thoải mái.', 'info@hotel.com', '0254 3838 555', 15, 'Khách sạn Bà Rịa', 3, 10);
+--INSERT IGNORE INTO hotel (id, address, description, email, hotline, total_room, name_hotel, star_point, city_id,bank_name,bankaccountnumber) VALUES
+--(1, '44B Lý Thường Kiệt, Hoàn Kiếm, Hà Nội', 'Khách sạn sang trọng với kiến trúc độc đáo', 'hotel1_hanoi@example.com', '02439330500', 268, 'Sofitel Legend Metropole Hanoi', 5, 1,'TPbank','123456789'),
+--(2, '1 Phan Đình Phùng, Ba Đình, Hà Nội', 'Khách sạn cổ điển giữa lòng Hà Nội', 'hotel2_hanoi@example.com', '02438253355', 117, 'Hanoi Daewoo Hotel', 5, 1,'MBbank','123456789'),
+--(3, '40 Cát Linh, Đống Đa, Hà Nội', 'Khách sạn 5 sao với hồ bơi ngoài trời', 'hotel3_hanoi@example.com', '02437330888', 300, 'Pullman Hanoi Hotel', 4, 1,'NCBbank','123456789'),
+--(4, '15 Ngọc Khánh, Ba Đình, Hà Nội', 'Khách sạn hiện đại với các tiện nghi cao cấp', 'hotel4_hanoi@example.com', '02437661000', 377, 'Lotte Hotel Hanoi', 5, 1,'Tbank','123456789'),
+--(5, '83A Lý Thường Kiệt, Hoàn Kiếm, Hà Nội', 'Khách sạn boutique giữa trung tâm Hà Nội', 'hotel5_hanoi@example.com', '02438258888', 81, 'Hilton Hanoi Opera', 4, 1,'HPbank','123456789'),
+--(6, '2 Công trường Lam Sơn, Quận 1, TP. Hồ Chí Minh', 'Khách sạn sang trọng với vị trí trung tâm', 'hotel1_hcm@example.com', '02838234999', 244, 'Park Hyatt Saigon', 5, 4,'TPbank','123456789'),
+--(7, '76 Lê Lai, Quận 1, TP. Hồ Chí Minh', 'Khách sạn nổi tiếng với phong cách hiện đại', 'hotel2_hcm@example.com', '02838223888', 286, 'New World Saigon Hotel', 5, 4,'Bbank','123456789'),
+--(8, '88 Đồng Khởi, Quận 1, TP. Hồ Chí Minh', 'Khách sạn cổ điển với tiện nghi hiện đại', 'hotel3_hcm@example.com', '02838292018', 533, 'Sheraton Saigon Hotel & Towers', 5, 4,'TPbank','123456789'),
+--(9, '141 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh', 'Khách sạn 5 sao với tầm nhìn toàn cảnh thành phố', 'hotel4_hcm@example.com', '02838223366', 321, 'Rex Hotel Saigon', 5, 4,'Gbank','123456789'),
+--(10, '39 Lê Duẩn, Quận 1, TP. Hồ Chí Minh', 'Khách sạn đẳng cấp quốc tế tại trung tâm thành phố', 'hotel5_hcm@example.com', '02838272828', 286, 'InterContinental Saigon', 5, 4,'Techcombank','123456789'),
+--(11, '36 Bạch Đằng, Hải Châu, Đà Nẵng', 'Khách sạn hiện đại bên sông Hàn', 'hotel1_danang@example.com', '02363655888', 323, 'Novotel Danang Premier Han River', 5, 3,'SCBbank','123456789'),
+-- (12, '118-120 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng', 'Khách sạn sang trọng với bãi biển riêng', 'hotel2_danang@example.com', '02363953707', 200, 'Furama Resort Danang', 5, 3,'TPbank','123456789'),
+--(13, '210 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng', 'Khách sạn 5 sao bên bờ biển', 'hotel3_danang@example.com', '02363885868', 187, 'TMS Hotel Da Nang Beach', 4, 3,'TPbank','123456789'),
+--(14, '35 Trần Hưng Đạo, Sơn Trà, Đà Nẵng', 'Khách sạn với hồ bơi vô cực', 'hotel4_danang@example.com', '02363928866', 242, 'Hilton Da Nang', 5, 3,'TPbank','123456789'),
+--(15, '38 Bạch Đằng, Hải Châu, Đà Nẵng', 'Khách sạn boutique giữa trung tâm thành phố', 'hotel5_danang@example.com', '02363882828', 234, 'Vinpearl Condotel Riverfront Da Nang', 4, 3,'TPbank','123456789'),
+--(16, '60A Nguyễn Bỉnh Khiêm, Hải An, Hải Phòng', 'Khách sạn với tiện nghi cao cấp', 'hotel1_haiphong@example.com', '02253835100', 350, 'Melia Vinpearl Hai Phong Rivera', 5, 2,'TPbank','123456789'),
+--(17, '4 Trần Phú, Ngô Quyền, Hải Phòng', 'Khách sạn phong cách cổ điển', 'hotel2_haiphong@example.com', '02253731121', 125, 'Avani Hai Phong Harbour View', 4, 2,'TPbank','123456789'),
+--(18, '12 Trần Phú, Ngô Quyền, Hải Phòng', 'Khách sạn sang trọng tại trung tâm Hải Phòng', 'hotel3_haiphong@example.com', '02253827127', 152, 'Mercure Hai Phong', 4, 2,'TPbank','123456789'),
+--(19, '275 Lạch Tray, Ngô Quyền, Hải Phòng', 'Khách sạn 4 sao với bể bơi ngoài trời', 'hotel4_haiphong@example.com', '02253823145', 100, 'Lac Long Hotel', 4, 2,'TPbank','123456789'),
+--(20, '12 Hồng Bàng, Hồng Bàng, Hải Phòng', 'Khách sạn hiện đại với hồ bơi', 'hotel5_haiphong@example.com', '02253721114', 200, 'Manoir Des Arts Hotel', 5, 2,'TPbank','123456789'),
+--(21, '209 Đường 30/4, Ninh Kiều, Cần Thơ', 'Khách sạn 5 sao ven sông Hậu', 'hotel1_cantho@example.com', '02923824306', 225, 'Vinpearl Hotel Can Tho', 5, 5,'TPbank','123456789'),
+--(22, '208 Đường 30/4, Ninh Kiều, Cần Thơ', 'Khách sạn sang trọng bên bờ sông', 'hotel2_cantho@example.com', '02923812121', 165, 'Ninh Kieu Riverside Hotel', 4, 5,'TPbank','123456789'),
+--(23, '22 Đường Hai Bà Trưng, Ninh Kiều, Cần Thơ', 'Khách sạn 4 sao với tầm nhìn đẹp', 'hotel3_cantho@example.com', '02923719999', 107, 'TTC Hotel Premium Can Tho', 4, 5,'TPbank','123456789'),
+--(24, '61 Trần Văn Khéo, Ninh Kiều, Cần Thơ', 'Khách sạn hiện đại với hồ bơi ngoài trời', 'hotel4_cantho@example.com', '02923761001', 150, 'Muong Thanh Luxury Can Tho Hotel', 5, 5,'TPbank','123456789'),
+--(25, '51 Đường 30/4, Ninh Kiều, Cần Thơ', 'Khách sạn boutique giữa trung tâm thành phố', 'hotel5_cantho@example.com', '02923827127', 90, 'International Hotel Can Tho', 4, 5,'TPbank','123456789'),
+--(26, '32-34 Trần Phú, Nha Trang', 'Khách sạn 5 sao bên bờ biển Nha Trang', 'hotel1_nhatrang@example.com', '02583834444', 120, 'InterContinental Nha Trang', 5, 6,'TPbank','123456789'),
+--(27, '96-98 Trần Phú, Nha Trang', 'Khách sạn sang trọng với bể bơi vô cực', 'hotel2_nhatrang@example.com', '02583818181', 200, 'Vinpearl Luxury Nha Trang', 5, 6,'TPbank','123456789'),
+--(28, '38 Trần Phú, Nha Trang', 'Khách sạn hiện đại với vị trí trung tâm', 'hotel3_nhatrang@example.com', '02583856565', 300, 'Sheraton Nha Trang', 5, 6,'TPbank','123456789'),
+--(29, '8 Hùng Vương, Nha Trang', 'Khách sạn 4 sao gần biển', 'hotel4_nhatrang@example.com', '02583866666', 150, 'Havana Nha Trang', 4, 6,'TPbank','123456789'),
+--(30, '88/8 Trần Phú, Nha Trang', 'Khách sạn boutique hiện đại', 'hotel5_nhatrang@example.com', '02583877777', 100, 'Asia Paradise Hotel', 3, 6,'TPbank','123456789'),
+--(31, '42 Nguyễn Văn Trỗi, Đà Lạt', 'Khách sạn đẹp giữa trung tâm Đà Lạt', 'hotel1_dalat@example.com', '02633551999', 100, 'Terracotta Hotel Dalat', 4, 7,'TPbank','123456789'),
+--(32, '36 Đường Hùng Vương, Đà Lạt', 'Khách sạn 5 sao với tầm nhìn đẹp', 'hotel2_dalat@example.com', '02633554445', 120, 'Da Lat Palace Hotel', 5, 7,'TPbank','123456789'),
+--(33, '19 Đường Trần Hưng Đạo, Đà Lạt', 'Khách sạn sang trọng gần hồ Xuân Hương', 'hotel3_dalat@example.com', '02633555555', 80, 'Novotel Dalat', 4, 7,'TPbank','123456789'),
+--(34, '66 Đường Trần Quốc Toản, Đà Lạt', 'Khách sạn yên tĩnh với không gian thoáng đãng', 'hotel4_dalat@example.com', '02633533333', 60, 'Sofia Hotel Dalat', 3, 7,'TPbank','123456789'),
+--(35, '39 Đường Đống Đa, Đà Lạt', 'Khách sạn giá rẻ với dịch vụ tốt', 'hotel5_dalat@example.com', '02633544332', 40, 'An Vui Hotel', 2, 7,'TPbank','123456789'),
+--(36, '01 Lê Lợi, Phú Nhuận, Huế', 'Khách sạn 5 sao lịch sử gần sông Hương', 'hotel1_hue@example.com', '02343812222', 140, 'Azerai La Residence Hue', 5, 8,'TPbank','123456789'),
+--(37, '94 Hùng Vương, Huế', 'Khách sạn sang trọng với hồ bơi', 'hotel2_hue@example.com', '02343816666', 100, 'Indochine Palace', 5, 8,'TPbank','123456789'),
+--(38, '10 Trần Hưng Đạo, Huế', 'Khách sạn 4 sao với dịch vụ tốt', 'hotel3_hue@example.com', '02343814444', 120, 'Grand Hue Hotel', 4, 8,'TPbank','123456789'),
+--(39, '15 Lê Lợi, Huế', 'Khách sạn hiện đại giữa trung tâm', 'hotel4_hue@example.com', '02343812111', 80, 'Moonlight Hotel Hue', 4, 8,'TPbank','123456789'),
+--(40, '18 Đường Lê Ngô Cát, Huế', 'Khách sạn giá rẻ gần phố cổ', 'hotel5_hue@example.com', '02343815555', 60, 'Sunny Hotel Hue', 3, 8,'TPbank','123456789'),
+--(41, '28 Thùy Vân, Vũng Tàu', 'Khách sạn 5 sao bên bờ biển', 'hotel1_vungtau@example.com', '02543895555', 200, 'Imperial Hotel Vung Tau', 5, 9,'TPbank','123456789'),
+--(42, '1A Lê Hồng Phong, Vũng Tàu', 'Khách sạn hiện đại với tiện nghi đầy đủ', 'hotel2_vungtau@example.com', '02543896444', 150, 'Pullman Vung Tau', 5, 9,'TPbank','123456789'),
+--(43, '31 Trần Phú, Vũng Tàu', 'Khách sạn 4 sao gần biển', 'hotel3_vungtau@example.com', '02543895111', 120, 'Vung Tau Intourco Resort', 4, 9,'TPbank','123456789'),
+--(44, '92 Hạ Long, Vũng Tàu', 'Khách sạn sang trọng với bể bơi', 'hotel4_vungtau@example.com', '02543894222', 90, 'Lan Rung Resort & Spa', 4, 9,'TPbank','123456789'),
+--(45, '33 Lê Hồng Phong, Vũng Tàu', 'Khách sạn giá rẻ với vị trí trung tâm', 'hotel5_vungtau@example.com', '02543892333', 50, 'Hai Duong Hotel', 2, 9,'TPbank','123456789'),
+--(46, '123 Hùng Vương, Hà Giang', 'Khách sạn với tầm nhìn tuyệt đẹp', 'hotel1_hagiang@example.com', '02193854444', 60, 'Hà Giang Hotel', 3, 11,'TPbank','123456789'),
+--(47, '45 Nguyễn Trãi, Hà Giang', 'Khách sạn bình dân với dịch vụ tốt', 'hotel2_hagiang@example.com', '02193853333', 50, 'Thien Ha Hotel', 2, 11,'TPbank','123456789'),
+--(48, '88 Đường Trần Hưng Đạo, Hà Giang', 'Khách sạn sạch sẽ và tiện lợi', 'hotel3_hagiang@example.com', '02193852222', 40, 'Phu Linh Hotel', 2, 11,'TPbank','123456789'),
+--(49, '10 Phố Mã Pì Lèng, Hà Giang', 'Khách sạn nằm trong khu du lịch', 'hotel4_hagiang@example.com', '02193851111', 30, 'Mã Pì Lèng Hotel', 1, 11,'TPbank','123456789'),
+--(50 , '100 Đường Quang Trung, Hà Giang', 'Khách sạn gần trung tâm thành phố', 'hotel5_hagiang@example.com', '02193850000', 20, 'Hoa Cuong Hotel', 1, 11,'TPbank','123456789'),
+--(51, '24 Trần Phú, Lào Cai', 'Khách sạn gần trung tâm, dịch vụ tốt.', 'info@laocaigroup.com', '0214 3838 888', 30, 'Khách sạn Mường Thanh Lào Cai', 4, 12,'TPbank','123456789'),
+--(52, '06 Lê Lợi, Lào Cai', 'Khách sạn sang trọng, gần các điểm du lịch.', 'reservation@hotel.com', '0214 3838 999', 40, 'Khách sạn Victoria Sapa', 5, 12,'TPbank','123456789'),
+--(53, '10 Hùng Vương, Lào Cai', 'Khách sạn hiện đại với không gian thoải mái.', 'contact@hotel.com', '0214 3838 777', 20, 'Khách sạn Sapa Jade Hill', 3, 12,'TPbank','123456789'),
+--(54, '30 Phan Đình Phùng, Lào Cai', 'Khách sạn tiện nghi, phục vụ 24/7.', 'support@laocaigroup.com', '0214 3838 666', 25, 'Khách sạn Sapa Legend Hotel', 4, 12,'TPbank','123456789'),
+--(55, '20 Lê Quý Đôn, Lào Cai', 'Khách sạn sạch sẽ, dịch vụ tận tình.', 'info@hotel.com', '0214 3838 555', 15, 'Khách sạn Green View', 3, 12,'TPbank','123456789'),
+--(56, '1 Đường Mới, Yên Bái', 'Khách sạn mới xây, tiện nghi đầy đủ.', 'info@yenbaihotel.com', '0216 3838 888', 30, 'Khách sạn Muong Thanh Yên Bái', 4, 13,'TPbank','123456789'),
+--(57, '5 Đường Phạm Ngũ Lão, Yên Bái', 'Khách sạn view đẹp, gần sông Hồng.', 'reservation@hotel.com', '0216 3838 999', 35, 'Khách sạn Hương Giang', 5, 13,'TPbank','123456789'),
+--(58, '7 Đường Hoàng Quốc Việt, Yên Bái', 'Khách sạn tiện nghi, phục vụ chu đáo.', 'contact@hotel.com', '0216 3838 777', 20, 'Khách sạn Thảo Nguyên', 3, 13,'TPbank','123456789'),
+--(59, '10 Đường 30/4, Yên Bái', 'Khách sạn gần các điểm du lịch nổi tiếng.', 'support@yenbaihotel.com', '0216 3838 666', 40, 'Khách sạn Quang Minh', 4, 13,'TPbank','123456789'),
+--(60, '15 Đường Bến Lâm, Yên Bái', 'Khách sạn yên tĩnh, thoải mái.', 'info@hotel.com', '0216 3838 555', 25, 'Khách sạn Anh Đào', 3, 13,'TPbank','123456789'),
+--(61, '1 Đường Phú Thịnh, Tuyên Quang', 'Khách sạn sang trọng với dịch vụ tốt.', 'info@tuyenquanghotel.com', '0217 3838 888', 30, 'Khách sạn Tuyên Quang 1', 4, 14,'TPbank','123456789'),
+--(62, '3 Đường 30/4, Tuyên Quang', 'Khách sạn tiện nghi, dịch vụ chuyên nghiệp.', 'reservation@hotel.com', '0217 3838 999', 25, 'Khách sạn Tuyên Quang 2', 5, 14,'TPbank','123456789'),
+--(63, '5 Đường Nguyễn Trãi, Tuyên Quang', 'Khách sạn hiện đại với không gian thoải mái.', 'contact@hotel.com', '0217 3838 777', 20, 'Khách sạn Tuyên Quang 3', 4, 14,'TPbank','123456789'),
+--(64, '10 Đường Trường Chinh, Tuyên Quang', 'Khách sạn sạch sẽ, phục vụ 24/7.', 'support@tuyenquanghotel.com', '0217 3838 666', 15, 'Khách sạn Tuyên Quang 4', 3, 14,'TPbank','123456789'),
+--(65, '15 Đường Lê Lợi, Tuyên Quang', 'Khách sạn gần khu vui chơi giải trí.', 'info@hotel.com', '0217 3838 555', 10, 'Khách sạn Tuyên Quang 5', 4, 14,'TPbank','123456789'),
+--
+--(66, '1 Đường Hoàng Văn Thụ, Thái Nguyên', 'Khách sạn hiện đại với dịch vụ tốt.', 'info@thainguyenhotel.com', '0218 3838 888', 30, 'Khách sạn Thái Nguyên 1', 4, 15,'TPbank','123456789'),
+--(67, '3 Đường Lê Hồng Phong, Thái Nguyên', 'Khách sạn gần trung tâm thành phố.', 'reservation@hotel.com', '0218 3838 999', 25, 'Khách sạn Thái Nguyên 2', 5, 15,'TPbank','123456789'),
+--(68, '5 Đường 3/2, Thái Nguyên', 'Khách sạn có nhiều dịch vụ tiện ích.', 'contact@hotel.com', '0218 3838 777', 20, 'Khách sạn Thái Nguyên 3', 3, 15,'TPbank','123456789'),
+--(69, '10 Đường Trường Chinh, Thái Nguyên', 'Khách sạn gần các khu vui chơi.', 'support@thainguyenhotel.com', '0218 3838 666', 15, 'Khách sạn Thái Nguyên 4', 4, 15,'TPbank','123456789'),
+--(70, '15 Đường Phan Đình Phùng, Thái Nguyên', 'Khách sạn với không gian thoải mái.', 'info@hotel.com', '0218 3838 555', 10, 'Khách sạn Thái Nguyên 5', 5, 15,'TPbank','123456789'),
+--(71, '123 Trần Hưng Đạo, Bà Rịa', 'Khách sạn gần biển, dịch vụ chu đáo.', 'info@bariahotel.com', '0254 3838 888', 40, 'Khách sạn Hoàng Anh', 4, 10,'TPbank','123456789'),
+--(72, '456 Lê Duẩn, Bà Rịa', 'Khách sạn sang trọng, view biển đẹp.', 'reservation@hotel.com', '0254 3838 999', 35, 'Khách sạn Paradise', 5, 10,'TPbank','123456789'),
+--(73, '789 Nguyễn Thái Học, Bà Rịa', 'Khách sạn tiện nghi, phục vụ 24/7.', 'contact@hotel.com', '0254 3838 777', 30, 'Khách sạn Đại Dương', 3, 10,'TPbank','123456789'),
+--(74, '321 Hùng Vương, Bà Rịa', 'Khách sạn gần trung tâm, dịch vụ tốt.', 'support@bariahotel.com', '0254 3838 666', 20, 'Khách sạn Thanh Bình', 4, 10,'TPbank','123456789'),
+--(75, '654 Phạm Hồng Thái, Bà Rịa', 'Khách sạn sạch sẽ, thoải mái.', 'info@hotel.com', '0254 3838 555', 15, 'Khách sạn Bà Rịa', 3, 10,'TPbank','123456789');
 ----
 --INSERT IGNORE INTO hotel_image (link_image, hotel_id) VALUES
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 1),
@@ -548,10 +580,10 @@ INSERT IGNORE INTO hotel (id, address, description, email, hotline, total_room, 
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 73),
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 74),
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 75);
---
---
+
+
 ----
-----
+--
 --INSERT IGNORE  INTO hotel_room (id, amount_room, image, number_room_last, number_of_booking, number_people, price_per_night, status, type_room, hotel_id) VALUES
 --(1, 10, 'https://asiky.com/files/images/Article/tin-tuc/chup-anh-khach-san.jpg', 10, 0, 2, 300000, 'CONPHONG', 'Standard', 1),
 --(2, 10, 'https://asiky.com/files/images/Article/tin-tuc/chup-anh-khach-san.jpg', 10, 0, 2, 500000, 'CONPHONG', 'Deluxe', 1),
@@ -841,14 +873,15 @@ INSERT IGNORE INTO hotel (id, address, description, email, hotline, total_room, 
 --(223, 380, 'https://asiky.com/files/images/Article/tin-tuc/chup-anh-khach-san.jpg', 223, 0, 2, 1780000, 'CONPHONG', 'Standard', 75),
 --(224, 380, 'https://asiky.com/files/images/Article/tin-tuc/chup-anh-khach-san.jpg', 224, 0, 2, 1980000, 'CONPHONG', 'Deluxe', 75),
 --(225, 380, 'https://asiky.com/files/images/Article/tin-tuc/chup-anh-khach-san.jpg', 225, 0, 2, 2180000, 'CONPHONG', 'Suite', 75);
+--INSERT IGNORE INTO hotel_policy(id,name_policy) VALUES
+--(1, 'chính sách đổi lịch'),
+--(2, 'chính sách hủy lịch'),
+--(3, 'chính sách trẻ em'),
+--(4, 'chính sách thú nuôi'),
+--(5, 'chính sách nhận phòng'),
+--(6, 'chính sách trả phòng');
 --
---INSERT IGNORE INTO hotel_policy (id, description, is_free, is_related_fee, name_policy) VALUES
---(1, 'Free cancellation within 24 hours', 1, 0, 'Free Cancellation'),
---(2, 'No refund for non-refundable bookings', 0, 1, 'No Refund'),
---(3, 'Breakfast included', 1, 0, 'Breakfast Included'),
---(4, 'Late check-out available', 1, 0, 'Late Check-out'),
---(5, 'Early check-in available', 1, 0, 'Early Check-in'),
---(6, 'Pets allowed with fee', 0, 1, 'Pet Policy');
+
 ----ALTER TABLE  hotel_facility ADD description varchar(255);
 --INSERT IGNORE INTO hotel_facility (id, description, name_hotel_facility) VALUES
 --(1, 'Free Wi-Fi in all areas', 'Wi-Fi'),
@@ -896,6 +929,47 @@ INSERT IGNORE INTO hotel (id, address, description, email, hotline, total_room, 
 --(3, 2),
 --(4, 3);
 
-
+--INSERT IGNORE INTO hotel_policy_details (id,coditional_info, number_people, fee, hotel_id, hotel_policy_id, before_day_amount, note)
+--VALUES
+---- Chính sách đổi lịch
+--(1,'Đổi lịch trong thời gian cho phép', 2, 100000, 1, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(2,'Đổi lịch trong thời gian cho phép', 2, 100000, 2, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(3,'Đổi lịch trong thời gian cho phép', 2, 100000, 3, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(4,'Đổi lịch trong thời gian cho phép', 2, 100000, 4, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(5,'Đổi lịch trong thời gian cho phép', 2, 100000, 5, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(6,'Đổi lịch trong thời gian cho phép', 2, 100000, 6, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(7,'Đổi lịch trong thời gian cho phép', 2, 100000, 7, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(8,'Đổi lịch trong thời gian cho phép', 2, 100000, 8, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(9,'Đổi lịch trong thời gian cho phép', 2, 100000, 9, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(10,'Đổi lịch trong thời gian cho phép', 2, 100000, 10, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(11,'Đổi lịch trong thời gian cho phép', 2, 100000, 11, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(12,'Đổi lịch trong thời gian cho phép', 2, 100000, 12, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(13,'Đổi lịch trong thời gian cho phép', 2, 100000, 13, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(14,'Đổi lịch trong thời gian cho phép', 2, 100000, 14, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+--(15,'Đổi lịch trong thời gian cho phép', 2, 100000, 15, 1, 7, 'Được đổi lịch trong vòng 7 ngày'),
+---- Lặp tiếp tục cho đến khách sạn 70
+---- Chính sách hủy lịch
+--(16,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 1, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(17,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 2, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(18,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 3, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(19,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 4, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(20,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 5, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(21,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 6, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(22,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 7, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(23,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0, NULL, 8, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(24,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0,NULL, 9, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(25,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0,NULL, 10, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+--(26,'Hủy đặt phòng  trước thơi hạn  nhận phòng', 0,  NULL, 11, 2, 1, 'Hoàn tiền đầy đủ nếu hủy trước thời hạn'),
+---- Chính sách thú nuôi
+--(27,'Cho phép mang thú cưng thoải mái', 0,  NULL, 1, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(28,'Cho phép mang thú cưng miễn phí', 0,  NULL, 2, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(29,'không Cho phép mang thú cưng ', 0,  NULL, 3, 4, NULL, 'Thú cưng không được phép vào khu vực dành riêng'),
+--(30,'Cho phép mang thú cưng ', 0, NULL, 4, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(31,'không Cho phép mang thú cưng', 0,  NULL, 5, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(32,'Cho phép mang thú cưng với phí', 0,  NULL, 6, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(33,'không Cho phép mang thú cưng', 0, NULL, 7, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(34,'Cho phép mang thú cưng ', 0,  NULL, 8, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(35,'không Cho phép mang thú cưng', 0,  NULL, 9, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng'),
+--(36,'Cho phép mang thú cưng ', 0,  NULL, 10, 4, NULL, 'Thú cưng được phép vào khu vực dành riêng');
 
 

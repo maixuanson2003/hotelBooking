@@ -148,6 +148,19 @@ public class HotelServiceimpl implements HotelService {
         Hotel hotel=hotelRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
         return  this.createHotelResponse(hotel);
     }
+
+    @Override
+    public List<HotelResonse> GetHotelByCity(Long cityId) {
+        City city=cityRepository.findById(cityId).orElseThrow(()->new RuntimeException("not found"));
+        List<Hotel> hotelList=city.getHotelList();
+        List<HotelResonse> hotelResonseList=new ArrayList<>();
+        for (Hotel hotel:hotelList){
+            hotelResonseList.add(this.createHotelResponse(hotel));
+
+        }
+        return hotelResonseList;
+    }
+
     @Override
     public List<HotelResonse> GetHotelsuit(String address, RoomRequest roomRequest) {
         List<Hotel> hotelList=hotelRepository.findAllByCity(address);
@@ -196,9 +209,15 @@ public class HotelServiceimpl implements HotelService {
     public List<HotelResonse> GetHotelByCodition(List<String> hotelPolicyList, String address, RoomRequest roomRequest,Integer starpoint) {
         List<Hotel> hotelList=hotelRepository.findAllByCity(address);
         List<HotelResonse> hotelResonseList=new ArrayList<>();
-        boolean CheckCodition1= hotelPolicyList.isEmpty() &&starpoint==null;
-        boolean CheckCodition2= (!hotelPolicyList.isEmpty()) && (starpoint == null);
-        boolean CheckCodition3= !hotelPolicyList.isEmpty() &&starpoint!=null;
+        if (starpoint == 0) {
+            starpoint = -1;
+        }
+
+        boolean CheckCodition1 = hotelPolicyList.isEmpty() && starpoint == -1;
+        boolean CheckCodition2 = (!hotelPolicyList.isEmpty()) && (starpoint == -1);
+        boolean CheckCodition3 = !hotelPolicyList.isEmpty() && starpoint != -1;
+        boolean CheckCodition4 = hotelPolicyList.isEmpty() && starpoint != -1;
+
         if(CheckCodition1){
             for (Hotel hotel:hotelList){
                 if (CheckRoomRequest(roomRequest,hotel)){
@@ -220,6 +239,15 @@ public class HotelServiceimpl implements HotelService {
             for (Hotel hotel:hotelList){
                 if (CheckRoomRequest(roomRequest,hotel)){
                     if (CheckCoditionResponse(hotelPolicyList,hotel)&&hotel.getStarPoint().equals(starpoint)){
+                        hotelResonseList.add(this.createHotelResponse(hotel));
+                    }
+                }
+            }
+        }
+        if (CheckCodition4){
+            for (Hotel hotel:hotelList){
+                if (CheckRoomRequest(roomRequest,hotel)){
+                    if (hotel.getStarPoint().equals(starpoint)){
                         hotelResonseList.add(this.createHotelResponse(hotel));
                     }
                 }
@@ -263,6 +291,8 @@ public class HotelServiceimpl implements HotelService {
             hotel.setTotalRoom(hotelRequest.getTotalRoom());
             hotel.setStarPoint(hotelRequest.getStarpoint());
             hotel.setCity(city1.get());
+            hotel.setBankaccountnumber(hotelRequest.getBankaccountnumber());
+            hotel.setBankName(hotelRequest.getBankName());
             hotelRepository.save(hotel);
             Hotel hotel1=hotelRepository.findByNameHotel(hotelRequest.getName());
             createHotelPolicy(hotelRequest.getHotelPolicyDTOList(),hotel1.getId());

@@ -26,15 +26,21 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/webjars/**"};
+    private final String[] Conversation={"/conversations/API/user"};
+    private final String[] Chat={"/chat/API/sendMessage"};
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(swaggerURL).permitAll()
+                                .requestMatchers(Conversation).hasAuthority("SCOPE_USER")
+                                .requestMatchers(Chat).hasAnyAuthority("SCOPE_USER", "SCOPE_ADMIN")
+//                        .requestMatchers()
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/checkToken").permitAll()
                         .anyRequest().permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
                 );

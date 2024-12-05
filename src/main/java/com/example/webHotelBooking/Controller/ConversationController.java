@@ -17,9 +17,8 @@ public class ConversationController {
 
     // Tạo một cuộc trò chuyện mới
     @PostMapping("/create")
-    public void createConversation(@RequestHeader("Authorization") String token) {
-        String tokens = token.replace("Bearer ", "");
-        conversationService.CreateConversation(tokens);
+    public void createConversation(@RequestParam Long userid) {
+        conversationService.CreateConversation(userid);
     }
 
     // Tìm cuộc trò chuyện theo ID

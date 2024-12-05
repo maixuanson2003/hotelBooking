@@ -4,11 +4,14 @@ import com.example.webHotelBooking.DTO.Request.BookingRequest;
 import com.example.webHotelBooking.DTO.Response.BookingResponse;
 import com.example.webHotelBooking.DTO.Response.MyApiResponse;
 import com.example.webHotelBooking.Service.BookingService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,6 +27,11 @@ public class BookingController {
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookingRequest bookingRequest, @RequestParam String username) {
         BookingResponse bookingResponse = bookingService.CreateBooking(bookingRequest, username);
         return new ResponseEntity<>(bookingResponse, HttpStatus.CREATED);
+    }
+    @PostMapping("/Cancel")
+    public ResponseEntity<MyApiResponse> CancelBooking(@RequestParam(required = true) Long BookingId,@RequestParam(required = true) String username , HttpServletRequest req) throws ServletException, IOException {
+        MyApiResponse bookingResponse = bookingService.CancelScheduleBooking(BookingId, username,req);
+        return new ResponseEntity<>(bookingResponse, HttpStatus.OK);
     }
 
     // Lấy tất cả các booking

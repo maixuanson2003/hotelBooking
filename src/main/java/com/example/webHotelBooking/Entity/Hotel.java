@@ -34,6 +34,10 @@ public class Hotel {
     private Integer  TotalRoom;
     @Column(name="starPoint")
     private Integer  starPoint;
+    @Column(name="Bankaccountnumber")
+    private Long  Bankaccountnumber;
+    @Column(name="BankName")
+    private String  BankName;
     @ManyToOne
     @JoinColumn(name = "cityId",nullable = false)
     private City City;

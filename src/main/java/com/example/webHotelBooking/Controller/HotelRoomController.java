@@ -48,16 +48,16 @@ public class HotelRoomController {
     }
 
     // 5. Tìm kiếm phòng theo điều kiện
-    @GetMapping("/search")
+    @GetMapping("/search/{hotelId}")
     public ResponseEntity<List<HotelRoomDTO>> searchRooms(@PathVariable("hotelId") Long hotelId,
                                                           @RequestParam(required = false) List<String> features,
                                                           @RequestParam(required = false) Long priceStart,
-                                                          @RequestParam(required = false) Long priceEnd,
-                                                          @RequestParam(required = false) String roomType) {
+                                                          @RequestParam(required = false) Long priceEnd
+                                                          ) {
         if (features == null) {
             features = new ArrayList<>();
         }
-        List<HotelRoomDTO> hotelRoomDTOList = hotelRoomService.searChRoomByCodition(features, priceStart, priceEnd, roomType, hotelId);
+        List<HotelRoomDTO> hotelRoomDTOList = hotelRoomService.searChRoomByCodition(features, priceStart, priceEnd, hotelId);
         return ResponseEntity.ok(hotelRoomDTOList);
     }
     @GetMapping("/Hotel")

@@ -82,6 +82,7 @@ public class BookingDetailsServiceImpl implements bookingDetailsService {
                 .build();
         bookingdetailsRepository.save(bookingdetails);
         hotelRoom.setNumbeRoomLast(hotelRoom.getNumbeRoomLast()-typeRoom.getAmountRoom());
+        hotelRoom.setNumberOfBooking(hotelRoom.getNumberOfBooking()+1);
         hotelRoomRepository.save(hotelRoom);
     }
 

@@ -5,6 +5,7 @@ import com.example.webHotelBooking.DTO.Response.HotelFacilityDTO;
 import com.example.webHotelBooking.DTO.Response.HotelPolicyDetailsDTO;
 import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
 import com.example.webHotelBooking.Entity.HotelPolicyDetails;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import javax.lang.model.element.Name;
@@ -23,8 +24,8 @@ public class HotelRequest {
     private int starpoint;
     private String desCription;
     private Integer  TotalRoom;
-    private Long cancelfee;
-    private Long ChaneFee;
+    private Long  Bankaccountnumber;
+    private String  BankName;
     private List<HotelFacilityDTO> hotelFacilityList;
     private List<HotelPolicyDetailsDTO> hotelPolicyDTOList;
     private List<HotelRoomDTO> hotelRoomDTOList;

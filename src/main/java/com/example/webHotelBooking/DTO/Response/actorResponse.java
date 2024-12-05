@@ -16,13 +16,15 @@ public class actorResponse {
     private String email;
     private String birthday;
     private String address;
+    private String gender;
     public actorResponse(actor actor){
         this.id=actor.getId();
         this.fullName=actor.getFullname();
         this. username=actor.getUsername();
-        this. phone=actor.getPhone();
+        this.phone=actor.getPhone();
         this.email=actor.getEmail();
         this.birthday=actor.getBirthday();
         this.address=actor.getAddress();
+        this.gender=actor.getGender();
     }
 }

@@ -7,6 +7,7 @@ import com.example.webHotelBooking.DTO.Response.MyApiResponse;
 import com.example.webHotelBooking.DTO.Response.PaymentResponse;
 import com.example.webHotelBooking.Entity.*;
 import com.example.webHotelBooking.Enums.HotelStatus;
+import com.example.webHotelBooking.Enums.NamePolicy;
 import com.example.webHotelBooking.Enums.bookingChangeStatus;
 import com.example.webHotelBooking.Enums.bookingStatus;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
@@ -16,7 +17,11 @@ import com.example.webHotelBooking.Repository.bookingdetailsRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.BookingService;
 import com.example.webHotelBooking.Service.HotelRoomService;
+import com.example.webHotelBooking.Service.HotelPolicyDetailService;
 import com.example.webHotelBooking.Service.bookingDetailsService;
+import com.example.webHotelBooking.ultils.VnPay;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -47,6 +53,8 @@ public class BookingServiceImpl implements BookingService {
     private bookingdetailsRepository bookingdetailsRepository;
     @Autowired
     private bookingChangeDetailsRepository bookingChangeDetailsRepository;
+    @Autowired
+    private HotelPolicyDetailService hotelPolicyDetailService;
     @Autowired
     private userRepository userRepository;
     private Queue<String> Email=new LinkedList<>();
@@ -145,7 +153,7 @@ public class BookingServiceImpl implements BookingService {
         }
         Long fee=0L;
         for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
-            if (hotelPolicyDetails1.getFee()!=null && hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals("Chính sách đổi lịch")){
+            if (hotelPolicyDetails1.getFee()!=null && hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals(NamePolicy.CHINHSACHDOILICH.getMessage())){
                 fee+=hotelPolicyDetails1.getFee();
             }
         }
@@ -154,60 +162,91 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public MyApiResponse ChangeScheduleBooking(Long BookingId, LocalDate CheckoutDate, LocalDate CheckInDate, String username) {
-        LocalDate today=LocalDate.now();
         actor actor=userRepository.findByUsername(username);
+        boolean Check=false;
         if (actor==null){
             throw new ResourceNotFoundException("not found");
         }
         List<booking> bookingList=actor.getBookings();
         for (booking booking:bookingList){
             if (booking.getId()==BookingId && booking.getStatus().equals(bookingStatus.ĐA_THANH_TOAN.getMessage())){
-                LocalDate checkInDate = booking.getBookingdetailsList().get(0).getCheckInDate();
-                boolean isBefore3Days = today.isBefore(checkInDate.minusDays(3));
-                if (!isBefore3Days){
-
-                    Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
+                boolean CheckStatus=hotelPolicyDetailService.CheckPolicyChangeQualifiled(booking.getId()).isCheck();
+                Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
                     bookingChangeDetails bookingChangeDetails=new bookingChangeDetails().builder()
                             .Price(GetFeeChangeByHotel(hotel))
                             .checkOutDate(CheckoutDate)
                             .checkInDate(CheckInDate)
                             .booking(booking)
-                            .createAt(LocalDate.now().toString())
-                            .status(bookingStatus.CHUA_THANH_TOAN.getMessage())
-                            .build();
-                    bookingChangeDetails bookingChangeDetails1=bookingChangeDetailsRepository.save(bookingChangeDetails);
-                    MyApiResponse myApiResponse=new MyApiResponse().builder()
-                            .bookingChangeId(bookingChangeDetails1.getId())
-                            .Check(true)
-                            .message("Mời thanh toán phí đổi lịch")
-                            .build();
-                    return myApiResponse;
-                }else {
-                    Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
-
-                    bookingChangeDetails bookingChangeDetails=new bookingChangeDetails().builder()
-                            .Price(GetFeeChangeByHotel(hotel))
-                            .checkOutDate(CheckoutDate)
-                            .checkInDate(CheckInDate)
-                            .booking(booking)
+                            .Checks(CheckStatus)
                             .createAt(LocalDate.now().toString())
                             .status(bookingChangeStatus.CHUAXACNHAN.getMessage())
                             .build();
                     bookingChangeDetails bookingChangeDetails1=bookingChangeDetailsRepository.save(bookingChangeDetails);
                     MyApiResponse myApiResponse=new MyApiResponse().builder()
                             .bookingChangeId(bookingChangeDetails1.getId())
-                            .Check(false)
-                            .message("Chờ xác nhận ")
+                            .Check(true)
+                            .message("success")
                             .build();
-                    String Content="Đơn"+" "+booking.getId().toString()+" "+"của"+" "+booking.getActor().getUsername()+" "+"ngày check in"+CheckInDate.toString()+" ngày Check out"+" "+CheckoutDate.toString();
-                    String HotelEmaile=hotel.getEmail();
-                    emailServiceimpl.sendAsyncEmail(HotelEmaile, "Yêu cầu đổi lịch",Content);
                     return myApiResponse;
-                }
+
             }
+        }
+        if(!Check){
+            MyApiResponse myApiResponse=new MyApiResponse().builder()
+                    .bookingChangeId(null)
+                    .Check(true)
+                    .message("not found")
+                    .build();
+            return myApiResponse;
         }
        return null;
     }
+
+    @Override
+    public MyApiResponse CancelScheduleBooking(Long BookingId, String username , HttpServletRequest req) throws ServletException, IOException {
+        boolean CheckStatus=hotelPolicyDetailService.CheckPolicyChangeQualifiled(BookingId).isCheck();
+        booking booking=bookingRepository.findById(BookingId).orElseThrow(()->new RuntimeException("not found"));
+        if(CheckStatus){
+            booking.setStatus(bookingStatus.HUYLICH.getMessage());
+            bookingRepository.save(booking);
+            List<bookingdetails> bookingdetailsList = booking.getBookingdetailsList();
+            for (bookingdetails bookingdetails : bookingdetailsList) {
+                HotelRoom hotelRoom = bookingdetails.getHotelRoom();
+                hotelRoomService.setAmountRoom(hotelRoom.getTypeRoom(), hotelRoom.getHotel().getId(), hotelRoom.getNumbeRoomLast() + bookingdetails.getAmountRoom());
+            }
+            String Content = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + booking.getBookingdetailsList().get(0).getCheckInDate().toString() + " ngày Check out" + " " +booking.getBookingdetailsList().get(0).getCheckOutDate().toString() + " " + " Đã Hủy";
+            String userEmail = booking.getActor().getEmail();
+            emailServiceimpl.sendAsyncEmail(userEmail, "xử lý yêu cầu", Content);
+
+        }else {
+            boolean CheckRefund= VnPay.refundBooking(booking.getPayment(),req);
+            if(!CheckRefund){
+                MyApiResponse myApiResponse=new MyApiResponse().builder()
+                        .bookingChangeId(null)
+                        .Check(false)
+                        .message("not success")
+                        .build();
+                return myApiResponse;
+            }
+            booking.setStatus(bookingStatus.HUYLICH.getMessage());
+            bookingRepository.save(booking);
+            List<bookingdetails> bookingdetailsList = booking.getBookingdetailsList();
+            for (bookingdetails bookingdetails : bookingdetailsList) {
+                HotelRoom hotelRoom = bookingdetails.getHotelRoom();
+                hotelRoomService.setAmountRoom(hotelRoom.getTypeRoom(), hotelRoom.getHotel().getId(), hotelRoom.getNumbeRoomLast() + bookingdetails.getAmountRoom());
+            }
+            String Content = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + booking.getBookingdetailsList().get(0).getCheckInDate().toString() + " ngày Check out" + " " +booking.getBookingdetailsList().get(0).getCheckOutDate().toString() + " " + " Đã Hủy";
+            String userEmail = booking.getActor().getEmail();
+            emailServiceimpl.sendAsyncEmail(userEmail, "xử lý yêu cầu", Content);
+        }
+        MyApiResponse myApiResponse=new MyApiResponse().builder()
+                .bookingChangeId(null)
+                .Check(true)
+                .message(" success")
+                .build();
+        return myApiResponse;
+    }
+
     private List<booking> findBookingByPending(){
         List<booking> bookingList=bookingRepository.findAll();
         List<booking> bookingResponse=new ArrayList<>();

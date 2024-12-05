@@ -22,6 +22,9 @@ public class Payment {
     @OneToOne
     @JoinColumn(name = "booking_Id")
     private booking booking;
+    @OneToOne
+    @JoinColumn(name = "bookingChange_Id",nullable = true)
+    private bookingChangeDetails bookingChangeDetails;
     @CreationTimestamp
     @Column(name="createAt")
     private Date create_at;
@@ -29,6 +32,8 @@ public class Payment {
     private long TotalPrice;
     @Column(name="status")
     private String status;
+    @Column(name="TransactionNo")
+    private String TransactionNo;
     @ManyToOne
     @JoinColumn(name = "actorid")
     private actor actor;

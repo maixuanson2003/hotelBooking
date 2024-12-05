@@ -1,18 +1,25 @@
 package com.example.webHotelBooking.Service.impl;
 
+import com.example.webHotelBooking.DTO.Response.CheckPolicy;
 import com.example.webHotelBooking.DTO.Response.HotelPolicyDetailsDTO;
 import com.example.webHotelBooking.Entity.Hotel;
 import com.example.webHotelBooking.Entity.HotelPolicy;
 import com.example.webHotelBooking.Entity.HotelPolicyDetails;
+import com.example.webHotelBooking.Entity.booking;
+
+import com.example.webHotelBooking.Enums.NamePolicy;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.HotelPolicyDetailsRepository;
 import com.example.webHotelBooking.Repository.HotelPolicyRepository;
 import com.example.webHotelBooking.Repository.HotelRepository;
+import com.example.webHotelBooking.Repository.bookingRepository;
 import com.example.webHotelBooking.Service.HotelPolicyDetailService;
 import com.example.webHotelBooking.Service.HotelPolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 @Service
@@ -25,8 +32,11 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
     private HotelPolicyService hotelPolicyService;
     @Autowired
     private HotelPolicyRepository hotelPolicyRepository;
+    @Autowired
+    private bookingRepository bookingRepository;
 
     @Override
+    @Transactional
     public void CreateHotelPolicyDetails(HotelPolicyDetailsDTO hotelPolicyDetailsDTO,Long HotelId) {
         boolean CheckExsist=false;
         List<HotelPolicy> hotelPolicyList=hotelPolicyRepository.findAll();
@@ -57,6 +67,8 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
                 .fee(hotelFee)
                 .coditionalInfo(coditionalInfo)
                 .description(hotelPolicyDetailsDTO.getDescription())
+                .beforeDayAmount(hotelPolicyDetailsDTO.getBeforeDayAmount())
+                .note(hotelPolicyDetailsDTO.getNote())
                 .hotelPolicy(hotelPolicy)
                 .build();
         hotelPolicyDetailsRepository.save(hotelPolicyDetails);
@@ -81,6 +93,64 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
             hotelPolicyDetailsDTOS.add(new HotelPolicyDetailsDTO(hotelPolicyDetails));
         }
         return hotelPolicyDetailsDTOS;
+    }
+
+    @Override
+    public CheckPolicy CheckPolicyChangeQualifiled(Long bookingid) {
+        booking booking=bookingRepository.findById(bookingid).orElseThrow(()->new RuntimeException("notfound"));
+        List<HotelPolicyDetails> hotelPolicyDetails=hotelPolicyDetailsRepository.findAll();
+        HotelPolicyDetails hotelPolicyDetailsCheck=null;
+        for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
+            if(hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals(NamePolicy.CHINHSACHDOILICH.getMessage())){
+                hotelPolicyDetailsCheck=hotelPolicyDetails1;
+            }
+        }
+        if(booking.getBookingdetailsList()==null || booking.getBookingdetailsList().isEmpty()){
+            throw new RuntimeException("not have booking detail");
+        }
+        LocalDate today=LocalDate.now();
+        LocalDate checkInDate = booking.getBookingdetailsList().get(0).getCheckInDate();
+        boolean isBeforeAmontDay = today.isBefore(checkInDate.minusDays(hotelPolicyDetailsCheck.getBeforeDayAmount()));
+         if(!isBeforeAmontDay){
+             return new CheckPolicy().builder()
+                     .Check(false)
+                     .message("Bạn sẽ phải thanh toán phí đổi lịch sau khi khách sạn xác nhận đơn đặt hàng của bạn")
+                     .build();
+         }
+        return new CheckPolicy().builder()
+                .Check(true)
+                .message("Bạn được miễn phí đổi lịch nếu khách sạn xác nhận đơn đặt phòng của bạn ,hãy đợi thông báo của khách sạn nhé")
+                .build();
+
+    }
+
+    @Override
+    public CheckPolicy CheckPolicyCanceledQualifiled(Long bookingid) {
+        booking booking=bookingRepository.findById(bookingid).orElseThrow(()->new RuntimeException("notfound"));
+        List<HotelPolicyDetails> hotelPolicyDetails=hotelPolicyDetailsRepository.findAll();
+        HotelPolicyDetails hotelPolicyDetailsCheck=null;
+        for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
+            if(hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals(NamePolicy.CHINHSACHHUYLICH.getMessage())){
+                hotelPolicyDetailsCheck=hotelPolicyDetails1;
+            }
+        }
+        if(booking.getBookingdetailsList()==null || booking.getBookingdetailsList().isEmpty()){
+            throw new RuntimeException("not have booking detail");
+        }
+        LocalDate today=LocalDate.now();
+        LocalDate checkInDate = booking.getBookingdetailsList().get(0).getCheckInDate();
+        boolean isBeforeAmontDay = today.isBefore(checkInDate.minusDays(hotelPolicyDetailsCheck.getBeforeDayAmount()));
+        if(!isBeforeAmontDay){
+            return new CheckPolicy().builder()
+                    .Check(false)
+                    .message("Bạn sẽ không được hoàn tiền nếu Hủy lịch")
+                    .build();
+        }
+        return new CheckPolicy().builder()
+                .Check(true)
+                .message("Hủy lịch Hệ thống sẽ tự động hoàn tiền cho bạn")
+                .build();
+
     }
 
     @Override

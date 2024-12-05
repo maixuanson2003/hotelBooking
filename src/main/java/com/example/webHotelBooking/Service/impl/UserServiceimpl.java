@@ -10,6 +10,7 @@ import com.example.webHotelBooking.Enums.Role;
 import com.example.webHotelBooking.Repository.OTPRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.UserService;
+import com.example.webHotelBooking.Service.ConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ public class UserServiceimpl implements UserService {
     private userRepository userRepository;
     @Autowired
     private OTPRepository otpRepository;
+    @Autowired
+    private ConversationService conversationService;
     @Autowired
     private EmailServiceimpl emailServiceimpl;
     private actor findActorByEmail(String Email){
@@ -81,10 +84,12 @@ public class UserServiceimpl implements UserService {
                 .Role(Role.USER.getDescription())
                 .birthday(request.getBirthday())
                 .status(AccountStatus.CHUAXACTHUC.getMessage())
+                .phone(request.getPhone())
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .build();
-        userRepository.save(actor);
+        actor actor4= userRepository.save(actor);
+        conversationService.CreateConversation(actor4.getId());
         actorResponse actorResponse=new actorResponse(actor);
         return actorResponse;
     }
@@ -138,8 +143,9 @@ public class UserServiceimpl implements UserService {
         boolean check=false;
         List<actor> actorList=userRepository.findAll();
         for (actor actor:actorList){
-            if (actor.getUsername().equals(fullName)&&actor.getEmail().equals(email)&&actor.getPhone().equals(phoneNumber)){
+            if (actor.getFullname().equals(fullName)&&actor.getEmail().equals(email)&&actor.getPhone().equals(phoneNumber)){
                 check=true;
+                break;
             }
         }
         if (check){

@@ -21,9 +21,11 @@ public class bookingChangeController {
             @PathVariable Long bookingChangeId,
             @PathVariable Long bookingId,
             @RequestParam String username,
-            @RequestParam String status) {
+            @RequestParam String status,
+            @RequestParam boolean Check
+    ) {
 
-        MyApiResponse response = bookingChangeService.setStatusBookingDetailsService(bookingChangeId, bookingId, username, status);
+        MyApiResponse response = bookingChangeService.setStatusBookingDetailsService(bookingChangeId, bookingId, username, status,Check);
         return ResponseEntity.ok(response);
     }
 

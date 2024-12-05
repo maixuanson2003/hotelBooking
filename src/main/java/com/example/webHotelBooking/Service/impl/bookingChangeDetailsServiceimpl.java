@@ -1,5 +1,6 @@
 package com.example.webHotelBooking.Service.impl;
 
+import com.example.webHotelBooking.DTO.Response.BookingDetailsResponse;
 import com.example.webHotelBooking.DTO.Response.MyApiResponse;
 import com.example.webHotelBooking.DTO.Response.bookingChangeDetailsDto;
 import com.example.webHotelBooking.Entity.*;
@@ -34,7 +35,7 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
     private bookingRepository bookingRepository;
 
     @Override
-    public MyApiResponse setStatusBookingDetailsService(Long booKingChangeId, Long bookingid, String username, String status) {
+    public MyApiResponse setStatusBookingDetailsService(Long booKingChangeId, Long bookingid, String username, String status,boolean Check) {
         actor actor = userRepository.findByUsername(username);
         if (actor == null) {
             throw new ResourceNotFoundException("not found");
@@ -54,17 +55,41 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
                                 emailServiceimpl.sendAsyncEmail(userEmail, "xử lý yêu cầu", Content);
                                 break;
                             case "XACNHAN":
+                                if(!Check){
+                                    bookingChangeDetails1.setStatus(bookingStatus.CHUA_THANH_TOAN.getMessage());
+                                    bookingChangeDetailsRepository.save(bookingChangeDetails1);
+                                    String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " +"/n"+
+                                            "Mời thanh toán qua số tài khoản" +booking.getBookingdetailsList().get(0).getHotelRoom().getHotel().getBankaccountnumber()+"Ngân hàng"+booking.getBookingdetailsList().get(0).getHotelRoom().getHotel().getBankName();
+                                    String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
+                                    emailServiceimpl.sendAsyncEmail(userEmail2, "xử lý yêu cầu", Content2);
+                                }else {
+                                    bookingChangeDetails1.setStatus(status);
+                                    bookingChangeDetailsRepository.save(bookingChangeDetails1);
+                                    List<bookingdetails> bookingdetailsList = booking.getBookingdetailsList();
+                                    for (bookingdetails bookingdetails : bookingdetailsList) {
+                                        bookingDetailsService.ChangeScheduleBookingDetails(bookingdetails.getHotelRoom().getTypeRoom(), bookingChangeDetails1.getBooking().getBookingdetailsList().get(0).getHotelRoom().getHotel().getId(), bookingChangeDetails1.getCheckOutDate(), bookingChangeDetails1.getCheckInDate(), booking.getId());
+                                    }
+                                    String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " + "Xác nhận yêu cầu";
+                                    String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
+                                    booking.setStatus(bookingStatus.THAYDOI.getMessage());
+                                    bookingRepository.save(booking);
+                                    emailServiceimpl.sendAsyncEmail(userEmail2, "xử lý yêu cầu", Content2);
+                                }
+                                break;
+                            case "DATHANHTOAN":
                                 bookingChangeDetails1.setStatus(status);
                                 bookingChangeDetailsRepository.save(bookingChangeDetails1);
                                 List<bookingdetails> bookingdetailsList = booking.getBookingdetailsList();
                                 for (bookingdetails bookingdetails : bookingdetailsList) {
                                     bookingDetailsService.ChangeScheduleBookingDetails(bookingdetails.getHotelRoom().getTypeRoom(), bookingChangeDetails1.getBooking().getBookingdetailsList().get(0).getHotelRoom().getHotel().getId(), bookingChangeDetails1.getCheckOutDate(), bookingChangeDetails1.getCheckInDate(), booking.getId());
                                 }
+                                String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " + "đã xử lý đổi lịch";
+                                String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
                                 booking.setStatus(bookingStatus.THAYDOI.getMessage());
                                 bookingRepository.save(booking);
-                                String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " + "Xác nhận yêu cầu";
-                                String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
                                 emailServiceimpl.sendAsyncEmail(userEmail2, "xử lý yêu cầu", Content2);
+                                break;
+                            default:
                                 break;
                         }
                     }

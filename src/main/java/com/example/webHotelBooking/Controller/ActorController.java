@@ -54,6 +54,11 @@ public class ActorController {
         actorResponse response = userService.searchActor(fullName, username, phone, email, birthday, address);
         return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
     }
+    @PostMapping("/verify_information")
+    public  ResponseEntity<Boolean> VerifyInformation(@RequestParam(required = true) String fullName,@RequestParam(required = true) String email,@RequestParam(required = true) String phoneNumber){
+        return ResponseEntity.ok(userService.VerifyInformation(fullName,email,phoneNumber));
+
+    }
 
     @DeleteMapping("/username/{username}")
     public ResponseEntity<String> deleteActorByUsername(@PathVariable String username) {

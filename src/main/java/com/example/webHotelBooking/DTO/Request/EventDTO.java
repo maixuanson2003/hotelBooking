@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class EventDTO {
+    private Long id;
     private String nameEvent;
     private String description;
     private String DateStart;

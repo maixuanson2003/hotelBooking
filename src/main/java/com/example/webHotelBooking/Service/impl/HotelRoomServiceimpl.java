@@ -159,12 +159,12 @@ public class HotelRoomServiceimpl implements HotelRoomService {
 
 
     @Override
-    public List<HotelRoomDTO> searChRoomByCodition(List<String> NameRoomFeature, Long priceStart, Long PriceEnd, String roomType, Long Hotelid) {
-        boolean CheckCodition1 = !NameRoomFeature.isEmpty() && priceStart == null && PriceEnd == null && roomType == null;
-        boolean CheckCodition2 = !NameRoomFeature.isEmpty() && priceStart != null && PriceEnd != null && roomType == null;
-        boolean CheckCodition3 = !NameRoomFeature.isEmpty() && priceStart != null && PriceEnd != null && roomType != null;
-        boolean CheckCodition4 = NameRoomFeature.isEmpty() && priceStart != null && PriceEnd != null && roomType != null;
-        boolean CheckCodition5 = NameRoomFeature.isEmpty() && priceStart == null && PriceEnd == null && roomType != null;
+    public List<HotelRoomDTO> searChRoomByCodition(List<String> NameRoomFeature, Long priceStart, Long PriceEnd, Long Hotelid) {
+        boolean CheckCodition1 = !NameRoomFeature.isEmpty() && priceStart == null && PriceEnd == null ;
+        boolean CheckCodition2 = !NameRoomFeature.isEmpty() && priceStart != null && PriceEnd != null ;
+        boolean CheckCodition3 = !NameRoomFeature.isEmpty() && priceStart != null && PriceEnd != null;
+        boolean CheckCodition4 = NameRoomFeature.isEmpty() && priceStart != null && PriceEnd != null;
+
         Hotel hotel = hotelRepository.findById(Hotelid).orElseThrow(() -> new ResourceNotFoundException("not found"));
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList = new ArrayList<>();
@@ -190,7 +190,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         }
         if (CheckCodition3) {
             for (HotelRoom hotelRoom : hotelRoomList) {
-                if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom) && this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom) && hotelRoom.getTypeRoom().equals(roomType)) {
+                if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom) && this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom)) {
                     HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
                             hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
                     );
@@ -200,7 +200,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         }
         if (CheckCodition4) {
             for (HotelRoom hotelRoom : hotelRoomList) {
-                if (this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom) && hotelRoom.getTypeRoom().equals(roomType)) {
+                if (this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom) ) {
                     HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
                             hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
                     );
@@ -208,16 +208,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
                 }
             }
         }
-        if (CheckCodition5) {
-            for (HotelRoom hotelRoom : hotelRoomList) {
-                if (hotelRoom.getTypeRoom().equals(roomType)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-                    );
-                    hotelRoomDTOList.add(hotelRoomDTO);
-                }
-            }
-        }
+
         return hotelRoomDTOList;
     }
 

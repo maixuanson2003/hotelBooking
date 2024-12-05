@@ -29,6 +29,10 @@ public class saleCode {
     private String Description;
     @Column(name = "discountPercentage")
     private long discountPercentage;
+    @Column(name = "image")
+    private String image;
+    @Column(name = "Title")
+    private String Title;
     @Column(name = "status")
     private String status;
     @OneToMany(mappedBy = "SaleCode",cascade = CascadeType.ALL,orphanRemoval = true)

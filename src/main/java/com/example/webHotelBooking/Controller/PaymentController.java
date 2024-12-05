@@ -3,8 +3,8 @@ package com.example.webHotelBooking.Controller;
 import com.example.webHotelBooking.DTO.Request.PaymentRequest;
 import com.example.webHotelBooking.DTO.Response.AlertPayment;
 import com.example.webHotelBooking.DTO.Response.PaymentResponse;
-import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Service.PaymentService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -28,9 +27,23 @@ public class PaymentController {
         try {
             String response = paymentService.CreatePayment(paymentRequest, req);
             return ResponseEntity.ok(response);
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi trong quá trình thanh toán");
         }
+    }
+    @PostMapping("/create/Change")
+    public ResponseEntity<String> createPaymentChange(@RequestBody PaymentRequest paymentRequest, HttpServletRequest req) {
+        try {
+            String response = paymentService.CreatePaymentChange(paymentRequest, req);
+            return ResponseEntity.ok(response);
+        } catch (IOException | ParseException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi trong quá trình thanh toán");
+        }
+    }
+    @PostMapping("/Refund")
+    public ResponseEntity<AlertPayment> RefundPayments(@RequestParam  Long bookingId, HttpServletRequest req) throws ServletException, IOException, ParseException {
+            AlertPayment response = paymentService.RefundPayment(bookingId, req);
+            return ResponseEntity.ok(response);
     }
 
     // Lấy thông tin thanh toán

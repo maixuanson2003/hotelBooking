@@ -7,7 +7,7 @@ import com.example.webHotelBooking.Entity.bookingChangeDetails;
 import java.util.List;
 
 public interface BookingChangeDetailsService {
-    public MyApiResponse setStatusBookingDetailsService(Long booKingChangeId,Long bookingid,String username,String status);
+    public MyApiResponse setStatusBookingDetailsService(Long booKingChangeId,Long bookingid,String username,String status,boolean Check);
     public List<bookingChangeDetailsDto> getListBookingChange();
     public List<bookingChangeDetailsDto>getListBookingChangeByUser(String userName);
     public List<bookingChangeDetailsDto> getListBookingChangeByHotel(Long HotelId);

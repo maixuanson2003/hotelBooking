@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,6 +32,11 @@ public class HotelController {
         HotelResonse hotelResponse = hotelService.GetHotelById(id);
         return ResponseEntity.ok(hotelResponse);
     }
+    @GetMapping("HotelBycity/{cityid}")
+    public ResponseEntity<List<HotelResonse>> getHotelByCityId(@PathVariable Long cityid) {
+        List<HotelResonse> hotelResonseList = hotelService.GetHotelByCity(cityid);
+        return ResponseEntity.ok(hotelResonseList);
+    }
 
     // Get suitable hotels by address and room request
     @PostMapping("/suit")
@@ -43,8 +49,12 @@ public class HotelController {
     @PostMapping("/conditional")
     public ResponseEntity<List<HotelResonse>> getSuitableHotelsCodition(
            @RequestParam(required = false) List<String> hotelPolicyList,@RequestParam String address,@RequestBody RoomRequest roomRequest,@RequestParam(required = false) Integer starpoint) {
-
-        List<HotelResonse> hotels = hotelService.GetHotelByCodition(hotelPolicyList, address, roomRequest, starpoint);
+        List<HotelResonse> hotels=new ArrayList<>();
+        if(hotelPolicyList!=null){
+            hotels = hotelService.GetHotelByCodition(hotelPolicyList, address, roomRequest, starpoint);
+        }else {
+            hotels=hotelService.GetHotelByCodition(new ArrayList<>(), address, roomRequest, starpoint);
+        }
         return ResponseEntity.ok(hotels);
     }
 

@@ -20,6 +20,10 @@ public class HotelPolicyDetails {
     private Long fee;
     @Column(name="coditionalInfo")
     private String coditionalInfo;
+    @Column(name="note")
+    private String note;
+    @Column(name="beforeDayAmount")
+    private Long beforeDayAmount;
     @ManyToOne
     @JoinColumn(name = "hotelId",nullable = false)
     private Hotel hotel;

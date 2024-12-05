@@ -44,6 +44,7 @@ public class cityServiceimpl implements CityService {
         List<cityDTO> ResponseList=new ArrayList<>();
         for (City city:cityList){
             cityDTO cityDTO=new cityDTO().builder()
+                    .id(city.getId())
                     .CodeCity(city.getCodeCity())
                     .nameCity(city.getNameCity())
                     .Descrription(city.getDescrription())

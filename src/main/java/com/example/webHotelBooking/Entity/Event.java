@@ -24,6 +24,8 @@ public class Event {
     private String DateEnd;
     @Column(name = "image")
     private String image;
+    @Column(name = "status")
+    private String status;
     @ManyToOne
     @JoinColumn(name = "cityId",nullable = false)
     private City City;

@@ -13,15 +13,19 @@ import java.time.LocalDate;
 @Builder
 public class bookingChangeDetailsDto {
     private actorResponse actorResponse;
+    private Long bookingId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private Long Price;
     private String status;
+    private boolean Check;
     public  bookingChangeDetailsDto(bookingChangeDetails bookingChangeDetails){
         this.actorResponse=new actorResponse(bookingChangeDetails.getBooking().getActor());
         this.checkInDate=bookingChangeDetails.getCheckInDate();
         this.checkOutDate=bookingChangeDetails.getCheckOutDate();
+        this.bookingId=bookingChangeDetails.getBooking().getId();
         this.Price=bookingChangeDetails.getPrice();
         this.status=bookingChangeDetails.getStatus();
+        this.Check=bookingChangeDetails.isChecks();
     }
 }

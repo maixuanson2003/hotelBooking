@@ -11,6 +11,7 @@ import java.util.List;
 public interface HotelService {
     public List<HotelResonse> GetAllHotel();
     public HotelResonse GetHotelById(Long id);
+    public List<HotelResonse> GetHotelByCity(Long cityId);
     public List<HotelResonse> GetHotelsuit(String address, RoomRequest roomRequest);
     public List<HotelResonse> GetHotelByCodition(List<String> hotelPolicyList, String address, RoomRequest roomRequest,Integer starpoint);
     public List<HotelResonse> SortByPrice();

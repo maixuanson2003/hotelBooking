@@ -28,6 +28,8 @@ public class  SaleCodeServiceImpl implements SaleCodeService {
                 .DateStart(saleCodeDTO.getDateStart())
                 .DateEnd(saleCodeDTO.getDateEnd())
                 .Description(saleCodeDTO.getDescription())
+                .image(saleCodeDTO.getImage())
+                .Title(saleCodeDTO.getTitle())
                 .status(SaleCodeStatus.CONHAN.getMessage())
                 .discountPercentage(saleCodeDTO.getDiscountPercentage())
                 .build();
@@ -45,6 +47,7 @@ public class  SaleCodeServiceImpl implements SaleCodeService {
         saleCode.setCode(saleCodeDTO.getCode());
         saleCode.setDateEnd(saleCodeDTO.getDateEnd());
         saleCode.setDateStart(saleCodeDTO.getDateStart());
+        saleCode.setTitle(saleCode.getTitle());
         saleCode.setDescription(saleCodeDTO.getDescription());
         saleCode.setDiscountPercentage(saleCodeDTO.getDiscountPercentage());
         if ( DateEndCheck.isAfter(DateEnd)){
@@ -87,17 +90,39 @@ public class  SaleCodeServiceImpl implements SaleCodeService {
         List<saleCode> saleCodeList=saleCodeRepository.findAll();
         List<SaleCodeDTO> SaleCodeDTOs=new ArrayList<>();
         for (saleCode saleCode:saleCodeList){
-            SaleCodeDTO saleCodeDTO=new SaleCodeDTO().builder()
-                    .Code(saleCode.getCode())
-                    .DateEnd(saleCode.getDateEnd())
-                    .DateStart(saleCode.getDateStart())
-                    .Description(saleCode.getDescription())
-                    .discountPercentage(saleCode.getDiscountPercentage())
-                    .build();
-            SaleCodeDTOs.add(saleCodeDTO);
+            if(saleCode.getStatus().equals(SaleCodeStatus.CONHAN.getMessage())){
+                SaleCodeDTO saleCodeDTO=new SaleCodeDTO().builder()
+                        .id(saleCode.getId())
+                        .Code(saleCode.getCode())
+                        .DateEnd(saleCode.getDateEnd())
+                        .DateStart(saleCode.getDateStart())
+                        .Description(saleCode.getDescription())
+                        .title(saleCode.getTitle())
+                        .image(saleCode.getImage())
+                        .discountPercentage(saleCode.getDiscountPercentage())
+                        .build();
+                SaleCodeDTOs.add(saleCodeDTO);
+            }
         }
         return SaleCodeDTOs;
     }
+
+    @Override
+    public SaleCodeDTO GetSaleCodeById(Long id) {
+        saleCode saleCodeDetail=saleCodeRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
+        SaleCodeDTO saleCodeDTO=new SaleCodeDTO().builder()
+                .id( saleCodeDetail.getId())
+                .Code(saleCodeDetail.getCode())
+                .DateEnd(saleCodeDetail.getDateEnd())
+                .DateStart(saleCodeDetail.getDateStart())
+                .Description(saleCodeDetail.getDescription())
+                .title(saleCodeDetail.getTitle())
+                .image(saleCodeDetail.getImage())
+                .discountPercentage(saleCodeDetail.getDiscountPercentage())
+                .build();
+        return saleCodeDTO;
+    }
+
     @Scheduled(cron = "0 0 0 * * ?")
     public void AutoCancelSaleCode(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

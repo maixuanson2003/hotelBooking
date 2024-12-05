@@ -3,6 +3,7 @@ package com.example.webHotelBooking.Service.impl;
 import com.example.webHotelBooking.DTO.Request.EventDTO;
 import com.example.webHotelBooking.Entity.City;
 import com.example.webHotelBooking.Entity.Event;
+import com.example.webHotelBooking.Enums.EvenStatus;
 import com.example.webHotelBooking.Exception.DuplicateRecordException;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.CityRepository;
@@ -64,6 +65,7 @@ public class EventServiceimpl implements EventService {
     }
     private EventDTO ConverDTO(Event event){
         EventDTO eventDTO=new EventDTO().builder()
+                .id(event.getId())
                 .nameEvent(event.getNameEvent())
                 .DateEnd(event.getDateEnd())
                 .DateStart(event.getDateStart())
@@ -79,7 +81,7 @@ public class EventServiceimpl implements EventService {
         List<Event> eventList=city.getEventList();
         List<EventDTO> eventDTOS=new ArrayList<>();
         for (Event event:eventList){
-            eventDTOS.add(this.ConverDTO(event));
+            if( event.getStatus().equals(EvenStatus.SAPDIENRA.getMessage()))  eventDTOS.add(this.ConverDTO(event));
         }
         return eventDTOS;
     }
@@ -116,7 +118,7 @@ public class EventServiceimpl implements EventService {
         List<EventDTO> eventDTOS=new ArrayList<>();
         if (CheckCodition1){
             for (Event event:eventList){
-                if (CheckDate(DateStart,DateEnd,event)){
+                if (CheckDate(DateStart,DateEnd,event)&&event.getStatus().equals(EvenStatus.SAPDIENRA.getMessage())){
                     eventDTOS.add(this.ConverDTO(event));
                 }
             }
@@ -126,7 +128,7 @@ public class EventServiceimpl implements EventService {
             LocalDate DateStart2= LocalDate.parse(DateStart,formatter);
             for (Event event:eventList){
                 LocalDate checkDate= LocalDate.parse(event.getDateStart(),formatter);
-                if (DateStart2.isEqual(checkDate)){
+                if (DateStart2.isEqual(checkDate) && event.getStatus().equals(EvenStatus.SAPDIENRA.getMessage())){
                     eventDTOS.add(this.ConverDTO(event));
                 }
             }
@@ -136,11 +138,27 @@ public class EventServiceimpl implements EventService {
             LocalDate DateEnd1= LocalDate.parse(DateEnd,formatter);
             for (Event event:eventList){
                 LocalDate checkDate= LocalDate.parse(event.getDateEnd(),formatter);
-                if (DateEnd1.isEqual(checkDate)){
+                if (DateEnd1.isEqual(checkDate) && event.getStatus().equals(EvenStatus.SAPDIENRA.getMessage())){
                     eventDTOS.add(this.ConverDTO(event));
                 }
             }
         }
         return eventDTOS;
     }
+    private boolean CheckStatusEvent(LocalDate datenow,String DateEnd){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate CheckDateEnd= LocalDate.parse(DateEnd,formatter);
+        return datenow.isAfter(CheckDateEnd);
+    }
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void autoSetStatusForEvent(){
+        LocalDate date=LocalDate.now();
+        List<Event> eventList=eventRepository.findAll();
+        for (Event event:eventList){
+            if(CheckStatusEvent(date,event.getDateEnd())){
+                event.setStatus(EvenStatus.DAKETTHUC.getMessage());
+            }
+        }
+    }
+
 }
