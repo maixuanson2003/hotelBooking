@@ -1,4 +1,4 @@
-package com.example.webHotelBooking.DTO.Response;
+package com.example.webHotelBooking.DTO.Request;
 
 import lombok.*;
 
@@ -7,8 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HotelRoomDTO {
-    private Long id;
+public class HotelRoomRequest {
     private int Amount;
     private String typeRoom;
     private String status;

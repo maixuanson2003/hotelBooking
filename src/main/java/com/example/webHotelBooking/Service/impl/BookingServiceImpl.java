@@ -41,6 +41,7 @@ import java.util.Queue;
 public class BookingServiceImpl implements BookingService {
     private static final Logger logger = LoggerFactory.getLogger(BookingServiceImpl.class);
     private final SimpMessagingTemplate messagingTemplate;
+    private static final int MAX_CHANGE_COUNT=3;
 
     public BookingServiceImpl(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
@@ -97,6 +98,7 @@ public class BookingServiceImpl implements BookingService {
             totalPrice+=bookingdetails.getPrice();
         }
         booking1.setTotalPrice(totalPrice);
+        booking1.setChangeCount(0);
         booking booking2= bookingRepository.save(booking1);
         BookingResponse bookingResponse=new BookingResponse(booking1);
         String hotelId=bookingRequest.getHotelId().toString();
@@ -149,7 +151,8 @@ public class BookingServiceImpl implements BookingService {
     private Long GetFeeChangeByHotel(Hotel hotel){
         List<HotelPolicyDetails> hotelPolicyDetails=hotel.getHotelPolicyDetailsList();
         if (hotelPolicyDetails.isEmpty()){
-            throw new ResourceNotFoundException("Khach sạn không có chính sách");
+            Long fee=0L;
+            return  fee;
         }
         Long fee=0L;
         for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
@@ -162,6 +165,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public MyApiResponse ChangeScheduleBooking(Long BookingId, LocalDate CheckoutDate, LocalDate CheckInDate, String username) {
+
         actor actor=userRepository.findByUsername(username);
         boolean Check=false;
         if (actor==null){
@@ -170,6 +174,13 @@ public class BookingServiceImpl implements BookingService {
         List<booking> bookingList=actor.getBookings();
         for (booking booking:bookingList){
             if (booking.getId()==BookingId && booking.getStatus().equals(bookingStatus.ĐA_THANH_TOAN.getMessage())){
+                if(booking.getChangeCount()==MAX_CHANGE_COUNT){
+                    return new MyApiResponse().builder()
+                            .message("MAX_CHANGE_COUNT")
+                            .Check(false)
+                            .bookingChangeId(null)
+                            .build();
+                }
                 boolean CheckStatus=hotelPolicyDetailService.CheckPolicyChangeQualifiled(booking.getId()).isCheck();
                 Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
                     bookingChangeDetails bookingChangeDetails=new bookingChangeDetails().builder()

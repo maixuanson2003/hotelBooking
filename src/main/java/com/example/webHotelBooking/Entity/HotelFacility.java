@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,18 +21,10 @@ public class HotelFacility {
     private Long id;
     @Column(name = "nameHotelFacility")
     private String nameHotelFacility;
-    @Column(name = "description")
-    private String desCription;
-    @ManyToMany(cascade = {CascadeType.ALL, CascadeType.REMOVE})
-    @JoinTable(
-            name = "HotelHotelFacility_Hotel",
-            joinColumns = @JoinColumn(name = "HotelFacility_Id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "Hotel_Id", referencedColumnName = "id")
-    )
-    private List<Hotel> Hotel;
+    @OneToMany(mappedBy = "hotelFacility",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<HotelFacilityDetails> hotelFacilityDetailsList=new ArrayList<>();
     public  HotelFacility(String nameHotelFacility,String desCription){
         this.nameHotelFacility=nameHotelFacility;
-        this.desCription=desCription;
     }
 
 }

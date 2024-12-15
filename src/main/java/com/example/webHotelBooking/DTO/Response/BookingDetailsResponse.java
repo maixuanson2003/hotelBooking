@@ -28,6 +28,6 @@ public class BookingDetailsResponse {
         this.amountRoom=booking.getAmountRoom();
         this.createAt=booking.getCreateAt();
         this.saleCode=booking.getSaleCode().getCode();
-        this.hotelRoom=new HotelRoomDTO(booking.getHotelRoom().getAmountRoom(),booking.getHotelRoom().getTypeRoom(),booking.getHotelRoom().getStatus(),booking.getHotelRoom().getNumberPeople(),booking.getHotelRoom().getPricePerNight(),booking.getHotelRoom().getImage());
+        this.hotelRoom=new HotelRoomDTO(booking.getHotelRoom().getId(),booking.getHotelRoom().getAmountRoom(),booking.getHotelRoom().getTypeRoom(),booking.getHotelRoom().getStatus(),booking.getHotelRoom().getNumberPeople(),booking.getHotelRoom().getPricePerNight(),booking.getHotelRoom().getImage());
     }
 }

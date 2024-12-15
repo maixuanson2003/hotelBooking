@@ -21,6 +21,7 @@ public class BookingResponse {
     private String CreateAt;
     private String status;
     private int numberPeople;
+    private int ChangCount;
     public  BookingResponse(booking booking2){
         this.id=booking2.getId();
         this.totalRoom=booking2.getTotalRoom();
@@ -28,6 +29,7 @@ public class BookingResponse {
         this.totalPrice=booking2.getTotalPrice();
         this.CreateAt=booking2.getCreateAt();
         this.status=booking2.getStatus();
+        this.ChangCount=booking2.getChangeCount();
         this.numberPeople=booking2.getNumberPeople();
     }
 }

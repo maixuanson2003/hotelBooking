@@ -61,6 +61,8 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
         }
         if (hotelPolicyDetailsDTO.getCoditionalInfo().equals(" ")){
             coditionalInfo=null;
+        }else {
+            coditionalInfo= hotelPolicyDetailsDTO.getCoditionalInfo();
         }
         HotelPolicyDetails hotelPolicyDetails=new HotelPolicyDetails().builder()
                 .hotel(hotel)
@@ -98,7 +100,8 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
     @Override
     public CheckPolicy CheckPolicyChangeQualifiled(Long bookingid) {
         booking booking=bookingRepository.findById(bookingid).orElseThrow(()->new RuntimeException("notfound"));
-        List<HotelPolicyDetails> hotelPolicyDetails=hotelPolicyDetailsRepository.findAll();
+        Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
+        List<HotelPolicyDetails> hotelPolicyDetails=hotel.getHotelPolicyDetailsList();
         HotelPolicyDetails hotelPolicyDetailsCheck=null;
         for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
             if(hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals(NamePolicy.CHINHSACHDOILICH.getMessage())){
@@ -127,7 +130,8 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
     @Override
     public CheckPolicy CheckPolicyCanceledQualifiled(Long bookingid) {
         booking booking=bookingRepository.findById(bookingid).orElseThrow(()->new RuntimeException("notfound"));
-        List<HotelPolicyDetails> hotelPolicyDetails=hotelPolicyDetailsRepository.findAll();
+        Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
+        List<HotelPolicyDetails> hotelPolicyDetails=hotel.getHotelPolicyDetailsList();
         HotelPolicyDetails hotelPolicyDetailsCheck=null;
         for (HotelPolicyDetails hotelPolicyDetails1:hotelPolicyDetails){
             if(hotelPolicyDetails1.getHotelPolicy().getNamePolicy().equals(NamePolicy.CHINHSACHHUYLICH.getMessage())){
@@ -169,8 +173,10 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
               .findFirst()
               .orElseThrow(()->new ResourceNotFoundException("not found"));
         hotelPolicyDetails.setDescription(hotelPolicyDetailsDTO.getDescription());
-        hotelPolicyDetails.setFee(hotelPolicyDetails.getFee());
-        hotelPolicyDetails.setCoditionalInfo(hotelPolicyDetails.getCoditionalInfo());
+        hotelPolicyDetails.setFee(hotelPolicyDetailsDTO.getFee());
+        hotelPolicyDetails.setCoditionalInfo(hotelPolicyDetailsDTO.getCoditionalInfo());
+        hotelPolicyDetails.setBeforeDayAmount(hotelPolicyDetailsDTO.getBeforeDayAmount());
+        hotelPolicyDetails.setNote(hotelPolicyDetailsDTO.getNote());
         hotelPolicyDetailsRepository.save(hotelPolicyDetails);
 
     }

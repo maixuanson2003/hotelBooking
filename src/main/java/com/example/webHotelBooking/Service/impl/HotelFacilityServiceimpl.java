@@ -5,6 +5,7 @@ import com.example.webHotelBooking.DTO.Response.HotelFacilityDTO;
 import com.example.webHotelBooking.Entity.Hotel;
 import com.example.webHotelBooking.Entity.HotelFacility;
 import com.example.webHotelBooking.Entity.HotelPolicy;
+import com.example.webHotelBooking.Exception.DuplicateRecordException;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.HotelFacilityRepository;
 import com.example.webHotelBooking.Repository.HotelPolicyRepository;
@@ -23,107 +24,51 @@ public class HotelFacilityServiceimpl implements HotelFacilityService {
     @Autowired
     private HotelRepository hotelRepository;
     @Override
-    public void createHotelFacility(HotelFacilityDTO hotelFacilityDTO, Long HotelId) {
-        Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new RuntimeException("not found"));
-        List<HotelFacility> hoteFacilities=hotelFacilityRepository.findAll();
-
-        if (hoteFacilities.size()!=0){
-            boolean Check=false;
-            for (HotelFacility hotelFacility:hoteFacilities){
-                if (hotelFacility.getNameHotelFacility().equals(hotelFacilityDTO.getNameHotelFacility())){
-                    Check=true;
-                    break;
-                }
+    public void createHotelFacility(String nameHotelFacility) {
+        boolean CheckExsits=false;
+        List<HotelFacility> hotelFacilityList=hotelFacilityRepository.findAll();
+        for (HotelFacility hotelFacility:hotelFacilityList){
+            if (hotelFacility.getNameHotelFacility().equals(nameHotelFacility)){
+                CheckExsits=true;
             }
-            if (Check){
-                for (HotelFacility hotelFacility:hoteFacilities){
-                    if (hotelFacility.getNameHotelFacility().equals(hotelFacilityDTO.getNameHotelFacility())){
-                        List<Hotel>  hotelList1=hotelFacility.getHotel();
-                        boolean Check2=false;
-                        for (Hotel hotel1:hotelList1){
-                            if (hotel1.getId().equals(HotelId)){
-                                Check2=true;
-                            }
-                        }
-                        if (!Check2){
-                            hotelList1.add(hotel);
-                            hotelFacility.setHotel(hotelList1);
-                            hotelFacilityRepository.save(hotelFacility);
-                        }
-                    }
-                }
+        }
+        if (CheckExsits) throw new DuplicateRecordException("exsits");
+       HotelFacility hotelFacility=new HotelFacility().builder()
+               .nameHotelFacility(nameHotelFacility)
+               .build();
+        hotelFacilityRepository.save(hotelFacility);
+    }
 
-            }else {
-                List<Hotel> hotelList=new ArrayList<>();
-                hotelList.add(hotel);
-                HotelFacility hotelFacility=new HotelFacility().builder()
-                        .nameHotelFacility(hotelFacilityDTO.getNameHotelFacility())
-                        .desCription(hotelFacilityDTO.getDesCription())
-                        .Hotel(hotelList)
-                        .build();
-                hotelFacilityRepository.save(hotelFacility);
-
-            }
-        } else {
-            List<Hotel> hotelList=new ArrayList<>();
-            hotelList.add(hotel);
-            HotelFacility hotelFacility=new HotelFacility().builder()
-                    .nameHotelFacility(hotelFacilityDTO.getNameHotelFacility())
-                    .desCription(hotelFacilityDTO.getDesCription())
-                    .Hotel(hotelList)
+    @Override
+    public List<HotelFacilityDTO> GetAllFacility() {
+        List<HotelFacility> hotelFacilityList=hotelFacilityRepository.findAll();
+        List<HotelFacilityDTO> hotelFacilityDTOList=new ArrayList<>();
+        for (HotelFacility hotelFacility :hotelFacilityList){
+            HotelFacilityDTO hotelFacilityDTO=new HotelFacilityDTO().builder()
+                    .id(hotelFacility.getId())
+                    .nameHotelFacility(hotelFacility.getNameHotelFacility())
                     .build();
-            hotelFacilityRepository.save(hotelFacility);
+            hotelFacilityDTOList.add(hotelFacilityDTO);
+
         }
+        return  hotelFacilityDTOList;
     }
 
     @Override
-    public void updateHotelFacility(HotelFacilityDTO hotelFacilityDTO, Long HotelFacilityId) {
-        HotelFacility hotelFacility=hotelFacilityRepository.findById(HotelFacilityId).orElseThrow(()->new ResourceNotFoundException("notfound"));
-        hotelFacility.setNameHotelFacility(hotelFacilityDTO.getNameHotelFacility());
-        hotelFacility.setDesCription(hotelFacilityDTO.getDesCription());
+    public void updateHotelFacility(String nameHotelPolicy,Long hotelPolicyId) {
+        HotelFacility hotelFacility=hotelFacilityRepository.findById(hotelPolicyId).orElseThrow(()->new ResourceNotFoundException("not found"));
+        hotelFacility.setNameHotelFacility(nameHotelPolicy);
         hotelFacilityRepository.save(hotelFacility);
+
     }
 
     @Override
-    public String deleteFacilityHotel(Long HotelId, Long FacilityId) {
-        Hotel hotel =hotelRepository.findById(HotelId).orElseThrow(()->new RuntimeException("not found"));
-        HotelFacility hotelFacility=hotelFacilityRepository.findById(FacilityId).orElseThrow(()->new RuntimeException("not found"));
-        List<Hotel> hotelList=hotelFacility.getHotel();
-        if (!hotelList.contains(hotel)) {
-            throw new ResourceNotFoundException("Hotel Đã không còn Chính sách");
+    public String deletePolicyById(Long PolicyId) {
+        hotelFacilityRepository.deleteById(PolicyId);
+        if (hotelFacilityRepository.existsById(PolicyId)){
+            return  "faild";
         }else {
-            hotelList.remove(hotel);
+            return "Success";
         }
-        hotelFacilityRepository.save(hotelFacility);
-        return "success";
-    }
-    private HotelFacilityDTO Convert(HotelFacility hotelFacility){
-        HotelFacilityDTO hotelFacilityDTO=new HotelFacilityDTO().builder()
-                .desCription(hotelFacility.getDesCription())
-                .nameHotelFacility(hotelFacility.getNameHotelFacility())
-                .build();
-        return hotelFacilityDTO;
-    }
-
-    @Override
-    public List<HotelFacilityDTO> GetAllHotelFacilityByHotel(Long HotelId) {
-        Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new ResourceNotFoundException("not found"));
-        List<HotelFacility> HotelFacilityList=hotel.getHotelFacilityList();
-        List<HotelFacilityDTO> HotelFacilityDTOS=new ArrayList<>();
-        for (HotelFacility hotelFacility:HotelFacilityList){
-            HotelFacilityDTOS.add(this.Convert(hotelFacility));
-        }
-
-        return HotelFacilityDTOS;
-    }
-
-    @Override
-    public List<HotelFacilityDTO> GetAllHotelFacility() {
-        List<HotelFacility>HotelFacilityList=hotelFacilityRepository.findAll();
-        List<HotelFacilityDTO> HotelFacilityDTOS=new ArrayList<>();
-        for (HotelFacility HotelFacility:HotelFacilityList){
-            HotelFacilityDTOS.add(this.Convert(HotelFacility));
-        }
-        return HotelFacilityDTOS;
     }
 }

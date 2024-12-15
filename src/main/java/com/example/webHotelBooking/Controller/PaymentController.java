@@ -56,6 +56,13 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AlertPayment("Không tìm thấy thông tin thanh toán", "Thất bại"));
         }
     }
+    @GetMapping("/Change/{bookingId}")
+    public ResponseEntity<AlertPayment> getInfoPaymentChange(@PathVariable Long bookingId, HttpServletRequest req) throws IOException, ParseException {
+
+            AlertPayment alertPayment = paymentService.GetInforPaymentChange(bookingId, req);
+            return ResponseEntity.ok(alertPayment);
+
+    }
 
     // Lấy tất cả thông tin thanh toán
     @GetMapping("/all")

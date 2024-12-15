@@ -106,20 +106,21 @@ CREATE TABLE IF NOT EXISTS hotel (
    CONSTRAINT FK_city_id FOREIGN KEY (city_id) REFERENCES city (id) ON DELETE CASCADE,
    CONSTRAINT FK_account_hotel_id FOREIGN KEY (account_hotel_id) REFERENCES account_hotel (id) ON DELETE CASCADE
 ) ;
-CREATE TABLE IF NOT EXISTS hotel_facility (
+CREATE TABLE IF NOT EXISTS hotel_facility(
    id bigint NOT NULL AUTO_INCREMENT,
-   description varchar(255) DEFAULT NULL,
    name_hotel_facility varchar(255) DEFAULT NULL,
    PRIMARY KEY (id)
 ) ;
-CREATE TABLE IF NOT EXISTS hotel_hotel_facility_hotel (
-   hotel_facility_id bigint NOT NULL,
-   hotel_id bigint NOT NULL,
-   PRIMARY KEY (hotel_facility_id, hotel_id),
-   KEY fk_hotel_hotel_facility (hotel_id),
-   KEY fk_hotel_facility_hotel (hotel_facility_id),
-   CONSTRAINT fk_hotel_hotel_facility FOREIGN KEY (hotel_id) REFERENCES hotel (id) ON DELETE CASCADE,
-   CONSTRAINT fk_hotel_facility_hotel FOREIGN KEY (hotel_facility_id) REFERENCES hotel_facility (id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS hotel_facility_details (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+     description VARCHAR(255) DEFAULT NULL,
+     hotel_id BIGINT NOT NULL,
+     hotel_facility_id BIGINT NOT NULL,
+     PRIMARY KEY (id),
+     KEY fk_hotel (hotel_id),
+     KEY fk_hotel_facility (hotel_facility_id),
+     CONSTRAINT fk_hotel FOREIGN KEY (hotel_id) REFERENCES hotel (id),
+     CONSTRAINT fk_hotel_facility FOREIGN KEY (hotel_facility_id) REFERENCES hotel_facility (id)
 ) ;
 CREATE TABLE IF NOT EXISTS hotel_image (
    id bigint NOT NULL AUTO_INCREMENT,
@@ -385,23 +386,23 @@ CREATE TABLE IF NOT EXISTS sale_code (
 --(74, 'account74', 'password74', '901234567'),
 --(75, 'account75', 'password75', '901234567');
 --
-INSERT IGNORE INTO city (id, code_city, name_city, description, image) VALUES
-(1, 29, 'Hà Nội', 'Thủ đô của Việt Nam', 'https://media.tacdn.com/media/attractions-content--1x-1/0b/18/9a/2c.jpg'),
-(2, 30, 'Hải Phòng', 'Thành phố cảng lớn nhất miền Bắc','https://www.thecoth.com/wp-content/uploads/2021/08/thanh-pho-hai-phong-thuoc-tinh-nao.jpg' ),
-(3, 12, 'Đà Nẵng', 'Thành phố biển nổi tiếng','https://touringhighlights.com/wp-content/uploads/2020/07/Cau-Rong-Dragon-Bridge-Da-Nang-Vietnam.jpg'),
-(4, 45, 'TP. Hồ Chí Minh', 'Thành phố lớn nhất Việt Nam', 'https://tphcm.dangcongsan.vn/DATA/72/IMAGES/2021/04/ttxxvnktvn.jpg'),
-(5, 34, 'Cần Thơ', 'Thành phố trực thuộc trung ương', 'https://static-images.vnncdn.net/files/publish/2023/5/2/507fc9a2936c4c32157d-177.jpg'),
-(6, 25, 'Nha Trang', 'Thành phố biển nổi tiếng về du lịch','https://st.ielts-fighter.com/src/ielts-fighter-image/2023/03/21/86c908f5-ba02-4865-a79b-8c671ecd9981.jpg'),
-(7, 12, 'Đà Lạt', 'Thành phố ngàn hoa','https://1.bp.blogspot.com/-K_dwkb40TU0/XzXcrAl7t0I/AAAAAAAAXBc/C-Pe3qkh5AUBfvNOUCpUWK-G082hVk5QQCNcBGAsYHQ/s1920/Da%2BLat4.jpg'),
-(8, 11, 'Huế', 'Cố đô của Việt Nam', 'https://mettavoyage.com/wp-content/webp-express/webp-images/uploads/2023/05/image046_2021061710288.jpeg.webp'),
-(9, 10, 'Vũng Tàu', 'Thành phố biển gần TP. Hồ Chí Minh', 'https://cdn3.ivivu.com/2022/09/T%E1%BB%95ng-quan-du-l%E1%BB%8Bch-V%C5%A9ng-T%C3%A0u-ivivu.jpg'),
-(10, 39, 'Thành phố Bà Rịa', 'Thành phố thuộc tỉnh Bà Rịa - Vũng Tàu', 'https://ktmt.vnmediacdn.com/images/2022/09/19/33-1663548963-ba-ria-vung-tau-thuc-hien-dong-bo-nhieu-giai-phap-phat-trien1588170854.jpg'),
-(11, 47, 'Hà Giang', 'Tỉnh cực Bắc của Việt Nam', 'https://impresstravel.com/wp-content/uploads/2021/04/Ha-Giang-Trekking-Tours.jpg'),
-(12, 60, 'Lào Cai', 'Nơi có Sapa','https://media.truyenhinhdulich.vn/upload/news/923_thanh_pho_lao_cai_la_khu_du_lich_cap_tinh.png'),
-(13, 50, 'Yên Bái', 'Tỉnh miền núi phía Bắc', 'https://mediaim.expedia.com/destination/1/00a0a4dd5b665d7275530d3313e3b1c1.jpg?impolicy=fcrop&w=1040&h=580&q=mediumHigh'),
-(14, 51, 'Tuyên Quang', 'Nơi có nhiều truyền thống lịch sử', 'https://www.originvietnam.com/wp-content/uploads/Tuyen_Quang_Header.jpg'),
-(15, 23, 'Thái Nguyên', 'Thành phố thuộc tỉnh Thái Nguyên','https://tourre.vn/wp-content/uploads/2020/12/ho-nui-coc-thai-nguyen.jpg');
-
+--INSERT IGNORE INTO city (id, code_city, name_city, description, image) VALUES
+--(1, 29, 'Hà Nội', 'Thủ đô của Việt Nam', 'https://media.tacdn.com/media/attractions-content--1x-1/0b/18/9a/2c.jpg'),
+--(2, 30, 'Hải Phòng', 'Thành phố cảng lớn nhất miền Bắc','https://www.thecoth.com/wp-content/uploads/2021/08/thanh-pho-hai-phong-thuoc-tinh-nao.jpg' ),
+--(3, 12, 'Đà Nẵng', 'Thành phố biển nổi tiếng','https://touringhighlights.com/wp-content/uploads/2020/07/Cau-Rong-Dragon-Bridge-Da-Nang-Vietnam.jpg'),
+--(4, 45, 'TP. Hồ Chí Minh', 'Thành phố lớn nhất Việt Nam', 'https://tphcm.dangcongsan.vn/DATA/72/IMAGES/2021/04/ttxxvnktvn.jpg'),
+--(5, 34, 'Cần Thơ', 'Thành phố trực thuộc trung ương', 'https://static-images.vnncdn.net/files/publish/2023/5/2/507fc9a2936c4c32157d-177.jpg'),
+--(6, 25, 'Nha Trang', 'Thành phố biển nổi tiếng về du lịch','https://st.ielts-fighter.com/src/ielts-fighter-image/2023/03/21/86c908f5-ba02-4865-a79b-8c671ecd9981.jpg'),
+--(7, 12, 'Đà Lạt', 'Thành phố ngàn hoa','https://1.bp.blogspot.com/-K_dwkb40TU0/XzXcrAl7t0I/AAAAAAAAXBc/C-Pe3qkh5AUBfvNOUCpUWK-G082hVk5QQCNcBGAsYHQ/s1920/Da%2BLat4.jpg'),
+--(8, 11, 'Huế', 'Cố đô của Việt Nam', 'https://mettavoyage.com/wp-content/webp-express/webp-images/uploads/2023/05/image046_2021061710288.jpeg.webp'),
+--(9, 10, 'Vũng Tàu', 'Thành phố biển gần TP. Hồ Chí Minh', 'https://cdn3.ivivu.com/2022/09/T%E1%BB%95ng-quan-du-l%E1%BB%8Bch-V%C5%A9ng-T%C3%A0u-ivivu.jpg'),
+--(10, 39, 'Thành phố Bà Rịa', 'Thành phố thuộc tỉnh Bà Rịa - Vũng Tàu', 'https://ktmt.vnmediacdn.com/images/2022/09/19/33-1663548963-ba-ria-vung-tau-thuc-hien-dong-bo-nhieu-giai-phap-phat-trien1588170854.jpg'),
+--(11, 47, 'Hà Giang', 'Tỉnh cực Bắc của Việt Nam', 'https://impresstravel.com/wp-content/uploads/2021/04/Ha-Giang-Trekking-Tours.jpg'),
+--(12, 60, 'Lào Cai', 'Nơi có Sapa','https://media.truyenhinhdulich.vn/upload/news/923_thanh_pho_lao_cai_la_khu_du_lich_cap_tinh.png'),
+--(13, 50, 'Yên Bái', 'Tỉnh miền núi phía Bắc', 'https://mediaim.expedia.com/destination/1/00a0a4dd5b665d7275530d3313e3b1c1.jpg?impolicy=fcrop&w=1040&h=580&q=mediumHigh'),
+--(14, 51, 'Tuyên Quang', 'Nơi có nhiều truyền thống lịch sử', 'https://www.originvietnam.com/wp-content/uploads/Tuyen_Quang_Header.jpg'),
+--(15, 23, 'Thái Nguyên', 'Thành phố thuộc tỉnh Thái Nguyên','https://tourre.vn/wp-content/uploads/2020/12/ho-nui-coc-thai-nguyen.jpg');
+--
 --INSERT INTO event (id, name_event, date_start, date_end, description, image, city_id,status) VALUES
 ---- Sự kiện cho Hà Nội
 --(1, 'Lễ hội Âm nhạc Hà Nội', '2025-01-10T00:00:00Z', '2025-01-15T00:00:00Z', 'Một lễ hội âm nhạc lớn tại Hà Nội.', 'https://special.nhandan.vn/docdaolehoitrungthutuyenquang/assets/FcgmBAu1xQ/ca-chep-d-2560x1440.jpeg', 1,"SAPDIENRA"),
@@ -427,8 +428,8 @@ INSERT IGNORE INTO city (id, code_city, name_city, description, image) VALUES
 --(13, 'Lễ hội Lúa Gạo', '2025-12-01', '2025-12-05', 'Lễ hội truyền thống vùng Đồng bằng sông Cửu Long.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 5,"SAPDIENRA"),
 --(14, 'Festival Sông Hậu', '2025-01-01', '2025-01-10', 'Festival với các hoạt động văn hóa đặc sắc.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 5,"SAPDIENRA"),
 --(15, 'Ngày hội Du lịch Cần Thơ', '2025-02-01', '2025-02-07', 'Ngày hội quảng bá du lịch Cần Thơ.', 'https://brocanvas.com/wp-content/uploads/2022/01/Hinh-anh-phao-hoa-happy-new-year-2023.jpg', 5,"SAPDIENRA");
-
-
+--
+--
 --INSERT IGNORE INTO hotel (id, address, description, email, hotline, total_room, name_hotel, star_point, city_id,bank_name,bankaccountnumber) VALUES
 --(1, '44B Lý Thường Kiệt, Hoàn Kiếm, Hà Nội', 'Khách sạn sang trọng với kiến trúc độc đáo', 'hotel1_hanoi@example.com', '02439330500', 268, 'Sofitel Legend Metropole Hanoi', 5, 1,'TPbank','123456789'),
 --(2, '1 Phan Đình Phùng, Ba Đình, Hà Nội', 'Khách sạn cổ điển giữa lòng Hà Nội', 'hotel2_hanoi@example.com', '02438253355', 117, 'Hanoi Daewoo Hotel', 5, 1,'MBbank','123456789'),
@@ -580,8 +581,8 @@ INSERT IGNORE INTO city (id, code_city, name_city, description, image) VALUES
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 73),
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 74),
 --('https://diadiemvietnam.vn/wp-content/uploads/2023/07/Nam-Cuong-Nam-Dinh-Hotel.jpg', 75);
-
-
+--
+--
 ----
 --
 --INSERT IGNORE  INTO hotel_room (id, amount_room, image, number_room_last, number_of_booking, number_people, price_per_night, status, type_room, hotel_id) VALUES
@@ -880,7 +881,7 @@ INSERT IGNORE INTO city (id, code_city, name_city, description, image) VALUES
 --(4, 'chính sách thú nuôi'),
 --(5, 'chính sách nhận phòng'),
 --(6, 'chính sách trả phòng');
---
+
 
 ----ALTER TABLE  hotel_facility ADD description varchar(255);
 --INSERT IGNORE INTO hotel_facility (id, description, name_hotel_facility) VALUES

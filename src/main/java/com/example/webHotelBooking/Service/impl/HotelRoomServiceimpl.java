@@ -114,7 +114,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList = new ArrayList<>();
         for (HotelRoom hotelRoom : hotelRoomList) {
-            HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
+            HotelRoomDTO hotelRoomDTO = new HotelRoomDTO( hotelRoom.getId(),
                     hotelRoom.getNumbeRoomLast(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
             );
             hotelRoomDTOList.add(hotelRoomDTO);
@@ -171,7 +171,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition1) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
+                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
                             hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
@@ -181,7 +181,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition2) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom) && this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
+                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
                             hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
@@ -191,7 +191,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition3) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom) && this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
+                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
                             hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
@@ -201,7 +201,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition4) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom) ) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
+                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
                             hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
                     );
                     hotelRoomDTOList.add(hotelRoomDTO);
@@ -220,7 +220,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList = new ArrayList<>();
         for (HotelRoom hotelRoom : hotelRoomList) {
-            HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(
+            HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
                     hotelRoom.getNumbeRoomLast(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
             );
             hotelRoomDTOList.add(hotelRoomDTO);

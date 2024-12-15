@@ -2,6 +2,7 @@ package com.example.webHotelBooking.DTO.Request;
 
 import com.example.webHotelBooking.DTO.Response.HotelFacilityDTO;
 
+import com.example.webHotelBooking.DTO.Response.HotelFacilityDetailsDTO;
 import com.example.webHotelBooking.DTO.Response.HotelPolicyDetailsDTO;
 import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
 import com.example.webHotelBooking.Entity.HotelPolicyDetails;
@@ -9,6 +10,7 @@ import jakarta.persistence.Column;
 import lombok.*;
 
 import javax.lang.model.element.Name;
+import java.util.ArrayList;
 import java.util.List;
 @Getter
 @Setter
@@ -26,8 +28,8 @@ public class HotelRequest {
     private Integer  TotalRoom;
     private Long  Bankaccountnumber;
     private String  BankName;
-    private List<HotelFacilityDTO> hotelFacilityList;
-    private List<HotelPolicyDetailsDTO> hotelPolicyDTOList;
+    private List<HotelFacilityDetailsDTO> hotelFacilityList=new ArrayList<>();
+    private List<HotelPolicyDetailsDTO> hotelPolicyDTOList=new ArrayList<>();
     private List<HotelRoomDTO> hotelRoomDTOList;
     private List<String> imageList;
 }

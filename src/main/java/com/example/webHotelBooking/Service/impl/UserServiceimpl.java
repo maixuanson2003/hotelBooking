@@ -114,6 +114,7 @@ public class UserServiceimpl implements UserService {
                 .address(request.getAddress())
                 .gender(request.getGender())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
                 .Role(request.getRole())
                 .birthday(request.getBirthday())
                 .status(AccountStatus.ĐAĐANGKY.getMessage())

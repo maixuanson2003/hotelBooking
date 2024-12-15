@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class HotelFacilityDTO {
+    private Long id;
     private String nameHotelFacility;
-    private String desCription;
+
 }

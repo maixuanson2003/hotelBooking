@@ -48,7 +48,7 @@ public class HotelController {
     // Get suitable hotels by condition
     @PostMapping("/conditional")
     public ResponseEntity<List<HotelResonse>> getSuitableHotelsCodition(
-           @RequestParam(required = false) List<String> hotelPolicyList,@RequestParam String address,@RequestBody RoomRequest roomRequest,@RequestParam(required = false) Integer starpoint) {
+           @RequestParam(required = false) List<String> hotelPolicyList,@RequestParam(required = false) String address,@RequestBody RoomRequest roomRequest,@RequestParam(required = false) Integer starpoint) {
         List<HotelResonse> hotels=new ArrayList<>();
         if(hotelPolicyList!=null){
             hotels = hotelService.GetHotelByCodition(hotelPolicyList, address, roomRequest, starpoint);

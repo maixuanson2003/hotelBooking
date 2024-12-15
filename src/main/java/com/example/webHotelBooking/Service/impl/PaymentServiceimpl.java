@@ -17,6 +17,7 @@ import com.example.webHotelBooking.Repository.bookingRepository;
 import com.example.webHotelBooking.Repository.bookingChangeDetailsRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.PaymentService;
+import com.example.webHotelBooking.Service.BookingChangeDetailsService;
 import com.example.webHotelBooking.config.VnPayConfig;
 import com.example.webHotelBooking.ultils.VnPay;
 import jakarta.servlet.ServletException;
@@ -43,6 +44,8 @@ public class PaymentServiceimpl implements PaymentService {
     @Autowired
     private bookingChangeDetailsRepository bookingChangeDetailsRepository;
     @Autowired
+    private BookingChangeDetailsService bookingChangeDetailsService;
+    @Autowired
     private EmailServiceimpl emailServiceimpl;
     @Autowired
     private userRepository userRepository;
@@ -55,7 +58,7 @@ public class PaymentServiceimpl implements PaymentService {
         if (booking.getStatus().equals(bookingStatus.HUY.getMessage())){
             return " Don dat phong da bi huy";
         }
-        PaymentDTO paymentDTO=VnPay.CreatePay(paymentRequest, req);
+        PaymentDTO paymentDTO=VnPay.CreatePay(paymentRequest,"BOOKING", req);
 
         Payment payment=new Payment().builder()
                 .booking(booking)
@@ -72,7 +75,7 @@ public class PaymentServiceimpl implements PaymentService {
     @Override
     public String CreatePaymentChange(PaymentRequest paymentRequest, HttpServletRequest req) throws IOException, ParseException {
         bookingChangeDetails bookingChangeDetails1=bookingChangeDetailsRepository.findById(paymentRequest.getBookingId()).orElseThrow(()->new RuntimeException("not found"));
-        PaymentDTO paymentDTO=VnPay.CreatePay(paymentRequest,req);
+        PaymentDTO paymentDTO=VnPay.CreatePay(paymentRequest,"CHANGE",req);
         Payment payment=new Payment().builder()
                 .booking(null)
                 .bookingChangeDetails(bookingChangeDetails1)
@@ -89,7 +92,7 @@ public class PaymentServiceimpl implements PaymentService {
     public AlertPayment GetInforPayment(Long BookingId, HttpServletRequest req) throws IOException, ParseException {
         booking booking=bookingRepository.findById(BookingId).orElseThrow(()->new ResourceNotFoundException("not found"));
         Payment payment=booking.getPayment();
-        PaymentDTO paymentDTO=VnPay.verifyPayment(payment,req);
+        PaymentDTO paymentDTO=VnPay.verifyPayment(payment,"BOOKING",req);
         if (paymentDTO.isCheck()){
             payment.setStatus(PaymentStatus.SUCCESS.getMessage());
             payment.setTransactionNo(paymentDTO.getTransCode());
@@ -109,7 +112,7 @@ public class PaymentServiceimpl implements PaymentService {
                     .TotalPrice(payment.getTotalPrice())
                     .timeCreate(payment.getCreate_at())
                     .build();
-            EmailChange.add(paymentResponse);
+            Email.add(paymentResponse);
             return alertPayment;
         }else {
             AlertPayment alertPayment=new AlertPayment().builder()
@@ -125,27 +128,30 @@ public class PaymentServiceimpl implements PaymentService {
         bookingChangeDetails bookingChangeDetails1=bookingChangeDetailsRepository.findById(BookingChangeId).orElseThrow(()->new RuntimeException("not found"));
         Payment payment=bookingChangeDetails1.getPayment();
         booking booking=bookingChangeDetails1.getBooking();
-        PaymentDTO paymentDTO=VnPay.verifyPayment(payment,req);
+        PaymentDTO paymentDTO=VnPay.verifyPayment(payment,"CHANGE",req);
         if (paymentDTO.isCheck()){
             payment.setStatus(PaymentStatus.SUCCESS.getMessage());
             payment.setTransactionNo(paymentDTO.getTransCode());
             paymentRepository.save(payment);
+            String username=booking.getActor().getUsername();
+            boolean Check=bookingChangeDetails1.isChecks();
             booking.setStatus(bookingStatus.THAYDOI.getMessage());
+            bookingChangeDetailsService.setStatusBookingDetailsService(bookingChangeDetails1.getId(),booking.getId(),username,"DATHANHTOAN",Check);
             bookingRepository.save(booking);
             AlertPayment alertPayment=new AlertPayment().builder()
                     .message("Ban da thanh toan thanh cong")
                     .status(PaymentStatus.SUCCESS.getMessage())
                     .build();
             PaymentResponse paymentResponse=new PaymentResponse().builder()
-                    .Email(payment.getBooking().getActor().getEmail())
-                    .phoneNumber(payment.getBooking().getActor().getPhone())
+                    .Email(payment.getBookingChangeDetails().getBooking().getActor().getEmail())
+                    .phoneNumber(payment.getBookingChangeDetails().getBooking().getActor().getPhone())
                     .bookingId(bookingChangeDetails1.getBooking().getId())
-                    .nameuser(payment.getBooking().getActor().getFullname())
+                    .nameuser(payment.getBookingChangeDetails().getBooking().getActor().getFullname())
                     .Status(payment.getStatus())
                     .TotalPrice(payment.getTotalPrice())
                     .timeCreate(payment.getCreate_at())
                     .build();
-            Email.add(paymentResponse);
+            EmailChange.add(paymentResponse);
             return alertPayment;
         }else {
             AlertPayment alertPayment=new AlertPayment().builder()

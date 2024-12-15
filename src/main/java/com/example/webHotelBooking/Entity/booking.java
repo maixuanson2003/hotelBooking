@@ -34,6 +34,8 @@ public class booking {
     private String status;
     @Column(name="numberPeople")
     private int numberPeople;
+    @Column(name="count")
+    private int ChangeCount;
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<bookingdetails> bookingdetailsList;
     @OneToMany(mappedBy = "booking",cascade = CascadeType.ALL,orphanRemoval = true)

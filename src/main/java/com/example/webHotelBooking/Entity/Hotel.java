@@ -47,12 +47,14 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel",cascade = {CascadeType.ALL, CascadeType.REMOVE},orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<HotelRoom> hotelRoomList = new ArrayList<>();;
-    @ManyToMany(mappedBy = "Hotel",cascade = CascadeType.ALL)
-    private List<HotelFacility> hotelFacilityList ;
     @OneToMany(mappedBy = "Hotel",cascade = {CascadeType.ALL, CascadeType.REMOVE},orphanRemoval = true)
     private List<Review> reviewList = new ArrayList<>();;
     @OneToMany (mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<HotelPolicyDetails> hotelPolicyDetailsList= new ArrayList<>();
+    @OneToMany (mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<HotelFacilityDetails> hotelFacilityDetailsList= new ArrayList<>();
     @OneToOne(mappedBy = "hotel",cascade = CascadeType.ALL,orphanRemoval = true)
     private AccountHotel AccountHotel;
+
+
 }

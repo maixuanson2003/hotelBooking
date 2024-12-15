@@ -3,15 +3,13 @@ package com.example.webHotelBooking.Service.impl;
 import com.example.webHotelBooking.DTO.Request.HotelRequest;
 import com.example.webHotelBooking.DTO.Request.HotelSearch;
 import com.example.webHotelBooking.DTO.Request.RoomRequest;
-import com.example.webHotelBooking.DTO.Response.HotelFacilityDTO;
-import com.example.webHotelBooking.DTO.Response.HotelPolicyDetailsDTO;
-import com.example.webHotelBooking.DTO.Response.HotelResonse;
-import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
+import com.example.webHotelBooking.DTO.Response.*;
 import com.example.webHotelBooking.Entity.*;
 import com.example.webHotelBooking.Enums.HotelStatus;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.*;
 import com.example.webHotelBooking.Service.*;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -54,6 +52,8 @@ public class HotelServiceimpl implements HotelService {
     private HotelImageService hotelImageService;
     @Autowired
     private HotelFacilityService hotelFacilityService;
+    @Autowired
+    private HotelFacilityDetailService hotelFacilityDetailService;
     private Long findPriceMin(Hotel hotel){
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         Long pricemin=hotelRoomList.get(0).getPricePerNight();
@@ -64,9 +64,9 @@ public class HotelServiceimpl implements HotelService {
         }
         return pricemin;
     }
-    private void createHotelFacility(List<HotelFacilityDTO> hotelFacilityDTOList,Long HotelID){
-        for (HotelFacilityDTO hotelFacilityDTO:hotelFacilityDTOList){
-           hotelFacilityService.createHotelFacility(hotelFacilityDTO,HotelID);
+    private void createHotelFacility(List<HotelFacilityDetailsDTO> hotelFacilityDTOList,Long HotelID){
+        for (HotelFacilityDetailsDTO hotelFacilityDTO:hotelFacilityDTOList){
+            hotelFacilityDetailService.CreateHotelFacilityDetails(hotelFacilityDTO,HotelID);
         }
     }
     private void createHotelRoom(List<HotelRoomDTO> hotelRoomDTOList,Long HotelId){
@@ -88,13 +88,13 @@ public class HotelServiceimpl implements HotelService {
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList =new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
-            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO( hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getNumberPeople(),hotelRoom.getImage());
+            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO( hotelRoom.getId(), hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getNumberPeople(),hotelRoom.getImage());
             hotelRoomDTOList.add(hotelRoomDTO);
         }
-        List<HotelFacility> hotelFacilityList=hotel.getHotelFacilityList();
-        List<HotelFacilityDTO> hotelFacilityDTOList =new ArrayList<>();
-        for (HotelFacility hotelFacility:hotelFacilityList){
-            HotelFacilityDTO hotelFacilityDTO =new HotelFacilityDTO(hotelFacility.getNameHotelFacility(),hotelFacility.getDesCription());
+        List<HotelFacilityDetails> hotelFacilityList=hotel.getHotelFacilityDetailsList();
+        List<HotelFacilityDetailsDTO> hotelFacilityDTOList =new ArrayList<>();
+        for (HotelFacilityDetails hotelFacility:hotelFacilityList){
+            HotelFacilityDetailsDTO hotelFacilityDTO =new HotelFacilityDetailsDTO(hotelFacility);
             hotelFacilityDTOList.add(hotelFacilityDTO);
         }
         List<HotelPolicyDetails> hotelPolicyList=hotel.getHotelPolicyDetailsList();
@@ -108,8 +108,23 @@ public class HotelServiceimpl implements HotelService {
         for (HotelImage hotelImage:hotelImageList){
             imageList.add(hotelImage.getLinkImage());
         }
-
-        HotelResonse hotelResonse=new HotelResonse(hotel.getId(),hotel.getNameHotel(),hotel.getAddress(),hotel.getCity().getNameCity(),hotel.getStarPoint(), hotelFacilityDTOList, hotelPolicyDTOList, hotelRoomDTOList,imageList);
+        HotelResonse hotelResonse=new HotelResonse().builder()
+                .Email(hotel.getEmail())
+                .address(hotel.getAddress())
+                .BankName(hotel.getBankName())
+                .starpoint(hotel.getStarPoint())
+                .City(hotel.getCity().getNameCity())
+                .Hotline(hotel.getHotline())
+                .Bankaccountnumber(hotel.getBankaccountnumber())
+                .BankName(hotel.getBankName())
+                .name(hotel.getNameHotel())
+                .desCription(hotel.getDescription())
+                .id(hotel.getId())
+                .imageList(imageList)
+                .hotelFacilityList(hotelFacilityDTOList)
+                .hotelPolicyDTOList(hotelPolicyDTOList)
+                .hotelRoomDTOList(hotelRoomDTOList)
+                .build();
          return hotelResonse;
     }
 
@@ -207,9 +222,14 @@ public class HotelServiceimpl implements HotelService {
 
     @Override
     public List<HotelResonse> GetHotelByCodition(List<String> hotelPolicyList, String address, RoomRequest roomRequest,Integer starpoint) {
-        List<Hotel> hotelList=hotelRepository.findAllByCity(address);
+        List<Hotel> hotelList=new ArrayList<>();
+        if(address!=null && !address.trim().isEmpty()){
+            hotelList=hotelRepository.findAllByCity(address);
+        }else {
+            hotelList=hotelRepository.findAll();
+        }
         List<HotelResonse> hotelResonseList=new ArrayList<>();
-        if (starpoint == 0) {
+        if (starpoint == null) {
             starpoint = -1;
         }
 
@@ -303,13 +323,68 @@ public class HotelServiceimpl implements HotelService {
 
         }
     }
+    private HotelPolicyDetails MapperHotelPolicy(HotelPolicyDetailsDTO hotelPolicyDTO,Long HotelId){
+        Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new RuntimeException("not found"));
+        HotelPolicy hotelPolicy=hotelPolicyRepository.findHotelPolicyByNamePolicy(hotelPolicyDTO.getNamePolicy());
+        return new HotelPolicyDetails().builder()
+                .hotel(hotel)
+                .fee(hotelPolicyDTO.getFee())
+                .note(hotelPolicyDTO.getNote())
+                .beforeDayAmount(hotelPolicyDTO.getBeforeDayAmount())
+                .description(hotelPolicyDTO.getDescription())
+                .coditionalInfo(hotelPolicyDTO.getCoditionalInfo())
+                .hotelPolicy( hotelPolicy)
+                .build();
+    }
+    private HotelFacilityDetails MappHotelFacility(HotelFacilityDetailsDTO hotelFacilityDTO,Long HotelId){
+        Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new RuntimeException("not found"));
+        HotelFacility hotelFacility=hotelFacilityRepository.findHotelPolicyByNameHotelFacility(hotelFacilityDTO.getNameHotelFacility());
+        return new HotelFacilityDetails().builder()
+                .hotelFacility(hotelFacility)
+                .desCription(hotelFacilityDTO.getDesCription())
+                .hotel(hotel)
+                .build();
+    }
+
 
     @Override
+    @Transactional
     public HotelResonse Update(Long HotelId,HotelRequest hotelRequest) {
         Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new RuntimeException("not found"));
         hotel.setNameHotel(hotelRequest.getName());
         hotel.setAddress(hotelRequest.getAddress());
-        hotel.setAddress(hotelRequest.getAddress());
+        hotel.setEmail(hotelRequest.getEmail());
+        hotel.setStarPoint(hotelRequest.getStarpoint());
+        hotel.setDescription(hotelRequest.getDesCription());
+        hotel.setBankName(hotelRequest.getBankName());
+        hotel.setBankaccountnumber(hotelRequest.getBankaccountnumber());
+        hotel.setTotalRoom(hotelRequest.getTotalRoom());
+        List<HotelImage> hotelImageList=new ArrayList<>();
+        List<String> List=hotelRequest.getImageList();
+        hotel.getHotelImageList().clear();
+            for (String list:List){
+                HotelImage hotelImage=new HotelImage().builder()
+                        .Hotel(hotel)
+                        .LinkImage(list)
+                        .build();
+                hotel.getHotelImageList().add(hotelImage);
+            }
+
+        List<HotelPolicyDetailsDTO> hotelPolicyDetailsDTOS=hotelRequest.getHotelPolicyDTOList();
+        hotel.getHotelPolicyDetailsList().clear();
+        for (HotelPolicyDetailsDTO hotelPolicyDetailsDTO:hotelPolicyDetailsDTOS){
+                HotelPolicyDetails policyDetails = MapperHotelPolicy(hotelPolicyDetailsDTO, HotelId);
+                policyDetails.setHotel(hotel);
+                hotel.getHotelPolicyDetailsList().add(policyDetails);
+
+        }
+        hotel.getHotelFacilityDetailsList().clear();
+        List<HotelFacilityDetailsDTO> hotelFacilityDetailsDTOS=hotelRequest.getHotelFacilityList();
+        for (HotelFacilityDetailsDTO hotelFacilityDetailsDTO:hotelFacilityDetailsDTOS){
+            HotelFacilityDetails facilityDetails = MappHotelFacility(hotelFacilityDetailsDTO, HotelId);
+            facilityDetails.setHotel(hotel);
+                hotel.getHotelFacilityDetailsList().add(facilityDetails);
+            }
         hotelRepository.save(hotel);
         return this.createHotelResponse(hotel);
     }
@@ -318,14 +393,6 @@ public class HotelServiceimpl implements HotelService {
     public void DeleteHotel(Long id) {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hotel not found"));
-        for (HotelFacility facility : hotel.getHotelFacilityList()) {
-            facility.getHotel().remove(hotel);
-        }
-//        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
-//            Policy.getHotelList().remove(hotel);
-//        }
-//        hotel.getHotelPolicyList().clear();
-        hotel.getHotelFacilityList().clear();
         hotelRoomService.DeleteRoomHotelByHotel(hotel);
         hotel.getHotelRoomList().removeIf(c -> c.getHotel().getId()== id);
         hotel.getReviewList().removeIf(c->c.getHotel().getId()==id);
@@ -341,14 +408,6 @@ public class HotelServiceimpl implements HotelService {
     public void deleteHotelByName(String name) {
         Hotel hotel=hotelRepository.findByNameHotel(name);
         if (hotel==null) throw new ResourceNotFoundException("not found");
-        for (HotelFacility facility : hotel.getHotelFacilityList()) {
-            facility.getHotel().remove(hotel);
-        }
-//        for (HotelPolicy Policy : hotel.getHotelPolicyList()) {
-//            Policy.getHotelList().remove(hotel);
-//        }
-//        hotel.getHotelPolicyList().clear();
-        hotel.getHotelFacilityList().clear();
         hotelRoomService.DeleteRoomHotelByHotel(hotel);
         hotel.getHotelRoomList().removeIf(c -> c.getHotel().getId()== hotel.getId());
         hotel.getReviewList().removeIf(c->c.getHotel().getId()==hotel.getId());

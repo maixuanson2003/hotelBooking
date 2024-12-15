@@ -72,6 +72,7 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
                                     String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " + "Xác nhận yêu cầu";
                                     String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
                                     booking.setStatus(bookingStatus.THAYDOI.getMessage());
+                                    booking.setChangeCount(booking.getChangeCount()+1);
                                     bookingRepository.save(booking);
                                     emailServiceimpl.sendAsyncEmail(userEmail2, "xử lý yêu cầu", Content2);
                                 }
@@ -86,6 +87,7 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
                                 String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " + "đã xử lý đổi lịch";
                                 String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
                                 booking.setStatus(bookingStatus.THAYDOI.getMessage());
+                                booking.setChangeCount(booking.getChangeCount()+1);
                                 bookingRepository.save(booking);
                                 emailServiceimpl.sendAsyncEmail(userEmail2, "xử lý yêu cầu", Content2);
                                 break;

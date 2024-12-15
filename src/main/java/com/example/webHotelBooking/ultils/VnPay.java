@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class VnPay extends HttpServlet {
-    public static PaymentDTO CreatePay(PaymentRequest payment, HttpServletRequest req) throws UnsupportedEncodingException, ParseException {
+    public static PaymentDTO CreatePay(PaymentRequest payment,String action, HttpServletRequest req) throws UnsupportedEncodingException, ParseException {
         PaymentDTO paymentDTO=new PaymentDTO();
 
         String vnp_Version = "2.1.0";
@@ -52,7 +52,13 @@ public class VnPay extends HttpServlet {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_Returnurl );
+        if (action == "BOOKING") {
+            vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_Returnurl );
+        }
+        if(action=="CHANGE"){
+            vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_ReturnurlChange );
+        }
+
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -93,18 +99,25 @@ public class VnPay extends HttpServlet {
         paymentDTO.setCreateAt(date);
        return paymentDTO;
     }
-    public static PaymentDTO verifyPayment(Payment payment, HttpServletRequest req) throws IOException, ParseException {
+    public static PaymentDTO verifyPayment(Payment payment,String action, HttpServletRequest req) throws IOException, ParseException {
         PaymentDTO paymentDTO=new PaymentDTO();
         String vnp_RequestId = VnPayConfig.getRandomNumber(8);
         String vnp_Version = "2.1.0";
         String vnp_Command = "querydr";
         String vnp_TmnCode = VnPayConfig.vnp_TmnCode;
-        String vnp_TxnRef = payment.getBooking().getId().toString();
-        System.out.println(payment.getBooking().getId());
+
+        String vnp_TxnRef = "";
+        if(action=="BOOKING"){
+            vnp_TxnRef=payment.getBooking().getId().toString();
+        }
+        if(action=="CHANGE"){
+            vnp_TxnRef=payment.getBookingChangeDetails().getId().toString();
+        }
+
         String vnp_OrderInfo = "Kiem tra ket qua GD OrderId:" + vnp_TxnRef;
         //String vnp_TransactionNo = req.getParameter("transactionNo");
 
-        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern(" yyyy-MM-dd");
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
