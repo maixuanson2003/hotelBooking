@@ -40,6 +40,11 @@ public class BookingController {
         List<BookingResponse> bookingResponses = bookingService.GetAllBookingResponse();
         return new ResponseEntity<>(bookingResponses, HttpStatus.OK);
     }
+    @GetMapping("/all/{HotelId}")
+    public ResponseEntity<List<BookingResponse>> getAllBookingsByHotel(@PathVariable Long HotelId) {
+        List<BookingResponse> bookingResponses = bookingService.GetBookingByHotel(HotelId);
+        return new ResponseEntity<>(bookingResponses, HttpStatus.OK);
+    }
 
     // Lấy booking theo người dùng
     @GetMapping("/user/{username}")

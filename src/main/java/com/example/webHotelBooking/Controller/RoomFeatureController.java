@@ -23,6 +23,11 @@ public class RoomFeatureController {
         roomFeatureService.addHotelRoomFeature(roomId, hotelId, roomFeatureDTO);
         return ResponseEntity.ok("Room feature added successfully.");
     }
+    @PostMapping("/add/admin")
+    public ResponseEntity<String> addHotelRoomFeaturAll(@RequestBody RoomFeatureDTO roomFeatureDTO) {
+        roomFeatureService.addHotelRoomFeatureAll(roomFeatureDTO);
+        return ResponseEntity.ok("Room feature added successfully.");
+    }
 
     // Xóa tính năng phòng
     @DeleteMapping("/delete")

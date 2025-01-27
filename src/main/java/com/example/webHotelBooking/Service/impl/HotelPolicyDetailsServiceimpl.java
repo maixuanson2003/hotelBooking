@@ -108,8 +108,17 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
                 hotelPolicyDetailsCheck=hotelPolicyDetails1;
             }
         }
+        if(hotelPolicyDetailsCheck==null){
+            return new CheckPolicy().builder()
+                    .Check(false)
+                    .message("NOPOLICY")
+                    .build();
+        }
         if(booking.getBookingdetailsList()==null || booking.getBookingdetailsList().isEmpty()){
-            throw new RuntimeException("not have booking detail");
+            return new CheckPolicy().builder()
+                    .Check(false)
+                    .message("NOPOLICY")
+                    .build();
         }
         LocalDate today=LocalDate.now();
         LocalDate checkInDate = booking.getBookingdetailsList().get(0).getCheckInDate();
@@ -138,8 +147,17 @@ public class HotelPolicyDetailsServiceimpl implements HotelPolicyDetailService {
                 hotelPolicyDetailsCheck=hotelPolicyDetails1;
             }
         }
+        if(hotelPolicyDetailsCheck==null){
+            return new CheckPolicy().builder()
+                    .Check(false)
+                    .message("NOPOLICY")
+                    .build();
+        }
         if(booking.getBookingdetailsList()==null || booking.getBookingdetailsList().isEmpty()){
-            throw new RuntimeException("not have booking detail");
+            return new CheckPolicy().builder()
+                    .Check(false)
+                    .message("NOPOLICY")
+                    .build();
         }
         LocalDate today=LocalDate.now();
         LocalDate checkInDate = booking.getBookingdetailsList().get(0).getCheckInDate();

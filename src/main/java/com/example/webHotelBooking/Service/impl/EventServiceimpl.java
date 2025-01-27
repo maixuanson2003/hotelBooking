@@ -150,15 +150,16 @@ public class EventServiceimpl implements EventService {
         LocalDate CheckDateEnd= LocalDate.parse(DateEnd,formatter);
         return datenow.isAfter(CheckDateEnd);
     }
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void autoSetStatusForEvent(){
-        LocalDate date=LocalDate.now();
-        List<Event> eventList=eventRepository.findAll();
-        for (Event event:eventList){
-            if(CheckStatusEvent(date,event.getDateEnd())){
-                event.setStatus(EvenStatus.DAKETTHUC.getMessage());
-            }
-        }
-    }
+//    @Scheduled(cron = "0 0 0 * * ?")
+//    public void autoSetStatusForEvent(){
+//        LocalDate date=LocalDate.now();
+//        List<Event> eventList=eventRepository.findAll();
+//        for (Event event:eventList){
+//            if(CheckStatusEvent(date,event.getDateEnd())){
+//                event.setStatus(EvenStatus.DAKETTHUC.getMessage());
+//                eventRepository.save(event);
+//            }
+//        }
+//    }
 
 }

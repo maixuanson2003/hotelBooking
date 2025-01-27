@@ -1,5 +1,5 @@
 package com.example.webHotelBooking.Service.impl;
-
+import java.util.Random;
 import com.example.webHotelBooking.DTO.Request.BookingRequest;
 import com.example.webHotelBooking.DTO.Request.RoombookRequest;
 import com.example.webHotelBooking.DTO.Response.BookingResponse;
@@ -13,6 +13,7 @@ import com.example.webHotelBooking.Enums.bookingStatus;
 import com.example.webHotelBooking.Exception.ResourceNotFoundException;
 import com.example.webHotelBooking.Repository.bookingChangeDetailsRepository;
 import com.example.webHotelBooking.Repository.bookingRepository;
+import com.example.webHotelBooking.Repository.HotelRepository;
 import com.example.webHotelBooking.Repository.bookingdetailsRepository;
 import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.BookingService;
@@ -32,10 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -48,6 +46,8 @@ public class BookingServiceImpl implements BookingService {
     }
     @Autowired
     private bookingRepository bookingRepository;
+    @Autowired
+    private HotelRepository hotelRepository;
     @Autowired
     private bookingDetailsService bookingDetailsService;
     @Autowired
@@ -134,6 +134,25 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<BookingResponse> GetBookingByHotel(Long HotelId) {
+        Hotel hotel=hotelRepository.findById(HotelId).orElseThrow(()->new RuntimeException("not found"));
+        List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
+        Set<booking> bookings=new HashSet<>();
+        for (HotelRoom hotelRoom:hotelRoomList){
+            List<bookingdetails> bookingList1=hotelRoom.getBookingdetails();
+            for (bookingdetails bookingdetails:bookingList1){
+                bookings.add(bookingdetails.getBooking());
+            }
+        }
+        List<BookingResponse> bookingResponseList=new ArrayList<>();
+        for (booking booking:bookings){
+            BookingResponse bookingResponse=new BookingResponse(booking);
+            bookingResponseList.add(bookingResponse);
+        }
+        return  bookingResponseList;
+    }
+
+    @Override
     public BookingResponse GetBookingById(String username, Long bookingId) {
         actor actor=userRepository.findByUsername(username);
         if (actor==null){
@@ -171,6 +190,8 @@ public class BookingServiceImpl implements BookingService {
         if (actor==null){
             throw new ResourceNotFoundException("not found");
         }
+        Random random = new Random();
+        Long code = (long) (100000 + random.nextInt(900000));
         List<booking> bookingList=actor.getBookings();
         for (booking booking:bookingList){
             if (booking.getId()==BookingId && booking.getStatus().equals(bookingStatus.ĐA_THANH_TOAN.getMessage())){
@@ -184,6 +205,7 @@ public class BookingServiceImpl implements BookingService {
                 boolean CheckStatus=hotelPolicyDetailService.CheckPolicyChangeQualifiled(booking.getId()).isCheck();
                 Hotel hotel=booking.getBookingdetailsList().get(0).getHotelRoom().getHotel();
                     bookingChangeDetails bookingChangeDetails=new bookingChangeDetails().builder()
+                            .id(code)
                             .Price(GetFeeChangeByHotel(hotel))
                             .checkOutDate(CheckoutDate)
                             .checkInDate(CheckInDate)

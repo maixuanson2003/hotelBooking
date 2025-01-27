@@ -27,7 +27,12 @@ public class bookingChangeDetailsDto {
         this.checkOutDate=bookingChangeDetails.getCheckOutDate();
         this.bookingId=bookingChangeDetails.getBooking().getId();
         this.BookingChangeId=bookingChangeDetails.getId();
-        this.hotelName=bookingChangeDetails.getBooking().getBookingdetailsList().get(0).getHotelRoom().getHotel().getNameHotel();
+        if (bookingChangeDetails.getBooking().getBookingdetailsList() != null
+                && !bookingChangeDetails.getBooking().getBookingdetailsList().isEmpty()) {
+            this.hotelName = bookingChangeDetails.getBooking().getBookingdetailsList().get(0).getHotelRoom().getHotel().getNameHotel();
+        } else {
+            this.hotelName = null;
+        }
         this.Price=bookingChangeDetails.getPrice();
         this.status=bookingChangeDetails.getStatus();
         this.Check=bookingChangeDetails.isChecks();

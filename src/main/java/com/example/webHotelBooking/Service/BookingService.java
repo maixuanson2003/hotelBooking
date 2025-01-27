@@ -14,6 +14,7 @@ public interface BookingService {
     public BookingResponse CreateBooking(BookingRequest bookingRequest,String username);
     public List<BookingResponse> GetAllBookingResponse();
     public List<BookingResponse> GetBookingByUser(String username);
+    public List<BookingResponse> GetBookingByHotel(Long HotelId);
     public BookingResponse GetBookingById(String username, Long bookingId);
     public MyApiResponse ChangeScheduleBooking(Long BookingId, LocalDate CheckoutDate, LocalDate CheckInDate, String username);
     public MyApiResponse CancelScheduleBooking(Long BookingId, String username, HttpServletRequest req) throws ServletException, IOException;

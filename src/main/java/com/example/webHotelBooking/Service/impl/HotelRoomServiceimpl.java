@@ -1,5 +1,7 @@
 package com.example.webHotelBooking.Service.impl;
 
+import com.example.webHotelBooking.DTO.Request.HotelRoomRequest;
+import com.example.webHotelBooking.DTO.Request.RoomFeatureDTO;
 import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
 import com.example.webHotelBooking.Entity.*;
 import com.example.webHotelBooking.Enums.HotelStatus;
@@ -9,6 +11,7 @@ import com.example.webHotelBooking.Repository.HotelRoomFeaturesRepository;
 import com.example.webHotelBooking.Repository.HotelRoomRepository;
 import com.example.webHotelBooking.Repository.bookingdetailsRepository;
 import com.example.webHotelBooking.Service.HotelRoomService;
+import com.example.webHotelBooking.Service.RoomFeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -40,6 +43,8 @@ public class HotelRoomServiceimpl implements HotelRoomService {
     @Autowired
     private HotelRoomFeaturesRepository RoomFeaturRepo;
     @Autowired
+    private RoomFeatureService roomFeatureService;
+    @Autowired
     private HotelRepository hotelRepository;
     @Autowired
     private JwtDecoder jwtDecoder;
@@ -61,20 +66,103 @@ public class HotelRoomServiceimpl implements HotelRoomService {
                 .build();
         hotelRoomRepository.save(hotelRoom);
     }
+    private void MappingHotelRoomFeature( RoomFeatureDTO roomFeatureDTO,Long HotelRoomId){
+        HotelRoom hotelRoo=hotelRoomRepository.findById(HotelRoomId).orElseThrow(()->new RuntimeException("not found"));
+       HotelRoomFeatures hotelRoomFeatures=RoomFeaturRepo.findByNameFeatures(roomFeatureDTO.getNameFeatures());
+       List<HotelRoomFeatures> hotelRoomFeaturesList=hotelRoo.getHotelRoomFeaturesList();
+       if(hotelRoomFeaturesList==null){
+           hotelRoomFeaturesList=new ArrayList<>();
+       }
+       List<HotelRoom> hotelRoomList=hotelRoomFeatures.getHotelRoom();
+       hotelRoomFeaturesList.add( hotelRoomFeatures);
+       hotelRoomList.add(hotelRoo);
+       RoomFeaturRepo.save(hotelRoomFeatures);
+       hotelRoomRepository.save(hotelRoo);
+    }
+    private void MappingHotelRoomFeatureUpdate(String request,Long HotelRoomId){
+        HotelRoom hotelRoo=hotelRoomRepository.findById(HotelRoomId).orElseThrow(()->new RuntimeException("not found"));
+        HotelRoomFeatures hotelRoomFeatures=RoomFeaturRepo.findByNameFeatures(request);
+        List<HotelRoomFeatures> hotelRoomFeaturesList=hotelRoo.getHotelRoomFeaturesList();
+        if(hotelRoomFeaturesList==null){
+            hotelRoomFeaturesList=new ArrayList<>();
+        }
+        List<HotelRoom> hotelRoomList=hotelRoomFeatures.getHotelRoom();
+        hotelRoomFeaturesList.add( hotelRoomFeatures);
+        hotelRoomList.add(hotelRoo);
+        RoomFeaturRepo.save(hotelRoomFeatures);
+        hotelRoomRepository.save(hotelRoo);
+    }
 
     @Override
-    public void UpdateRoomHotel(HotelRoomDTO hotelRoomDTO, Long Hotelid, Long roomId) {
-        Hotel hotel = hotelRepository.findById(Hotelid).orElseThrow(() -> new RuntimeException("not found"));
+    public void CreateRoomHotelForHotel(HotelRoomRequest request, Long HotelID) {
+        Hotel hotel = hotelRepository.findById(HotelID).orElseThrow(() -> new RuntimeException("not found"));
+        HotelRoom hotelRoom = new HotelRoom().builder()
+                .AmountRoom(request.getAmount())
+                .numbeRoomLast(request.getAmount())
+                .typeRoom(request.getTypeRoom())
+                .hotel(hotel)
+                .pricePerNight(request.getPricePerNight())
+                .numberPeople(request.getNumberPeople())
+                .numberOfBooking(0)
+                .image(request.getImage())
+                .status(HotelStatus.CONPHONG.getMessage())
+                .build();
+       HotelRoom hotelRoom1= hotelRoomRepository.save(hotelRoom);
+       List<RoomFeatureDTO> roomFeatureDTOList=request.getRoomFeatureDTOS();
+       for (RoomFeatureDTO c:roomFeatureDTOList){
+           MappingHotelRoomFeature(c,hotelRoom1.getId());
+       }
+    }
+
+    @Override
+    @Transactional
+    public void UpdateRoomHotel(HotelRoomRequest request, Long Hotelid, Long roomId) {
+        Hotel hotel = hotelRepository.findById(Hotelid)
+                .orElseThrow(() -> new RuntimeException("Hotel not found"));
+
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
+        boolean roomFound = false; // Biến kiểm tra xem phòng có tồn tại không
+
         for (HotelRoom hotelRoom : hotelRoomList) {
-            if (hotelRoom.getId() == roomId) {
-                hotelRoom.setAmountRoom(hotelRoomDTO.getAmount());
-                hotelRoom.setTypeRoom(hotelRoomDTO.getTypeRoom());
+            if (hotelRoom.getId().equals(roomId)) {
+                roomFound = true;
+
+                // Cập nhật thông tin phòng
+                hotelRoom.setAmountRoom(request.getAmount());
+                hotelRoom.setNumbeRoomLast(request.getAmount());
+                hotelRoom.setImage(request.getImage());
+                hotelRoom.setStatus(request.getStatus());
+                hotelRoom.setTypeRoom(request.getTypeRoom());
+                List<RoomFeatureDTO> roomFeatureDTOS = request.getRoomFeatureDTOS();
+                List<HotelRoomFeatures> hotelRoomFeaturesList = hotelRoom.getHotelRoomFeaturesList();
+                if (hotelRoomFeaturesList != null) {
+                    List<String> featureNamesToDelete = new ArrayList<>();
+                    for (HotelRoomFeatures roomFeature : hotelRoomFeaturesList) {
+                        featureNamesToDelete.add(roomFeature.getNameFeatures());
+                    }
+                    for (String featureName : featureNamesToDelete) {
+                        roomFeatureService.deleteHotelRoomFeatur(hotelRoom.getId(), Hotelid, featureName);
+                    }
+                }
+                if (roomFeatureDTOS != null && !roomFeatureDTOS.isEmpty()) {
+                    System.out.println("Processing new features...");
+                    for (RoomFeatureDTO feature : roomFeatureDTOS) {
+                        MappingHotelRoomFeatureUpdate(feature.getNameFeatures(), hotelRoom.getId());
+                    }
+                }
+
+                // Lưu lại phòng đã cập nhật
                 hotelRoomRepository.save(hotelRoom);
                 break;
             }
         }
+
+        if (!roomFound) {
+            throw new RuntimeException("Room not found");
+        }
     }
+
+
 
     @Override
     public void DeleteRoomHotelByRoomType(Long HotelId, String roomType) {
@@ -87,6 +175,11 @@ public class HotelRoomServiceimpl implements HotelRoomService {
             }
         }
         List<HotelRoomFeatures> hotelRoomFeaturesList = hotelRooms.getHotelRoomFeaturesList();
+        for (HotelRoomFeatures hotelRoomFeatures :hotelRoomFeaturesList){
+            List<HotelRoom> hotelRoomList1=hotelRoomFeatures.getHotelRoom();
+            hotelRoomList1.remove(hotelRooms);
+
+        }
         hotelRoomFeaturesList.clear();
         HotelRoom hotelRoomSave = hotelRoomRepository.save(hotelRooms);
         hotelRoomList.remove(hotelRooms);
@@ -114,9 +207,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList = new ArrayList<>();
         for (HotelRoom hotelRoom : hotelRoomList) {
-            HotelRoomDTO hotelRoomDTO = new HotelRoomDTO( hotelRoom.getId(),
-                    hotelRoom.getNumbeRoomLast(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-            );
+            HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(hotelRoom);
             hotelRoomDTOList.add(hotelRoomDTO);
         }
         return hotelRoomDTOList;
@@ -171,9 +262,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition1) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-                    );
+                    HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(hotelRoom);
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
             }
@@ -181,9 +270,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition2) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom) && this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-                    );
+                    HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(hotelRoom);
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
             }
@@ -191,9 +278,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition3) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckCoditionResponse(NameRoomFeature, hotelRoom) && this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom)) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-                    );
+                    HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(hotelRoom);
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
             }
@@ -201,9 +286,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         if (CheckCodition4) {
             for (HotelRoom hotelRoom : hotelRoomList) {
                 if (this.CheckResponseByPrice(priceStart, PriceEnd, hotelRoom) ) {
-                    HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
-                            hotelRoom.getAmountRoom(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-                    );
+                    HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(hotelRoom);
                     hotelRoomDTOList.add(hotelRoomDTO);
                 }
             }
@@ -220,9 +303,7 @@ public class HotelRoomServiceimpl implements HotelRoomService {
         List<HotelRoom> hotelRoomList = hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList = new ArrayList<>();
         for (HotelRoom hotelRoom : hotelRoomList) {
-            HotelRoomDTO hotelRoomDTO = new HotelRoomDTO(hotelRoom.getId(),
-                    hotelRoom.getNumbeRoomLast(), hotelRoom.getTypeRoom(), hotelRoom.getStatus(), hotelRoom.getNumberPeople(), hotelRoom.getPricePerNight(), hotelRoom.getImage()
-            );
+            HotelRoomDTO hotelRoomDTO=new HotelRoomDTO(hotelRoom);
             hotelRoomDTOList.add(hotelRoomDTO);
         }
         return hotelRoomDTOList;

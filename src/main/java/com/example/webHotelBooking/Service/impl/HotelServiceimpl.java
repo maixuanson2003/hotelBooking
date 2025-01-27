@@ -88,7 +88,7 @@ public class HotelServiceimpl implements HotelService {
         List<HotelRoom> hotelRoomList=hotel.getHotelRoomList();
         List<HotelRoomDTO> hotelRoomDTOList =new ArrayList<>();
         for (HotelRoom hotelRoom:hotelRoomList){
-            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO( hotelRoom.getId(), hotelRoom.getAmountRoom(),hotelRoom.getTypeRoom(),hotelRoom.getStatus(),hotelRoom.getPricePerNight(),hotelRoom.getNumberPeople(),hotelRoom.getImage());
+            HotelRoomDTO hotelRoomDTO =new HotelRoomDTO(hotelRoom);
             hotelRoomDTOList.add(hotelRoomDTO);
         }
         List<HotelFacilityDetails> hotelFacilityList=hotel.getHotelFacilityDetailsList();

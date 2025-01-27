@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @Builder
 public class bookingChangeDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name="createAt")
     private  String createAt;

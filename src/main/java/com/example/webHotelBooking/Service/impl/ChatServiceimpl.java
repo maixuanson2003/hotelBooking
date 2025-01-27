@@ -11,6 +11,7 @@ import com.example.webHotelBooking.Repository.userRepository;
 import com.example.webHotelBooking.Service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ public class ChatServiceimpl implements ChatService {
                 .create_at(LocalDate.now().toString())
                 .userRceive(message.getUserRceive())
                 .build();
+        messagingTemplate.convertAndSend("/topic/coversation/" +  message.getConversationId().toString(), message);
         chatRepository.save(chat);
         return message;
     }
@@ -89,5 +91,9 @@ public class ChatServiceimpl implements ChatService {
     @Override
     public void DeleteMessageByid(Long id) {
         chatRepository.deleteById(id);
+    }
+    @Scheduled(fixedDelay = 1000)
+    private void send() {
+        messagingTemplate.convertAndSend("/Topic/Conversation/" +  1, "HeLoo");
     }
 }

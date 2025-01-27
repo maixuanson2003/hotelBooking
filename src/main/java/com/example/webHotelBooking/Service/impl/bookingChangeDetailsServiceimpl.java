@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 @Service
 public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsService {
     @Autowired
@@ -43,11 +45,14 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
         List<booking> bookingList = actor.getBookings();
         for (booking booking : bookingList) {
             if (booking.getId() == bookingid) {
+                System.out.println("go");
                 List<bookingChangeDetails> bookingChangeDetails = booking.getBookingChangeDetailsList();
                 for (bookingChangeDetails bookingChangeDetails1 : bookingChangeDetails) {
-                    if (bookingChangeDetails1.getId() == booKingChangeId) {
+                    System.out.println(bookingChangeDetails1.getId());
+                    if (Objects.equals(bookingChangeDetails1.getId(), booKingChangeId)) {
                         switch (status) {
                             case "TUCHOI":
+                                System.out.println("go");
                                 bookingChangeDetails1.setStatus(status);
                                 bookingChangeDetailsRepository.save(bookingChangeDetails1);
                                 String Content = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " + " Từ Chối yêu cầu";
@@ -56,6 +61,7 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
                                 break;
                             case "XACNHAN":
                                 if(!Check){
+                                    System.out.println("go");
                                     bookingChangeDetails1.setStatus(bookingStatus.CHUA_THANH_TOAN.getMessage());
                                     bookingChangeDetailsRepository.save(bookingChangeDetails1);
                                     String Content2 = "Đơn" + " " + booking.getId().toString() + " " + "của" + " " + booking.getActor().getUsername() + " " + "ngày check in" + bookingChangeDetails1.getCheckInDate().toString() + " ngày Check out" + " " + bookingChangeDetails1.getCheckOutDate().toString() + " " +"/n"+
@@ -63,6 +69,7 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
                                     String userEmail2 = bookingChangeDetails1.getBooking().getActor().getEmail();
                                     emailServiceimpl.sendAsyncEmail(userEmail2, "xử lý yêu cầu", Content2);
                                 }else {
+                                    System.out.println("go");
                                     bookingChangeDetails1.setStatus(status);
                                     bookingChangeDetailsRepository.save(bookingChangeDetails1);
                                     List<bookingdetails> bookingdetailsList = booking.getBookingdetailsList();
@@ -140,7 +147,11 @@ public class bookingChangeDetailsServiceimpl implements BookingChangeDetailsServ
         List<bookingChangeDetails> bookingChangeDetails = bookingChangeDetailsRepository.findAll();
         List<bookingChangeDetailsDto> bookingChangeDetailsDtos = new ArrayList<>();
         for (bookingChangeDetails bookingChangeDetails1 : bookingChangeDetails) {
-            if (bookingChangeDetails1.getBooking().getBookingdetailsList().get(0).getId() == HotelId) {
+            if (bookingChangeDetails1.getBooking().getBookingdetailsList() == null ||
+                    bookingChangeDetails1.getBooking().getBookingdetailsList().isEmpty()) {
+                continue;
+            }
+            if (bookingChangeDetails1.getBooking().getBookingdetailsList().get(0).getHotelRoom().getHotel().getId() == HotelId) {
                 bookingChangeDetailsDto bookingChangeDetailsDto = new bookingChangeDetailsDto(bookingChangeDetails1);
                 bookingChangeDetailsDtos.add(bookingChangeDetailsDto);
             }

@@ -12,7 +12,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 public class Websocket implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/Topic");
+        config.enableSimpleBroker("/topic","/queue");
         config.enableSimpleBroker("/updateHotel");
         config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/actor");
@@ -21,8 +21,7 @@ public class Websocket implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/realtime")
-                .setAllowedOrigins("http://localhost:3000")
-                .addInterceptors(new HttpSessionHandshakeInterceptor())
+                .setAllowedOriginPatterns("http://localhost:3000","http://localhost:4000")
                 .withSockJS();
     }
 }

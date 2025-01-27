@@ -44,7 +44,7 @@ public class HotelRoom {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<bookingdetails> bookingdetails = new ArrayList<>();
     ;
-    @ManyToMany(mappedBy = "HotelRoom", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "HotelRoom")
     private List<HotelRoomFeatures> hotelRoomFeaturesList = new ArrayList<>();
     ;
 

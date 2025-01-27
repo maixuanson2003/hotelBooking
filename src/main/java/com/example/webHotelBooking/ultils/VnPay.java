@@ -25,26 +25,22 @@ import java.util.*;
 
 public class VnPay extends HttpServlet {
     public static PaymentDTO CreatePay(PaymentRequest payment,String action, HttpServletRequest req) throws UnsupportedEncodingException, ParseException {
-        PaymentDTO paymentDTO=new PaymentDTO();
 
+        PaymentDTO paymentDTO=new PaymentDTO();
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
         long amount = payment.getPrice()*100;
         String bankCode = req.getParameter("bankCode");
-
         String vnp_TxnRef = payment.getBookingId().toString();
         String vnp_IpAddr = VnPayConfig.getIpAddress(req);
-
         String vnp_TmnCode = VnPayConfig.vnp_TmnCode;
-
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", "VND");
-
         if (bankCode != null && !bankCode.isEmpty()) {
             vnp_Params.put("vnp_BankCode", bankCode);
         }
@@ -113,21 +109,15 @@ public class VnPay extends HttpServlet {
         if(action=="CHANGE"){
             vnp_TxnRef=payment.getBookingChangeDetails().getId().toString();
         }
-
         String vnp_OrderInfo = "Kiem tra ket qua GD OrderId:" + vnp_TxnRef;
-        //String vnp_TransactionNo = req.getParameter("transactionNo");
-
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern(" yyyy-MM-dd");
-
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
         cld.setTime(payment.getCreate_at());
         String vnp_TransDate = formatter.format(cld.getTime());
         String vnp_IpAddr = VnPayConfig.getIpAddress(req);
-
         JsonObject  vnp_Params = new JsonObject();
-
         vnp_Params.addProperty("vnp_RequestId", vnp_RequestId);
         vnp_Params.addProperty("vnp_Version", vnp_Version);
         vnp_Params.addProperty("vnp_Command", vnp_Command);
@@ -169,7 +159,6 @@ public class VnPay extends HttpServlet {
         JSONObject json = new JSONObject(response.toString());
         String res_TransactionStatus = (String) json.get("vnp_TransactionStatus");
         String res_TransactionNo=(String) json.get("vnp_TransactionNo");
-
         if (res_TransactionStatus.equals("00")) {
             paymentDTO.setCheck(true);
             paymentDTO.setTransCode(res_TransactionNo);

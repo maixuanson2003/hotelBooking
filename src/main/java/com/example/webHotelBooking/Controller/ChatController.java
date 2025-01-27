@@ -6,6 +6,7 @@ import com.example.webHotelBooking.Service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +26,8 @@ public class ChatController {
     }
     @MessageMapping("/realtime/Conversation/{ConversationId}")
     public void sendGroupMessage(@DestinationVariable Integer ConversationId, ChatRequest message) {
-        // Send message to all group members
-        messagingTemplate.convertAndSend("/Topic/Conversation/" +  ConversationId.toString(), message);
+
+       messagingTemplate.convertAndSend("/topic/coversation/"+ConversationId.toString(),message);
     }
 
     @GetMapping("/conversations")

@@ -10,6 +10,7 @@ import com.example.webHotelBooking.Repository.HotelRepository;
 import com.example.webHotelBooking.Repository.HotelRoomFeaturesRepository;
 import com.example.webHotelBooking.Repository.HotelRoomRepository;
 import com.example.webHotelBooking.Service.RoomFeatureService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,6 @@ public class RoomFeatureServiceImpl implements RoomFeatureService {
             hotelRoomList.add(hotelRoom.get());
             HotelRoomFeatures newFeature = new HotelRoomFeatures().builder()
                     .nameFeatures(roomFeatureDTO.getNameFeatures())
-                    .description(roomFeatureDTO.getDescription())
                     .HotelRoom(hotelRoomList)
                     .build();
             RoomFeaturRepo.save(newFeature);
@@ -58,6 +58,19 @@ public class RoomFeatureServiceImpl implements RoomFeatureService {
     }
 
     @Override
+    public void addHotelRoomFeatureAll(RoomFeatureDTO roomFeatureDTO) {
+        HotelRoomFeatures hotelRoomFeatures=RoomFeaturRepo.findByNameFeatures(roomFeatureDTO.getNameFeatures());
+        if(hotelRoomFeatures!=null){
+            throw new RuntimeException("duplicate");
+        }
+        HotelRoomFeatures newFeature = new HotelRoomFeatures().builder()
+                .nameFeatures(roomFeatureDTO.getNameFeatures())
+                .build();
+        RoomFeaturRepo.save(newFeature);
+    }
+
+    @Override
+    @Transactional
     public void deleteHotelRoomFeatur(Long roomId, Long HotelId, String roomFeatureName) {
         HotelRoom hotelRoom = hotelRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel room not found"));
@@ -97,7 +110,6 @@ public class RoomFeatureServiceImpl implements RoomFeatureService {
                 for (HotelRoomFeatures hotelRoomFeatures:hotelRoomFeaturesList){
                     RoomFeatureDTO roomFeatureDTO=new RoomFeatureDTO().builder()
                             .nameFeatures(hotelRoomFeatures.getNameFeatures())
-                            .description(hotelRoomFeatures.getDescription())
                             .build();
                     roomFeatureDTOS.add(roomFeatureDTO);
 
@@ -114,7 +126,6 @@ public class RoomFeatureServiceImpl implements RoomFeatureService {
         for (HotelRoomFeatures hotelRoomFeatures:hotelRoomFeaturesList){
             RoomFeatureDTO roomFeatureDTO=new RoomFeatureDTO().builder()
                     .nameFeatures(hotelRoomFeatures.getNameFeatures())
-                    .description(hotelRoomFeatures.getDescription())
                     .build();
             roomFeatureDTOS.add(roomFeatureDTO);
         }

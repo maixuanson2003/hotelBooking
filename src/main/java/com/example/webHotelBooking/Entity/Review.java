@@ -8,7 +8,7 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="ReviewService")
+@Table(name="Review")
 @Getter
 @Setter
 @NoArgsConstructor

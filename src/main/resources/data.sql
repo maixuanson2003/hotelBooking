@@ -92,8 +92,6 @@ CREATE TABLE IF NOT EXISTS hotel (
    email varchar(255) DEFAULT NULL,
    hotline varchar(255) DEFAULT NULL,
    total_room int DEFAULT NULL,
-   cancelfee bigint DEFAULT NULL,
-   changefee bigint DEFAULT NULL,
    name_hotel varchar(255) DEFAULT NULL,
    star_point int DEFAULT NULL,
    account_hotel_id bigint DEFAULT NULL,
@@ -168,7 +166,6 @@ CREATE TABLE IF NOT EXISTS hotel_room (
 );
 CREATE TABLE IF NOT EXISTS hotel_room_features (
    id bigint NOT NULL AUTO_INCREMENT,
-   description varchar(255) DEFAULT NULL,
    name_features varchar(255) DEFAULT NULL,
    PRIMARY KEY (id)
 ) ;
@@ -201,6 +198,8 @@ CREATE TABLE IF NOT EXISTS review (
    description varchar(255) DEFAULT NULL,
    star_point int NOT NULL, -- Đã sửa lỗi chính tả từ "star_pont" thành "star_point"
    hotel_id bigint NOT NULL,
+   created_at DATETIME(6) DEFAULT NULL,
+   status VARCHAR(255) DEFAULT NULL,
    user_id bigint NOT NULL,
    PRIMARY KEY (id),
    KEY FK_hotel_id (hotel_id), -- Đổi tên cho dễ hiểu

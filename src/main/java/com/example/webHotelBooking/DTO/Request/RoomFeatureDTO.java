@@ -8,8 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RoomFeatureDTO {
-
     private String nameFeatures;
-
-    private String description;
 }

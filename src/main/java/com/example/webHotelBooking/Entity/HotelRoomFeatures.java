@@ -20,14 +20,11 @@ public class HotelRoomFeatures {
     private Long id;
     @Column(name = "nameFeatures")
     private String nameFeatures;
-    @Column(name = "description")
-    private String description;
     @ManyToMany
     @JoinTable(
             name = " HotelRoomFeatures_Room",
             joinColumns = @JoinColumn(name = "HotelRoomFeatures_Id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "HotelRoom_Id", referencedColumnName = "id")
     )
-    @JdbcTypeCode(SqlTypes.JSON)
     private List<HotelRoom> HotelRoom;
 }

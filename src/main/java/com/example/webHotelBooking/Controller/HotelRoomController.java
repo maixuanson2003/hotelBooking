@@ -1,4 +1,5 @@
 package com.example.webHotelBooking.Controller;
+import com.example.webHotelBooking.DTO.Request.HotelRoomRequest;
 import com.example.webHotelBooking.DTO.Response.HotelRoomDTO;
 import com.example.webHotelBooking.Service.HotelRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,19 @@ public class HotelRoomController {
         hotelRoomService.CreateRoomHotel(hotelRoomDTO, hotelId);
         return ResponseEntity.ok("Hotel room created successfully.");
     }
+    @PostMapping("/create/forhotel/{hotelId}")
+    public ResponseEntity<String> createRoomHotelForHotel(@PathVariable Long hotelId,
+                                                  @RequestBody HotelRoomRequest hotelRoomRequest) {
+        hotelRoomService.CreateRoomHotelForHotel(hotelRoomRequest,hotelId);
+        return ResponseEntity.ok("Hotel room created successfully.");
+    }
 
     // 2. Cập nhật phòng khách sạn
-    @PutMapping("/update/{roomId}")
+    @PutMapping("/update/{hotelId}/{roomId}")
     public ResponseEntity<String> updateRoomHotel(@PathVariable("hotelId") Long hotelId,
                                                   @PathVariable("roomId") Long roomId,
-                                                  @RequestBody HotelRoomDTO hotelRoomDTO) {
-        hotelRoomService.UpdateRoomHotel(hotelRoomDTO, hotelId, roomId);
+                                                  @RequestBody HotelRoomRequest request) {
+        hotelRoomService.UpdateRoomHotel(request, hotelId, roomId);
         return ResponseEntity.ok("Hotel room updated successfully.");
     }
 

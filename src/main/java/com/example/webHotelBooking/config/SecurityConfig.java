@@ -27,20 +27,25 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/webjars/**"};
     private final String[] Conversation={"/conversations/API/user"};
+    private  final String[] Booking={"/api/bookings/all"};
+    private final String[] PostUser={"/api/actors/create"};
+    private final String[] DeleteUser={"/api/actors/id/{id}","/api/actors/username/{username}"};
     private final String[] Chat={"/chat/API/sendMessage"};
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(swaggerURL).permitAll()
-                                .requestMatchers(Conversation).hasAuthority("SCOPE_USER")
-                                .requestMatchers(Chat).hasAnyAuthority("SCOPE_USER", "SCOPE_ADMIN")
+                                .requestMatchers(HttpMethod.GET,Booking).hasAuthority( "SCOPE_ADMIN")
+                                .requestMatchers(HttpMethod.GET,Conversation).hasAnyAuthority("SCOPE_USER", "SCOPE_ADMIN")
+                                .requestMatchers(HttpMethod.GET,Chat).hasAnyAuthority("SCOPE_USER", "SCOPE_ADMIN")
+                                .requestMatchers(HttpMethod.DELETE,DeleteUser).hasAuthority("SCOPE_ADMIN")
+//                                .requestMatchers(HttpMethod.POST,PostUser).hasAuthority("SCOPE_ADMIN")
 //                        .requestMatchers()
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/checkToken").permitAll()
                         .anyRequest().permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
                 );
